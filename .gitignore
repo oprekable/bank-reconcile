@@ -47,3 +47,8 @@ go.work.sum
 /mem.pprof
 
 
+/block.pprof
+/goroutine.pprof
+/mutex.pprof
+/thread.pprof
+/trace.pprof

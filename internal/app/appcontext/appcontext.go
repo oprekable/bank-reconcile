@@ -14,7 +14,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 
-	"github.com/pkg/profile"
+	"github.com/bygui86/multi-profile/v2"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -72,20 +72,33 @@ func (a *AppContext) GetComponents() *component.Components {
 func (a *AppContext) Start() {
 	atexit.Add(a.Shutdown)
 	a.eg.Go(func() error {
-		var profiler interface{ Stop() }
+		var profiler map[string]interface{ Stop() }
 		if a.components.Config.IsProfilerActive {
+			profiler = make(map[string]interface{ Stop() })
 			dir, _ := os.Getwd()
-			profiler = profile.Start(
-				profile.CPUProfile,
-				profile.BlockProfile,
-				profile.ClockProfile,
-				profile.GoroutineProfile,
-				profile.MutexProfile,
-				profile.MemProfile,
-				profile.MemProfileAllocs,
-				profile.MemProfileHeap,
-				profile.ProfilePath(dir),
-			)
+
+			profiler["CPUProfile"] = profile.CPUProfile(
+				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+			).Start()
+
+			profiler["BlockProfile"] = profile.BlockProfile(
+				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+			).Start()
+
+			profiler["GoroutineProfile"] = profile.GoroutineProfile(
+				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+			).Start()
+
+			profiler["MutexProfile"] = profile.MutexProfile(
+				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true}).Start()
+
+			profiler["MemProfile"] = profile.MemProfile(
+				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+			).Start()
+
+			profiler["TraceProfile"] = profile.TraceProfile(
+				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+			).Start()
 		}
 
 		log.Msg(a.GetCtx(), "[start] application")
@@ -101,8 +114,10 @@ func (a *AppContext) Start() {
 			atexit.AtExit()
 
 			if context.Cause(a.ctx).Error() == "done" {
-				if profiler != nil {
-					profiler.Stop()
+				for k := range profiler {
+					if profiler[k] != nil {
+						profiler[k].Stop()
+					}
 				}
 
 				os.Exit(0)

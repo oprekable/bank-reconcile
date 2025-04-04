@@ -4,11 +4,11 @@ type KeyType string
 
 const (
 	// AppName ...
-	AppName string = "github.com/oprekable/bank-reconcile"
+	AppName string = "bank-reconcile"
 
 	// AppDescShort ...
-	AppDescShort string = "Simple Reconciliation Service"
+	AppDescShort string = "Simple Bank Reconciliation command line tool"
 
 	// AppDescLong ...
-	AppDescLong string = `Simple Reconciliation Service`
+	AppDescLong string = `Simple Bank Reconciliation command line tool`
 )

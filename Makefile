@@ -68,7 +68,7 @@ ifeq ($(UNAME), Linux)
 	base_args="--showlog=true --listbank=bca,bni,mandiri,bri,danamon --from=$$(date -d '-10 day' '+%Y-%m-%d') --to=$$(date '+%Y-%m-%d')"
 endif
 
-process_args="process ${base_args} -i=true -g=true -s=/tmp/sample/system -b=/tmp/sample/bank -r=/tmp/report"
+process_args="process ${base_args} -i=true -g=false -s=/tmp/sample/system -b=/tmp/sample/bank -r=/tmp/report"
 #process_args="process ${base_args} -g=true"
 #process_args="process ${base_args} -g=false"
 sample_args="sample ${base_args} -i=true --percentagematch=100 --amountdata=100000 -g=true -s=/tmp/sample/system -b=/tmp/sample/bank"
@@ -110,3 +110,23 @@ go-env:
 .PHONY: release-skip-publish
 release-skip-publish: download install-tools generate
 	@goreleaser release --skip-publish --snapshot --clean
+
+.PHONY: check-profiler-block
+check-profiler-block:
+	@go tool pprof -http=:8080 block.pprof
+
+.PHONY: check-profiler-cpu
+check-profiler-cpu:
+	@go tool pprof -http=:8080 cpu.pprof
+
+.PHONY: check-profiler-memory
+check-profiler-memory:
+	@go tool pprof -http=:8080 mem.pprof
+
+.PHONY: check-profiler-mutex
+check-profiler-mutex:
+	@go tool pprof -http=:8080 mutex.pprof
+
+.PHONY: check-profiler-trace
+check-profiler-trace:
+	@go tool trace -http=:8080 trace.pprof

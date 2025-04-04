@@ -7,6 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.37.0
 	github.com/aaronjan/hunch v1.1.3
 	github.com/blockloop/scan/v2 v2.5.0
+	github.com/bygui86/multi-profile/v2 v2.1.0
 	github.com/creasty/defaults v1.8.0
 	github.com/driftprogramming/godotenv v1.1.0
 	github.com/dustin/go-humanize v1.0.1
@@ -17,7 +18,6 @@ require (
 	github.com/jszwec/csvutil v1.10.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pkg/errors v0.9.1
-	github.com/pkg/profile v1.7.0
 	github.com/rs/zerolog v1.34.0
 	github.com/samber/lo v1.49.1
 	github.com/schollz/progressbar/v3 v3.18.0
@@ -81,7 +81,6 @@ require (
 	github.com/ettle/strcase v0.2.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
-	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/firefart/nonamedreturns v1.0.5 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/fzipp/gocyclo v0.6.0 // indirect
@@ -108,7 +107,6 @@ require (
 	github.com/golangci/revgrep v0.8.0 // indirect
 	github.com/golangci/unconvert v0.0.0-20240309020433-c5143eacb3ed // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
 	github.com/google/subcommands v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gordonklaus/ineffassign v0.1.0 // indirect
