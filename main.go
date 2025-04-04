@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"embed"
+
+	"github.com/oprekable/bank-reconcile/cmd"
+)
+
+//go:embed all:embeds
+var embedFS embed.FS
 
 func main() {
-	fmt.Println("Hello World")
+	cmd.Execute(&embedFS)
 }

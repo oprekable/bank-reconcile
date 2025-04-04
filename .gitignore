@@ -32,3 +32,18 @@ go.work.sum
 # env file
 .env
 
+
+.go/
+.go-cache/
+/dist
+/bank-reconcile
+/*.db
+/reconciliation.db-shm
+/reconciliation.db-wal
+/sample.db-shm
+/sample.db-wal
+/report.json
+/cpu.pprof
+/mem.pprof
+
+

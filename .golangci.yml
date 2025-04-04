@@ -1,0 +1,325 @@
+run:
+  timeout: 5m
+
+linters:
+  disable-all: true
+
+  enable:
+    - asciicheck
+    - bidichk
+    - decorder
+    - durationcheck
+    #    - execinquery
+    - gofmt
+    - goheader
+    - goimports
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - grouper
+    - importas
+    - ineffassign
+    - loggercheck
+    - nosprintfhostport
+    - reassign
+    #    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - tagalign
+    - testableexamples
+    - typecheck
+    - revive
+    - unconvert
+    - unused
+    - whitespace
+
+  fast: true
+
+linters-settings:
+  gosec:
+    excludes:
+      - G101 # Look for hard coded credentials
+      - G102 # Bind to all interfaces
+      - G109 # Potential Integer overflow made by strconv.Atoi result conversion to int16/32
+      - G112 # Potential slowloris attack
+      - G114 # Use of net/http serve function that has no support for setting timeouts
+      - G306 # Poor file permissions used when writing to a new file
+      - G307 # Deferring a method which returns an error
+
+  gosimple:
+    checks:
+      - all
+      - -S1000 # Use plain channel send or receive instead of single-case select
+      - -S1016 # Use a type conversion instead of manually copying struct fields
+      - -S1034 # Use result of type assertion to simplify cases
+
+  govet:
+    enable-all: true
+    disable:
+      - copylocks
+      - deepequalerrors
+      - fieldalignment
+      - shadow
+      - unusedwrite
+      - sigchanyzer
+      - loopclosure
+
+  revive:
+    rules:
+      - name: argument-limit
+        severity: warning
+        disabled: true
+        arguments: [ 4 ]
+      - name: atomic
+        severity: warning
+        disabled: true
+      - name: banned-characters
+        severity: warning
+        disabled: true
+        arguments: [ "Ω", "Σ", "σ", "7" ]
+      - name: bare-return
+        severity: warning
+        disabled: true
+      - name: blank-imports
+        severity: warning
+        disabled: true
+      - name: bool-literal-in-expr
+        severity: warning
+        disabled: true
+      - name: call-to-gc
+        severity: warning
+        disabled: true
+      - name: cognitive-complexity
+        severity: warning
+        disabled: true
+        arguments: [ 7 ]
+      - name: comment-spacings
+        severity: warning
+        disabled: true
+        arguments:
+          - mypragma
+          - otherpragma
+      - name: confusing-naming
+        severity: warning
+        disabled: true
+      - name: confusing-results
+        severity: warning
+        disabled: true
+      - name: constant-logical-expr
+        severity: warning
+        disabled: true
+      - name: context-as-argument
+        severity: warning
+        disabled: true
+        arguments:
+          - allowTypesBefore: "*testing.T,*github.com/user/repo/testing.Harness"
+      - name: context-keys-type
+        severity: warning
+        disabled: true
+      - name: cyclomatic
+        severity: warning
+        disabled: true
+        arguments: [ 3 ]
+      - name: datarace
+        severity: warning
+        disabled: true
+      - name: deep-exit
+        severity: warning
+        disabled: true
+      - name: defer
+        severity: warning
+        disabled: true
+        arguments:
+          - [ "call-chain", "loop" ]
+      - name: dot-imports
+        severity: warning
+        disabled: true
+      - name: duplicated-imports
+        severity: warning
+        disabled: false
+      - name: early-return
+        severity: warning
+        disabled: true
+      - name: empty-block
+        severity: warning
+        disabled: true
+      - name: empty-lines
+        severity: warning
+        disabled: false
+      - name: error-naming
+        severity: warning
+        disabled: false
+      - name: error-return
+        severity: warning
+        disabled: false
+      - name: error-strings
+        severity: warning
+        disabled: true
+      - name: errorf
+        severity: warning
+        disabled: true
+      - name: exported
+        severity: warning
+        disabled: true
+        arguments:
+          - "checkPrivateReceivers"
+          - "sayRepetitiveInsteadOfStutters"
+      - name: file-header
+        severity: warning
+        disabled: true
+        arguments:
+          - This is the text that must appear at the top of source files.
+      - name: flag-parameter
+        severity: warning
+        disabled: true
+      - name: function-result-limit
+        severity: warning
+        disabled: true
+        arguments: [ 2 ]
+      - name: function-length
+        severity: warning
+        disabled: true
+        arguments: [ 10, 0 ]
+      - name: get-return
+        severity: warning
+        disabled: true
+      - name: identical-branches
+        severity: warning
+        disabled: true
+      - name: if-return
+        severity: warning
+        disabled: false
+      - name: increment-decrement
+        severity: warning
+        disabled: true
+      - name: indent-error-flow
+        severity: warning
+        disabled: true
+      - name: imports-blacklist
+        severity: warning
+        disabled: true
+        arguments:
+          - "crypto/md5"
+          - "crypto/sha1"
+      - name: import-shadowing
+        severity: warning
+        disabled: true
+      - name: line-length-limit
+        severity: warning
+        disabled: true
+        arguments: [ 80 ]
+      - name: max-public-structs
+        severity: warning
+        disabled: true
+        arguments: [ 3 ]
+      - name: modifies-parameter
+        severity: warning
+        disabled: true
+      - name: modifies-value-receiver
+        severity: warning
+        disabled: true
+      - name: nested-structs
+        severity: warning
+        disabled: true
+      - name: optimize-operands-order
+        severity: warning
+        disabled: true
+      - name: package-comments
+        severity: warning
+        disabled: true
+      - name: range
+        severity: warning
+        disabled: true
+      - name: range-val-in-closure
+        severity: warning
+        disabled: true
+      - name: range-val-address
+        severity: warning
+        disabled: true
+      - name: receiver-naming
+        severity: warning
+        disabled: true
+      - name: redefines-builtin-id
+        severity: warning
+        disabled: true
+      - name: string-of-int
+        severity: warning
+        disabled: true
+      - name: string-format
+        severity: warning
+        disabled: true
+        arguments:
+          - - 'core.WriteError[1].Message'
+            - '/^([^A-Z]|$)/'
+            - must not start with a capital letter
+          - - 'fmt.Errorf[0]'
+            - '/(^|[^\.!?])$/'
+            - must not end in punctuation
+          - - panic
+            - '/^[^\n]*$/'
+            - must not contain line breaks
+      - name: struct-tag
+        arguments:
+          - "json,inline"
+          - "bson,outline,gnu"
+        severity: warning
+        disabled: true
+      - name: superfluous-else
+        severity: warning
+        disabled: true
+      - name: time-equal
+        severity: warning
+        disabled: true
+      - name: time-naming
+        severity: warning
+        disabled: true
+      - name: var-naming
+        severity: warning
+        disabled: true
+        arguments:
+          - [ "ID" ] # AllowList
+          - [ "VM" ] # DenyList
+      - name: var-declaration
+        severity: warning
+        disabled: true
+      - name: unconditional-recursion
+        severity: warning
+        disabled: true
+      - name: unexported-naming
+        severity: warning
+        disabled: true
+      - name: unexported-return
+        severity: warning
+        disabled: true
+      - name: unhandled-error
+        severity: warning
+        disabled: true
+        arguments:
+          - "fmt.Printf"
+          - "myFunction"
+      - name: unnecessary-stmt
+        severity: warning
+        disabled: true
+      - name: unreachable-code
+        severity: warning
+        disabled: true
+      - name: unused-parameter
+        severity: warning
+        disabled: true
+      - name: unused-receiver
+        severity: warning
+        disabled: true
+      - name: useless-break
+        severity: warning
+        disabled: true
+      - name: waitgroup-by-value
+        severity: warning
+        disabled: true
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: tools\.go
+      linters:
+        - gofmt

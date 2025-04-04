@@ -1,0 +1,8 @@
+[reconciliation]
+system_trx_path = "/tmp/system"
+bank_trx_path= "/tmp/bank"
+report_trx_path = "/tmp/report"
+total_data = 1000
+percentage_match = 100
+list_bank = [ "bca", "danamon", "bri", "mandiri" ]
+is_delete_current_sample_directory = true
