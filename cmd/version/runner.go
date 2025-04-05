@@ -30,7 +30,7 @@ func start(w io.Writer) {
 		},
 	)
 
-	_, _ = fmt.Fprintln(w, "App\t\t\t:", variable.AppName)
+	_, _ = fmt.Fprintln(w, "App\t\t:", variable.AppName)
 	_, _ = fmt.Fprintln(w, "Desc\t\t:", variable.AppDescLong)
 	_, _ = fmt.Fprintln(w, "Build Date\t:", variable.BuildDate)
 	_, _ = fmt.Fprintln(w, "Git Commit\t:", variable.GitCommit)

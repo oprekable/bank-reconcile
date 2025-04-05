@@ -32,7 +32,7 @@ func TestRunner(t *testing.T) {
 			triggerMock: func() {
 				versionWriter = &bf
 			},
-			want:    `App\t\t\t: bank-reconcile`,
+			want:    `App\t\t: bank-reconcile`,
 			wantErr: false,
 		},
 	}
