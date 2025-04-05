@@ -57,6 +57,10 @@ func InitCommonArgs(extraArgs [][]string) [][]string {
 			fmt.Sprintf(formatText, root.FlagIsDebugShort, root.FlagIsDebug),
 			strconv.FormatBool(root.FlagIsDebugValue),
 		},
+		{
+			fmt.Sprintf(formatText, root.FlagIsProfilerActiveShort, root.FlagIsProfilerActive),
+			strconv.FormatBool(root.FlagIsProfilerActiveValue),
+		},
 	}
 
 	args = append(args, extraArgs...)

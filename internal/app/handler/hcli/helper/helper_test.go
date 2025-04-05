@@ -58,6 +58,10 @@ func TestInitCommonArgs(t *testing.T) {
 					"false",
 				},
 				{
+					"-i --profiler",
+					"false",
+				},
+				{
 					"foo",
 					"bar",
 				},

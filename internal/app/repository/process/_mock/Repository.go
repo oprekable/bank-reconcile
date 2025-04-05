@@ -175,17 +175,17 @@ func (_m *Repository) GetReconciliationSummary(ctx context.Context) (process.Rec
 	return r0, r1
 }
 
-// ImportBankTrx provides a mock function with given fields: ctx, data
-func (_m *Repository) ImportBankTrx(ctx context.Context, data []*banks.BankTrxData) error {
-	ret := _m.Called(ctx, data)
+// ImportBankTrx provides a mock function with given fields: ctx, data, from, to
+func (_m *Repository) ImportBankTrx(ctx context.Context, data []*banks.BankTrxData, from int, to int) error {
+	ret := _m.Called(ctx, data, from, to)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ImportBankTrx")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []*banks.BankTrxData) error); ok {
-		r0 = rf(ctx, data)
+	if rf, ok := ret.Get(0).(func(context.Context, []*banks.BankTrxData, int, int) error); ok {
+		r0 = rf(ctx, data, from, to)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -193,17 +193,17 @@ func (_m *Repository) ImportBankTrx(ctx context.Context, data []*banks.BankTrxDa
 	return r0
 }
 
-// ImportSystemTrx provides a mock function with given fields: ctx, data
-func (_m *Repository) ImportSystemTrx(ctx context.Context, data []*systems.SystemTrxData) error {
-	ret := _m.Called(ctx, data)
+// ImportSystemTrx provides a mock function with given fields: ctx, data, from, to
+func (_m *Repository) ImportSystemTrx(ctx context.Context, data []*systems.SystemTrxData, from int, to int) error {
+	ret := _m.Called(ctx, data, from, to)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ImportSystemTrx")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []*systems.SystemTrxData) error); ok {
-		r0 = rf(ctx, data)
+	if rf, ok := ret.Get(0).(func(context.Context, []*systems.SystemTrxData, int, int) error); ok {
+		r0 = rf(ctx, data, from, to)
 	} else {
 		r0 = ret.Error(0)
 	}

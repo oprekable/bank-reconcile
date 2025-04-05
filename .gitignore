@@ -33,10 +33,8 @@ go.work.sum
 /dist
 /bank-reconcile
 /*.db
-/reconciliation.db-shm
-/reconciliation.db-wal
-/sample.db-shm
-/sample.db-wal
+/*.db-shm
+/*.db-wal
 /report.json
 /cpu.pprof
 /mem.pprof

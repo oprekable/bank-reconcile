@@ -439,6 +439,8 @@ func TestDBImportBankTrx(t *testing.T) {
 	type args struct {
 		ctx  context.Context
 		data []*banks.BankTrxData
+		min  int
+		max  int
 	}
 
 	tests := []struct {
@@ -490,6 +492,8 @@ func TestDBImportBankTrx(t *testing.T) {
 						Amount:           1000,
 					},
 				},
+				min: 0,
+				max: 10,
 			},
 			wantErr: false,
 		},
@@ -502,7 +506,7 @@ func TestDBImportBankTrx(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.ImportBankTrx(tt.args.ctx, tt.args.data); (err != nil) != tt.wantErr {
+			if err := d.ImportBankTrx(tt.args.ctx, tt.args.data, tt.args.min, tt.args.max); (err != nil) != tt.wantErr {
 				t.Errorf("ImportBankTrx() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -518,6 +522,8 @@ func TestDBImportSystemTrx(t *testing.T) {
 	type args struct {
 		ctx  context.Context
 		data []*systems.SystemTrxData
+		min  int
+		max  int
 	}
 
 	tests := []struct {
@@ -569,6 +575,8 @@ func TestDBImportSystemTrx(t *testing.T) {
 						Amount:          1000,
 					},
 				},
+				min: 0,
+				max: 10,
 			},
 			wantErr: false,
 		},
@@ -581,7 +589,7 @@ func TestDBImportSystemTrx(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.ImportSystemTrx(tt.args.ctx, tt.args.data); (err != nil) != tt.wantErr {
+			if err := d.ImportSystemTrx(tt.args.ctx, tt.args.data, tt.args.min, tt.args.max); (err != nil) != tt.wantErr {
 				t.Errorf("ImportSystemTrx() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

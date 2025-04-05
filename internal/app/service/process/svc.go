@@ -136,6 +136,8 @@ func (s *Svc) importReconcileSystemDataToDB(ctx context.Context, data []*systems
 		err = s.repo.RepoProcess.ImportSystemTrx(
 			ctx,
 			data[idx:idx+size],
+			idx,
+			idx+size,
 		)
 
 		if err != nil {
@@ -320,6 +322,8 @@ func (s *Svc) importReconcileBankDataToDB(ctx context.Context, data []*banks.Ban
 		err = s.repo.RepoProcess.ImportBankTrx(
 			ctx,
 			data[idx:idx+size],
+			idx,
+			idx+size,
 		)
 
 		if err != nil {

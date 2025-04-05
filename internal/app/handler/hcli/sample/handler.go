@@ -51,10 +51,6 @@ func (h *Handler) Exec() (err error) {
 				fmt.Sprintf(formatText, root.FlagIsDeleteCurrentSampleDirectoryShort, root.FlagIsDeleteCurrentSampleDirectory),
 				strconv.FormatBool(root.FlagIsDeleteCurrentSampleDirectoryValue),
 			},
-			{
-				fmt.Sprintf(formatText, root.FlagIsProfilerActiveShort, root.FlagIsProfilerActive),
-				strconv.FormatBool(root.FlagIsProfilerActiveValue),
-			},
 		},
 	)
 

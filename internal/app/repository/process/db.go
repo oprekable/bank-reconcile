@@ -3,6 +3,7 @@ package process
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 	"time"
 
@@ -163,12 +164,12 @@ func (d *DB) importInterface(ctx context.Context, methodName string, query strin
 	)
 }
 
-func (d *DB) ImportSystemTrx(ctx context.Context, data []*systems.SystemTrxData) (err error) {
-	return d.importInterface(ctx, "ImportSystemTrx", QueryInsertTableSystemTrx, data)
+func (d *DB) ImportSystemTrx(ctx context.Context, data []*systems.SystemTrxData, from, to int) (err error) {
+	return d.importInterface(ctx, fmt.Sprintf("ImportSystemTrx : range data (%d - %d)", from, to), QueryInsertTableSystemTrx, data)
 }
 
-func (d *DB) ImportBankTrx(ctx context.Context, data []*banks.BankTrxData) (err error) {
-	return d.importInterface(ctx, "ImportBankTrx", QueryInsertTableBankTrx, data)
+func (d *DB) ImportBankTrx(ctx context.Context, data []*banks.BankTrxData, from, to int) (err error) {
+	return d.importInterface(ctx, fmt.Sprintf("ImportBankTrx : range data (%d - %d)", from, to), QueryInsertTableBankTrx, data)
 }
 
 func (d *DB) GenerateReconciliationMap(ctx context.Context, minAmount float64, maxAmount float64) (err error) {
@@ -195,7 +196,7 @@ func (d *DB) GenerateReconciliationMap(ctx context.Context, minAmount float64, m
 	return helper.TxWith(
 		ctx,
 		logFlag,
-		"GenerateReconciliationMap",
+		fmt.Sprintf("GenerateReconciliationMap : range amount (%.0f - %.0f)", minAmount, maxAmount),
 		d.db,
 		execFn...,
 	)

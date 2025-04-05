@@ -909,7 +909,9 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 							"ImportBankTrx",
 							mock.Anything,
 							mock.Anything,
-						).Return(nil)
+							mock.Anything,
+							mock.Anything,
+						).Return(nil).Maybe()
 						return m
 					}(),
 				),
@@ -969,7 +971,9 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 							"ImportBankTrx",
 							mock.Anything,
 							mock.Anything,
-						).Return(errors.New("error"))
+							mock.Anything,
+							mock.Anything,
+						).Return(errors.New("error")).Maybe()
 						return m
 					}(),
 				),
@@ -1064,7 +1068,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 							mock.Anything,
 							mock.Anything,
 							mock.Anything,
-						).Return(nil)
+						).Return(nil).Maybe()
 						return m
 					}(),
 				),
@@ -1103,7 +1107,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 							mock.Anything,
 							mock.Anything,
 							mock.Anything,
-						).Return(errors.New("error"))
+						).Return(errors.New("error")).Maybe()
 						return m
 					}(),
 				),
@@ -1174,7 +1178,9 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 							"ImportSystemTrx",
 							mock.Anything,
 							mock.Anything,
-						).Return(nil)
+							mock.Anything,
+							mock.Anything,
+						).Return(nil).Maybe()
 						return m
 					}(),
 				),
@@ -1232,7 +1238,9 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 							"ImportSystemTrx",
 							mock.Anything,
 							mock.Anything,
-						).Return(errors.New("error"))
+							mock.Anything,
+							mock.Anything,
+						).Return(errors.New("error")).Maybe()
 						return m
 					}(),
 				),
