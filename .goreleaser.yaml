@@ -1,3 +1,5 @@
+version: 2
+
 project_name: bank-reconcile
 
 env:
@@ -10,12 +12,8 @@ before:
   hooks:
     - go mod tidy
 
-git:
-  enable: true
-  tag_sort: semver
-
 builds:
-  - id: bank-reconcile
+  - id: bank-reconcile-windows-amd64
     binary: bank-reconcile
     ldflags:
       - -s -w
@@ -27,17 +25,74 @@ builds:
     env:
       - GO111MODULE=on
       - CGO_ENABLED=0
-    goos: [linux, darwin, windows]
-    goarch: [amd64, arm64]
+    goos: [windows]
+    goarch: [amd64]
+
+  - id: bank-reconcile-darwin-arm64
+    binary: bank-reconcile
+    ldflags:
+      - -s -w
+      - -X bank-reconcile/variable.GitCommit={{ .ShortCommit }}
+      - -X bank-reconcile/variable.Version={{ .Version }}
+      - -X bank-reconcile/variable.Environment=default
+      - -X bank-reconcile/variable.BuildDate={{ .Date }}
+      - -X bank-reconcile/variable.TimeZone=Asia/Jakarta
+    env:
+      - GO111MODULE=on
+      - CGO_ENABLED=0
+    goos: [darwin]
+    goarch: [arm64]
+
+  - id: bank-reconcile-darwin-amd64
+    binary: bank-reconcile
+    ldflags:
+      - -s -w
+      - -X bank-reconcile/variable.GitCommit={{ .ShortCommit }}
+      - -X bank-reconcile/variable.Version={{ .Version }}
+      - -X bank-reconcile/variable.Environment=default
+      - -X bank-reconcile/variable.BuildDate={{ .Date }}
+      - -X bank-reconcile/variable.TimeZone=Asia/Jakarta
+    env:
+      - GO111MODULE=on
+      - CGO_ENABLED=0
+    goos: [darwin]
+    goarch: [amd64]
+
+  - id: bank-reconcile-linux-arm64
+    binary: bank-reconcile
+    ldflags:
+      - -s -w
+      - -X bank-reconcile/variable.GitCommit={{ .ShortCommit }}
+      - -X bank-reconcile/variable.Version={{ .Version }}
+      - -X bank-reconcile/variable.Environment=default
+      - -X bank-reconcile/variable.BuildDate={{ .Date }}
+      - -X bank-reconcile/variable.TimeZone=Asia/Jakarta
+    env:
+      - GO111MODULE=on
+      - CGO_ENABLED=0
+    goos: [linux]
+    goarch: [arm64]
+
+  - id: bank-reconcile-linux-amd64
+    binary: bank-reconcile
+    ldflags:
+      - -s -w
+      - -X bank-reconcile/variable.GitCommit={{ .ShortCommit }}
+      - -X bank-reconcile/variable.Version={{ .Version }}
+      - -X bank-reconcile/variable.Environment=default
+      - -X bank-reconcile/variable.BuildDate={{ .Date }}
+      - -X bank-reconcile/variable.TimeZone=Asia/Jakarta
+    env:
+      - GO111MODULE=on
+      - CGO_ENABLED=0
+    goos: [linux]
+    goarch: [amd64]
 
 archives:
   - id: bank-reconcile-windows-amd64
-    builds: [bank-reconcile]
-    goos: windows
-    goarch: amd64
-    format: zip
-    name_template: >-
-      {{ .ProjectName }}_{{ title .Os }}_{{ if eq .Arch "amd64" }}x86_64{{ else if eq .Arch "386" }}i386{{ else }}{{ .Arch }}{{ end }}
+    ids: [bank-reconcile-windows-amd64]
+    formats: [ 'zip' ]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     files:
       - src: params/*.toml
         dst: params
@@ -47,12 +102,9 @@ archives:
         strip_parent: true
 
   - id: bank-reconcile-darwin-arm64
-    builds: [bank-reconcile]
-    goos: darwin
-    goarch: arm64
-    format: tar.gz
-    name_template: >-
-      {{ .ProjectName }}_{{ title .Os }}_{{ if eq .Arch "amd64" }}x86_64{{ else if eq .Arch "386" }}i386{{ else }}{{ .Arch }}{{ end }}
+    ids: [bank-reconcile-darwin-arm64]
+    formats: [ 'tar.gz' ]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     files:
       - src: params/*.toml
         dst: params
@@ -62,12 +114,9 @@ archives:
         strip_parent: true
 
   - id: bank-reconcile-darwin-amd64
-    builds: [bank-reconcile]
-    goos: darwin
-    goarch: amd64
-    format: tar.gz
-    name_template: >-
-      {{ .ProjectName }}_{{ title .Os }}_{{ if eq .Arch "amd64" }}x86_64{{ else if eq .Arch "386" }}i386{{ else }}{{ .Arch }}{{ end }}
+    ids: [bank-reconcile-darwin-amd64]
+    formats: [ 'tar.gz' ]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     files:
       - src: params/*.toml
         dst: params
@@ -77,12 +126,9 @@ archives:
         strip_parent: true
 
   - id: bank-reconcile-linux-arm64
-    builds: [bank-reconcile]
-    goos: linux
-    goarch: arm64
-    format: tar.gz
-    name_template: >-
-      {{ .ProjectName }}_{{ title .Os }}_{{ if eq .Arch "amd64" }}x86_64{{ else if eq .Arch "386" }}i386{{ else }}{{ .Arch }}{{ end }}
+    ids: [bank-reconcile-linux-arm64]
+    formats: [ 'tar.gz' ]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     files:
       - src: params/*.toml
         dst: params
@@ -92,12 +138,9 @@ archives:
         strip_parent: true
 
   - id: bank-reconcile-linux-amd64
-    builds: [bank-reconcile]
-    goos: linux
-    goarch: amd64
-    format: tar.gz
-    name_template: >-
-      {{ .ProjectName }}_{{ title .Os }}_{{ if eq .Arch "amd64" }}x86_64{{ else if eq .Arch "386" }}i386{{ else }}{{ .Arch }}{{ end }}
+    ids: [bank-reconcile-linux-amd64]
+    formats: [ 'tar.gz' ]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     files:
       - src: params/*.toml
         dst: params
