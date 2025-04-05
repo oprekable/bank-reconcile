@@ -29,9 +29,6 @@
 go.work
 go.work.sum
 
-# env file
-.env
-
 
 /dist
 /bank-reconcile
