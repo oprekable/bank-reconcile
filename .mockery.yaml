@@ -1,11 +1,11 @@
-with-expecter: False
-inpackage: False
-dir: "{{.InterfaceDir}}/_mock"
-mockname: "{{.InterfaceName}}"
-outpkg: "_mock"
-filename: "{{.InterfaceName}}.go"
-all: True
 packages:
   github.com/oprekable/bank-reconcile:
     config:
       recursive: True
+      with-expecter: False
+      inpackage: False
+      dir: "{{.InterfaceDir}}/_mock"
+      mockname: "{{.InterfaceName}}"
+      outpkg: "_mock"
+      filename: "{{.InterfaceName}}.go"
+      all: True
