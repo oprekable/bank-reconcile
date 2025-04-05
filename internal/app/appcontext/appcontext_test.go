@@ -193,7 +193,7 @@ func TestAppContextStart(t *testing.T) {
 					Config: &cconfig.Config{
 						Data: &config.Data{
 							App: core.App{
-								IsProfilerActive: false,
+								IsProfilerActive: true,
 							},
 						},
 					},

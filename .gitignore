@@ -33,8 +33,6 @@ go.work.sum
 .env
 
 
-.go/
-.go-cache/
 /dist
 /bank-reconcile
 /*.db
@@ -47,8 +45,4 @@ go.work.sum
 /mem.pprof
 
 
-/block.pprof
-/goroutine.pprof
-/mutex.pprof
-/thread.pprof
-/trace.pprof
+*.pprof
