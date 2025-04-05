@@ -8,6 +8,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems"
 )
 
+//go:generate mockery --name "Repository" --output "./_mock" --outpkg "_mock"
 type Repository interface {
 	Pre(
 		ctx context.Context,

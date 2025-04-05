@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+//go:generate mockery --name "Repository" --output "./_mock" --outpkg "_mock"
 type Repository interface {
 	Pre(
 		ctx context.Context,

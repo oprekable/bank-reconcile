@@ -18,8 +18,7 @@ install-tools: download
 .PHONY: generate
 generate:
 	@export PATH=${PATH}:`go env GOPATH`/bin; wire github.com/oprekable/bank-reconcile/internal/inject
-	@go generate ./...
-	@export PATH=${PATH}:`go env GOPATH`/bin; mockery
+	@export PATH=${PATH}:`go env GOPATH`/bin; go generate ./...
 
 .PHONY: go-lint
 go-lint:
@@ -109,10 +108,6 @@ go-version:
 .PHONY: go-env
 go-env:
 	@go env
-
-.PHONY: release-skip-publish
-release-skip-publish: download install-tools generate
-	@export PATH=${PATH}:`go env GOPATH`/bin; goreleaser release --skip-publish --snapshot --clean
 
 .PHONY: check-profiler-block
 check-profiler-block:
