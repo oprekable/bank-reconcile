@@ -9,3 +9,4 @@ packages:
       outpkg: "_mock"
       filename: "{{.InterfaceName}}.go"
       all: True
+      exported: True
