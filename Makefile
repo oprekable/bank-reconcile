@@ -13,7 +13,6 @@ download:
 
 .PHONY: install-tools
 install-tools: download
-	@#go install $(go list -e -f '{{join .Imports " "}}' tools.go)
 	@cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %@latest
 
 .PHONY: generate
@@ -56,7 +55,7 @@ test:
 run:
 	@go build -gcflags -live .
 	@env $$(cat "params/.env" | grep -Ev '^#' | xargs) ./bank-reconcile
-	@#env $$(cat "params/.env" | grep -Ev '^#' | xargs) go run main.go
+
 
 
 UNAME := $(shell uname)
@@ -68,12 +67,10 @@ ifeq ($(UNAME), Linux)
 	base_args="--showlog=true --listbank=bca,bni,mandiri,bri,danamon --from=$$(date -d '-10 day' '+%Y-%m-%d') --to=$$(date '+%Y-%m-%d')"
 endif
 
-process_args="process ${base_args} -i=true -g=false -s=/tmp/sample/system -b=/tmp/sample/bank -r=/tmp/report"
-#process_args="process ${base_args} -g=true"
-#process_args="process ${base_args} -g=false"
-sample_args="sample ${base_args} -i=true --percentagematch=100 --amountdata=100000 -g=true -s=/tmp/sample/system -b=/tmp/sample/bank"
-#sample_args="sample ${base_args} --percentagematch=100 --amountdata=1000 -g=true"
-#sample_args="sample ${base_args} --percentagematch=100 --amountdata=1000 -g=false"
+base_args+=" -i=true -g=false"
+
+process_args="process ${base_args} -s=/tmp/sample/system -b=/tmp/sample/bank -r=/tmp/report"
+sample_args="sample ${base_args} --percentagematch=100 --amountdata=100000 -s=/tmp/sample/system -b=/tmp/sample/bank"
 
 .PHONY: echo-sample-args
 echo-sample-args:
@@ -85,7 +82,6 @@ run-sample:
 	@echo $(sample_args)
 	@go build -buildvcs=false -ldflags="-s -w" .
 	@env $$(cat "params/.env" | grep -Ev '^#' | xargs) ./bank-reconcile  $$(echo $(sample_args))
-	@#env $$(cat "params/.env" | grep -Ev '^#' | xargs) go run main.go  $$(echo $(sample_args))
 
 .PHONY: echo-process-args
 echo-process-args:
@@ -97,7 +93,6 @@ run-process:
 	@echo "go run main.go process $(process_args)"
 	@go build -buildvcs=false -ldflags="-s -w" .
 	@env $$(cat "params/.env" | grep -Ev '^#' | xargs) ./bank-reconcile $$(echo $(process_args))
-#	@env $$(cat "params/.env" | grep -Ev '^#' | xargs) go run main.go $$(echo $(process_args))
 
 .PHONY: go-version
 go-version:

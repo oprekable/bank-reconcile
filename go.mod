@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/XSAM/otelsql v0.37.0
+	github.com/XSAM/otelsql v0.38.0
 	github.com/aaronjan/hunch v1.1.3
 	github.com/blockloop/scan/v2 v2.5.0
 	github.com/bygui86/multi-profile/v2 v2.1.0
@@ -35,7 +35,7 @@ require (
 	golang.org/x/tools v0.31.0
 	golang.org/x/vuln v1.1.4
 	honnef.co/go/tools v0.6.1
-	modernc.org/sqlite v1.36.1
+	modernc.org/sqlite v1.37.0
 )
 
 require (
@@ -226,7 +226,7 @@ require (
 	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	modernc.org/libc v1.61.13 // indirect
+	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect
 	mvdan.cc/gofumpt v0.7.0 // indirect

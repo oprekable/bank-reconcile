@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	profile "github.com/bygui86/multi-profile/v2"
 	"os"
 
 	"github.com/oprekable/bank-reconcile/internal/app/component"
@@ -13,8 +14,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/shutdown"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
-
-	"github.com/bygui86/multi-profile/v2"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -29,6 +28,7 @@ type AppContext struct {
 	services     *service.Services
 	components   *component.Components
 	servers      *server.Server
+	profiler     map[string]interface{ Stop() }
 }
 
 var _ IAppContext = (*AppContext)(nil)
@@ -69,40 +69,49 @@ func (a *AppContext) GetComponents() *component.Components {
 	return a.components
 }
 
+func (a *AppContext) startProfiler() {
+	if a.components.Config.IsProfilerActive {
+		a.profiler = make(map[string]interface{ Stop() })
+		dir, _ := os.Getwd()
+
+		a.profiler["CPUProfile"] = profile.CPUProfile(
+			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+		).Start()
+
+		a.profiler["BlockProfile"] = profile.BlockProfile(
+			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+		).Start()
+
+		a.profiler["GoroutineProfile"] = profile.GoroutineProfile(
+			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+		).Start()
+
+		a.profiler["MutexProfile"] = profile.MutexProfile(
+			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true}).Start()
+
+		a.profiler["MemProfile"] = profile.MemProfile(
+			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+		).Start()
+
+		a.profiler["TraceProfile"] = profile.TraceProfile(
+			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
+		).Start()
+	}
+}
+
+func (a *AppContext) stopProfiler() {
+	for k := range a.profiler {
+		a.profiler[k].Stop()
+	}
+}
+
 func (a *AppContext) Start() {
 	atexit.Add(a.Shutdown)
 	a.eg.Go(func() error {
-		var profiler map[string]interface{ Stop() }
-		if a.components.Config.IsProfilerActive {
-			profiler = make(map[string]interface{ Stop() })
-			dir, _ := os.Getwd()
-
-			profiler["CPUProfile"] = profile.CPUProfile(
-				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-			).Start()
-
-			profiler["BlockProfile"] = profile.BlockProfile(
-				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-			).Start()
-
-			profiler["GoroutineProfile"] = profile.GoroutineProfile(
-				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-			).Start()
-
-			profiler["MutexProfile"] = profile.MutexProfile(
-				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true}).Start()
-
-			profiler["MemProfile"] = profile.MemProfile(
-				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-			).Start()
-
-			profiler["TraceProfile"] = profile.TraceProfile(
-				&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-			).Start()
-		}
-
 		log.Msg(a.GetCtx(), "[start] application")
 		return shutdown.TermSignalTrap().Wait(a.ctx, func() {
+			a.startProfiler()
+
 			defer func() {
 				if r := recover(); r != nil {
 					errRecovery := fmt.Errorf("recovered from panic: %s", r)
@@ -114,12 +123,11 @@ func (a *AppContext) Start() {
 			atexit.AtExit()
 
 			if context.Cause(a.ctx).Error() == "done" {
-				for k := range profiler {
-					if profiler[k] != nil {
-						profiler[k].Stop()
-					}
+				for k := range a.profiler {
+					a.profiler[k].Stop()
 				}
 
+				a.stopProfiler()
 				os.Exit(0)
 			}
 		})
@@ -129,9 +137,7 @@ func (a *AppContext) Start() {
 		a.servers.Run(a.eg)
 	}
 
-	if err := a.eg.Wait(); err != nil {
-		log.Err(a.GetCtx(), "[shutdown] application", err)
-	}
+	log.Err(a.GetCtx(), "[shutdown] application", a.eg.Wait())
 }
 
 func (a *AppContext) Shutdown() {
