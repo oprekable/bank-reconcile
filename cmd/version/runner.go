@@ -2,6 +2,7 @@ package version
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
@@ -11,34 +12,34 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var versionWriter io.Writer = os.Stdout
+
 func Runner(_ *cobra.Command, _ []string) (er error) {
-	start()
+	start(versionWriter)
 	return nil
 }
 
-func start() {
-	code := 0
-
-	defer func() {
-		os.Exit(code)
-	}()
-
+func start(w io.Writer) {
 	defer func() {
 		atexit.AtExit()
 	}()
 
-	atexit.Add(shutdown)
+	atexit.Add(
+		func() {
+			shutdown(w)
+		},
+	)
 
-	fmt.Println("App\t\t:", variable.AppName)
-	fmt.Println("Desc\t\t:", variable.AppDescLong)
-	fmt.Println("Build Date\t:", variable.BuildDate)
-	fmt.Println("Git Commit\t:", variable.GitCommit)
-	fmt.Println("Version\t\t:", versionhelper.GetVersion(variable.Version))
-	fmt.Println("environment\t:", variable.Environment)
-	fmt.Println("Go Version\t:", variable.GoVersion)
-	fmt.Println("OS / Arch\t:", variable.OsArch)
+	_, _ = fmt.Fprintln(w, "App\t\t\t:", variable.AppName)
+	_, _ = fmt.Fprintln(w, "Desc\t\t:", variable.AppDescLong)
+	_, _ = fmt.Fprintln(w, "Build Date\t:", variable.BuildDate)
+	_, _ = fmt.Fprintln(w, "Git Commit\t:", variable.GitCommit)
+	_, _ = fmt.Fprintln(w, "Version\t\t:", versionhelper.GetVersion(variable.Version))
+	_, _ = fmt.Fprintln(w, "environment\t:", variable.Environment)
+	_, _ = fmt.Fprintln(w, "Go Version\t:", variable.GoVersion)
+	_, _ = fmt.Fprintln(w, "OS / Arch\t:", variable.OsArch)
 }
 
-func shutdown() {
-	fmt.Println("\n-#-")
+func shutdown(w io.Writer) {
+	_, _ = fmt.Fprintln(w, "\n-#-")
 }

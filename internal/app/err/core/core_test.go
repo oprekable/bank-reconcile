@@ -2,7 +2,7 @@ package core
 
 import "testing"
 
-func TestErrorType_Error(t *testing.T) {
+func TestErrorTypeError(t *testing.T) {
 	tests := []struct {
 		name    string
 		wantErr string

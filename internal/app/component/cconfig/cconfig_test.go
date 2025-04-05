@@ -298,7 +298,8 @@ func TestNewConfig(t *testing.T) {
 				embedFS: &testEmbedFS,
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
-					appToml, _ := f.Create("./app.toml")
+					workDirPath := initWorkDirPath()
+					appToml, _ := f.Create(string(workDirPath) + "/app.toml")
 					_, _ = appToml.Write([]byte(
 						`[app]
 secret = "36189d92-a31e-412c-ab50-ebd94ab52698"
@@ -307,7 +308,7 @@ secret = "36189d92-a31e-412c-ab50-ebd94ab52698"
 
 					_ = appToml.Close()
 
-					reconToml, _ := f.Create("./params/reconciliation.toml")
+					reconToml, _ := f.Create(string(workDirPath) + "/params/reconciliation.toml")
 					_, _ = reconToml.Write([]byte(
 						`[reconciliation]
 system_trx_path = "/tmp/system"
@@ -321,6 +322,14 @@ is_delete_current_sample_directory = true
 					))
 
 					_ = reconToml.Close()
+
+					envFile, _ := f.Create(string(workDirPath) + "/params/.env")
+					_, _ = reconToml.Write([]byte(
+						`APP_SECRET="secret-from-memory"
+`,
+					))
+
+					_ = envFile.Close()
 
 					return f
 				}(),
@@ -352,10 +361,16 @@ is_delete_current_sample_directory = true
 						IsDoLogging: false,
 					},
 					Reconciliation: reconciliation.Reconciliation{
-						TotalData:                      0,
+						TotalData:                      1000,
 						PercentageMatch:                100,
 						NumberWorker:                   10,
 						IsDeleteCurrentSampleDirectory: true,
+						SystemTRXPath:                  "/tmp/system",
+						BankTRXPath:                    "/tmp/bank",
+						ReportTRXPath:                  "/tmp/report",
+						ListBank: []string{
+							"bca", "danamon", "bri", "mandiri",
+						},
 					},
 				},
 				timeLocation: func() *time.Location {

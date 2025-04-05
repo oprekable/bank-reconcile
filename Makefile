@@ -94,6 +94,13 @@ run-process:
 	@go build -buildvcs=false -ldflags="-s -w" .
 	@env $$(cat "params/.env" | grep -Ev '^#' | xargs) ./bank-reconcile $$(echo $(process_args))
 
+
+.PHONY: run-version
+run-version:
+	@echo "go run main.go version"
+	@go build -buildvcs=false -ldflags="-s -w" .
+	@./bank-reconcile version
+
 .PHONY: go-version
 go-version:
 	@go version

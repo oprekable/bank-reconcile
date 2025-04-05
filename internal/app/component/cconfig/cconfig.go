@@ -125,28 +125,36 @@ func fromFiles(patterns []string, conf interface{}, afs afero.Fs) (err error) {
 
 func NewConfig(ctx context.Context, embedFS *embed.FS, afs afero.Fs, configPaths ConfigPaths, appName AppName, tzArgs TimeZone) (rd *Config, err error) {
 	rd = &Config{}
-	rd.workDirPath = initWorkDirPath()
-	tz, loc, offset, err := initTimeZone(tzArgs)
-	if err != nil {
-		return
-	}
 
-	rd.timeZone = TimeZone(tz)
-	rd.timeLocation = loc
-	rd.timeOffset = TimeOffset(offset)
+	type InitTZStruct struct {
+		Tz     string
+		Loc    *time.Location
+		Offset int
+	}
 
 	var cfg config.Data
 	_, err = hunch.Waterfall(
 		ctx,
-		// Set env from embedFS file
 		func(c context.Context, _ interface{}) (r interface{}, e error) {
+			d := InitTZStruct{}
+			d.Tz, d.Loc, d.Offset, e = initTimeZone(tzArgs)
+			return d, e
+		},
+		// Set env from embedFS file
+		func(c context.Context, i interface{}) (r interface{}, e error) {
+			d := i.(InitTZStruct)
+			rd.workDirPath = initWorkDirPath()
+			rd.timeZone = TimeZone(d.Tz)
+			rd.timeLocation = d.Loc
+			rd.timeOffset = TimeOffset(d.Offset)
+
 			fileEnvPath := "embeds/envs/.env"
 			return nil, godotenvFS.Load(*embedFS, fileEnvPath)
 		},
 		// Set env from regular file
 		func(c context.Context, _ interface{}) (r interface{}, e error) {
 			if _, er := afs.Stat(string(rd.workDirPath) + "/params/.env"); er == nil {
-				e = godotenv.Overload(string(rd.workDirPath) + "/params/.env")
+				_ = godotenv.Overload(string(rd.workDirPath) + "/params/.env")
 			}
 
 			return

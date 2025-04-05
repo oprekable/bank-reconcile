@@ -7,7 +7,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/driver/sql"
 )
 
-func TestSqliteParameters_Options(t *testing.T) {
+func TestSqliteParametersOptions(t *testing.T) {
 	type fields struct {
 		DBPath      string
 		Cache       string
