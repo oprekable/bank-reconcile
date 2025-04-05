@@ -14,6 +14,10 @@ import (
 	"github.com/goccy/go-json"
 )
 
+const (
+	logFlag = "sample.NewDB"
+)
+
 type DB struct {
 	db      *sql.DB
 	stmtMap map[string]*sql.Stmt
@@ -103,7 +107,7 @@ func (d *DB) postWith(ctx context.Context, methodName string, extraExec hunch.Ex
 
 	return helper.TxWith(
 		ctx,
-		"sample.NewDB",
+		logFlag,
 		methodName,
 		d.db,
 		execFn...,

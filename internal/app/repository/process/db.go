@@ -15,6 +15,10 @@ import (
 	"github.com/goccy/go-json"
 )
 
+const (
+	logFlag = "process.NewDB"
+)
+
 type DB struct {
 	db      *sql.DB
 	stmtMap map[string]*sql.Stmt
@@ -65,7 +69,7 @@ func (d *DB) dropTableWith(ctx context.Context, methodName string, extraExec hun
 
 	return helper.TxWith(
 		ctx,
-		"process.NewDB",
+		logFlag,
 		methodName,
 		d.db,
 		execFn...,
@@ -152,7 +156,7 @@ func (d *DB) importInterface(ctx context.Context, methodName string, query strin
 
 	return helper.TxWith(
 		ctx,
-		"process.NewDB",
+		logFlag,
 		methodName,
 		d.db,
 		execFn...,
@@ -190,7 +194,7 @@ func (d *DB) GenerateReconciliationMap(ctx context.Context, minAmount float64, m
 
 	return helper.TxWith(
 		ctx,
-		"process.NewDB",
+		logFlag,
 		"GenerateReconciliationMap",
 		d.db,
 		execFn...,
