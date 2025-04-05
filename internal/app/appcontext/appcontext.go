@@ -4,8 +4,9 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	profile "github.com/bygui86/multi-profile/v2"
 	"os"
+
+	profile "github.com/bygui86/multi-profile/v2"
 
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/repository"

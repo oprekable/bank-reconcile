@@ -5,6 +5,9 @@ import (
 	"context"
 	"embed"
 	"errors"
+	"reflect"
+	"testing"
+
 	"github.com/oprekable/bank-reconcile/cmd/root"
 	"github.com/oprekable/bank-reconcile/internal/app/appcontext"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
@@ -20,8 +23,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/server"
 	"github.com/oprekable/bank-reconcile/internal/app/server/cli"
 	"github.com/spf13/cobra"
-	"reflect"
-	"testing"
 )
 
 func TestNewRunner(t *testing.T) {
@@ -32,9 +33,9 @@ func TestNewRunner(t *testing.T) {
 	}
 
 	tests := []struct {
+		want *Runner
 		name string
 		args args
-		want *Runner
 	}{
 		{
 			name: "Ok",
@@ -72,11 +73,11 @@ func TestRunnerRun(t *testing.T) {
 
 	type args struct {
 		embedFs   *embed.FS
+		dbPath    csqlite.DBPath
 		appName   string
 		tz        string
 		errTypes  []core.ErrorType
 		isVerbose bool
-		dbPath    csqlite.DBPath
 	}
 
 	tests := []struct {

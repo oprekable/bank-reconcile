@@ -3,9 +3,10 @@ package helper
 import (
 	"context"
 	"database/sql"
-	"github.com/aaronjan/hunch"
 	"reflect"
 	"testing"
+
+	"github.com/aaronjan/hunch"
 
 	"github.com/DATA-DOG/go-sqlmock"
 )

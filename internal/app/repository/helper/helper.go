@@ -4,8 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 	"reflect"
+
+	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 
 	"github.com/oprekable/bank-reconcile/internal/app/err/core"
 

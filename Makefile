@@ -19,6 +19,7 @@ install-tools: download
 generate:
 	@wire github.com/oprekable/bank-reconcile/internal/inject
 	@go generate ./...
+	@mockery
 
 .PHONY: go-lint
 go-lint:

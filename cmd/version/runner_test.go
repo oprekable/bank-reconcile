@@ -2,10 +2,11 @@ package version
 
 import (
 	"bytes"
-	"github.com/spf13/cobra"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
 
 func TestRunner(t *testing.T) {
@@ -16,10 +17,10 @@ func TestRunner(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		args        args
 		triggerMock func()
+		name        string
 		want        string
+		args        args
 		wantErr     bool
 	}{
 		{

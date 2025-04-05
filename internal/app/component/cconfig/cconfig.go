@@ -127,8 +127,8 @@ func NewConfig(ctx context.Context, embedFS *embed.FS, afs afero.Fs, configPaths
 	rd = &Config{}
 
 	type InitTZStruct struct {
-		Tz     string
 		Loc    *time.Location
+		Tz     string
 		Offset int
 	}
 

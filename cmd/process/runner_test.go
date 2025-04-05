@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"embed"
+	"testing"
+
 	"github.com/oprekable/bank-reconcile/cmd/root"
 	"github.com/oprekable/bank-reconcile/internal/app/appcontext"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
@@ -19,7 +21,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/server"
 	"github.com/oprekable/bank-reconcile/internal/app/server/cli"
 	"github.com/spf13/cobra"
-	"testing"
 )
 
 func TestRunner(t *testing.T) {
@@ -36,9 +37,9 @@ func TestRunner(t *testing.T) {
 	}
 
 	tests := []struct {
+		triggerMock func()
 		name        string
 		args        args
-		triggerMock func()
 		wantErr     bool
 	}{
 		{

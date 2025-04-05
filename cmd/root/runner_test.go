@@ -2,8 +2,9 @@ package root
 
 import (
 	"context"
-	"github.com/spf13/cobra"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
 
 func TestPersistentPreRunner(t *testing.T) {
@@ -13,9 +14,9 @@ func TestPersistentPreRunner(t *testing.T) {
 	}
 
 	tests := []struct {
+		triggerMock func()
 		name        string
 		args        args
-		triggerMock func()
 		wantErr     bool
 	}{
 		{
