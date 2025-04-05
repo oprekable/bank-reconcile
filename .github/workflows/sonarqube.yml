@@ -18,6 +18,10 @@ jobs:
         with:
           # Disabling shallow clones is recommended for improving the relevancy of reporting
           fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.24
       - name: Run tests with coverage
         run: |
           make go-lint-fix-struct-staticcheck-govulncheck
