@@ -17,35 +17,35 @@ install-tools: download
 
 .PHONY: generate
 generate:
-	@wire github.com/oprekable/bank-reconcile/internal/inject
+	@export PATH=${PATH}:`go env GOPATH`/bin; wire github.com/oprekable/bank-reconcile/internal/inject
 	@go generate ./...
-	@mockery
+	@export PATH=${PATH}:`go env GOPATH`/bin; mockery
 
 .PHONY: go-lint
 go-lint:
-	@golangci-lint linters
-	@golangci-lint run ./...
+	@export PATH=${PATH}:`go env GOPATH`/bin; golangci-lint linters
+	@export PATH=${PATH}:`go env GOPATH`/bin; golangci-lint run ./...
 
 .PHONY: staticcheck
 staticcheck:
-	@staticcheck ./...
+	@export PATH=${PATH}:`go env GOPATH`/bin; staticcheck ./...
 
 .PHONY: govulncheck
 govulncheck:
-	@govulncheck ./...
+	@export PATH=${PATH}:`go env GOPATH`/bin; govulncheck ./...
 
 .PHONY: godeadcode
 godeadcode:
-	@deadcode ./...
+	@export PATH=${PATH}:`go env GOPATH`/bin; deadcode ./...
 
 .PHONY: go-lint-fix-struct-staticcheck-govulncheck
 go-lint-fix-struct-staticcheck-govulncheck: install-tools generate
 	@go mod tidy
-	@golangci-lint run ./... --fix
-	@staticcheck ./...
-	@fieldalignment -fix ./...
-	@deadcode ./...
-	@govulncheck -show verbose ./...
+	@export PATH=${PATH}:`go env GOPATH`/bin; golangci-lint run ./... --fix
+	@export PATH=${PATH}:`go env GOPATH`/bin; staticcheck ./...
+	@export PATH=${PATH}:`go env GOPATH`/bin; fieldalignment -fix ./...
+	@export PATH=${PATH}:`go env GOPATH`/bin; deadcode ./...
+	@export PATH=${PATH}:`go env GOPATH`/bin; govulncheck -show verbose ./...
 
 .PHONY: test
 test:
@@ -112,7 +112,7 @@ go-env:
 
 .PHONY: release-skip-publish
 release-skip-publish: download install-tools generate
-	@goreleaser release --skip-publish --snapshot --clean
+	@export PATH=${PATH}:`go env GOPATH`/bin; goreleaser release --skip-publish --snapshot --clean
 
 .PHONY: check-profiler-block
 check-profiler-block:
