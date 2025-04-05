@@ -3,6 +3,7 @@ package helper
 import (
 	"context"
 	"database/sql"
+	"github.com/aaronjan/hunch"
 	"reflect"
 	"testing"
 
@@ -379,6 +380,51 @@ func TestQueryContext(t *testing.T) {
 			}
 			if !reflect.DeepEqual(gotReturnData, tt.wantReturnData) {
 				t.Errorf("QueryContext() gotReturnData = %v, want %v", gotReturnData, tt.wantReturnData)
+			}
+		})
+	}
+}
+
+func TestTxWith(t *testing.T) {
+	type args struct {
+		ctx        context.Context
+		logFlag    string
+		methodName string
+		db         *sql.DB
+		extraExec  []hunch.ExecutableInSequence
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "Ok",
+			args: args{
+				ctx:        context.Background(),
+				logFlag:    "Foo.Bar",
+				methodName: "FooBar",
+				db: func() *sql.DB {
+					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+					s.ExpectBegin()
+					return db
+				}(),
+				extraExec: []hunch.ExecutableInSequence{
+					func(c context.Context, i interface{}) (r interface{}, e error) {
+						tx := i.(*sql.Tx)
+						return tx, nil
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := TxWith(tt.args.ctx, tt.args.logFlag, tt.args.methodName, tt.args.db, tt.args.extraExec...); (err != nil) != tt.wantErr {
+				t.Errorf("TxWith() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

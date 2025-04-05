@@ -3,7 +3,6 @@ package sample
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -94,24 +93,21 @@ func (d *DB) createTables(ctx context.Context, tx *sql.Tx, listBank []string, st
 }
 
 func (d *DB) postWith(ctx context.Context, methodName string, extraExec hunch.ExecutableInSequence) (err error) {
-	var tx *sql.Tx
-	defer func() {
-		log.Err(ctx, fmt.Sprintf("[sample.NewDB] Exec %s method in db", methodName), helper.CommitOrRollback(tx, err))
-	}()
-
-	_, err = hunch.Waterfall(
-		ctx,
-		func(c context.Context, _ interface{}) (r interface{}, e error) {
-			tx, e = d.db.BeginTx(ctx, nil)
-			return nil, e
-		},
-		func(c context.Context, _ interface{}) (interface{}, error) {
+	execFn := []hunch.ExecutableInSequence{
+		func(c context.Context, i interface{}) (r interface{}, e error) {
+			tx := i.(*sql.Tx)
 			return tx, d.dropTables(c, tx)
 		},
 		extraExec,
-	)
+	}
 
-	return
+	return helper.TxWith(
+		ctx,
+		"sample.NewDB",
+		methodName,
+		d.db,
+		execFn...,
+	)
 }
 
 func (d *DB) Pre(ctx context.Context, listBank []string, startDate time.Time, toDate time.Time, limitTrxData int64, matchPercentage int) (err error) {

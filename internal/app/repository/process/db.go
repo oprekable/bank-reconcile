@@ -3,8 +3,6 @@ package process
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"reflect"
 	"strings"
 	"time"
 
@@ -34,18 +32,9 @@ func NewDB(
 }
 
 func (d *DB) dropTableWith(ctx context.Context, methodName string, extraExec hunch.ExecutableInSequence) (err error) {
-	var tx *sql.Tx
-	defer func() {
-		log.Err(ctx, fmt.Sprintf("[process.NewDB] Exec %s method in db", methodName), helper.CommitOrRollback(tx, err))
-	}()
-
-	_, err = hunch.Waterfall(
-		ctx,
-		func(c context.Context, _ interface{}) (r interface{}, e error) {
-			tx, e = d.db.BeginTx(ctx, nil)
-			return nil, e
-		},
-		func(c context.Context, _ interface{}) (interface{}, error) {
+	execFn := []hunch.ExecutableInSequence{
+		func(c context.Context, i interface{}) (r interface{}, e error) {
+			tx := i.(*sql.Tx)
 			stmtData := []helper.StmtData{
 				{
 					Name:  "QueryDropTableArguments",
@@ -72,9 +61,15 @@ func (d *DB) dropTableWith(ctx context.Context, methodName string, extraExec hun
 			return tx, helper.ExecTxQueries(ctx, tx, d.stmtMap, stmtData)
 		},
 		extraExec,
-	)
+	}
 
-	return
+	return helper.TxWith(
+		ctx,
+		"process.NewDB",
+		methodName,
+		d.db,
+		execFn...,
+	)
 }
 
 func (d *DB) createTables(ctx context.Context, tx *sql.Tx, listBank []string, startDate time.Time, toDate time.Time) (err error) {
@@ -135,38 +130,33 @@ func (d *DB) Pre(ctx context.Context, listBank []string, startDate time.Time, to
 }
 
 func (d *DB) importInterface(ctx context.Context, methodName string, query string, data interface{}) (err error) {
-	var tx *sql.Tx
-	defer func() {
-		log.Err(ctx, fmt.Sprintf("[process.NewDB] %s method to db (%d data)", methodName, reflect.ValueOf(data).Len()), helper.CommitOrRollback(tx, err))
-	}()
-
-	_, err = hunch.Waterfall(
-		ctx,
-		func(c context.Context, _ interface{}) (r interface{}, e error) {
-			tx, e = d.db.BeginTx(ctx, nil)
-			return nil, e
-		},
-		func(c context.Context, _ interface{}) (interface{}, error) {
-			return json.Marshal(data)
-		},
-		func(c context.Context, i interface{}) (interface{}, error) {
+	execFn := []hunch.ExecutableInSequence{
+		func(c context.Context, i interface{}) (r interface{}, e error) {
+			tx := i.(*sql.Tx)
+			b, _ := json.Marshal(data)
 			stmtData := []helper.StmtData{
 				{
 					Name:  methodName,
 					Query: query,
 					Args: func() []any {
 						return []any{
-							string(i.([]byte)),
+							string(b),
 						}
 					}(),
 				},
 			}
 
-			return nil, helper.ExecTxQueries(ctx, tx, d.stmtMap, stmtData)
+			return tx, helper.ExecTxQueries(ctx, tx, d.stmtMap, stmtData)
 		},
-	)
+	}
 
-	return
+	return helper.TxWith(
+		ctx,
+		"process.NewDB",
+		methodName,
+		d.db,
+		execFn...,
+	)
 }
 
 func (d *DB) ImportSystemTrx(ctx context.Context, data []*systems.SystemTrxData) (err error) {
@@ -178,18 +168,9 @@ func (d *DB) ImportBankTrx(ctx context.Context, data []*banks.BankTrxData) (err 
 }
 
 func (d *DB) GenerateReconciliationMap(ctx context.Context, minAmount float64, maxAmount float64) (err error) {
-	var tx *sql.Tx
-	defer func() {
-		log.Err(ctx, fmt.Sprintf("[process.NewDB] Exec GenerateReconciliationMap method to db (Amount %f - %f)", minAmount, maxAmount), helper.CommitOrRollback(tx, err))
-	}()
-
-	_, err = hunch.Waterfall(
-		ctx,
-		func(c context.Context, _ interface{}) (r interface{}, e error) {
-			tx, e = d.db.BeginTx(ctx, nil)
-			return nil, e
-		},
-		func(c context.Context, i interface{}) (interface{}, error) {
+	execFn := []hunch.ExecutableInSequence{
+		func(c context.Context, i interface{}) (r interface{}, e error) {
+			tx := i.(*sql.Tx)
 			stmtData := []helper.StmtData{
 				{
 					Name:  "QueryInsertTableReconciliationMap",
@@ -203,11 +184,17 @@ func (d *DB) GenerateReconciliationMap(ctx context.Context, minAmount float64, m
 				},
 			}
 
-			return nil, helper.ExecTxQueries(ctx, tx, d.stmtMap, stmtData)
+			return tx, helper.ExecTxQueries(ctx, tx, d.stmtMap, stmtData)
 		},
-	)
+	}
 
-	return
+	return helper.TxWith(
+		ctx,
+		"process.NewDB",
+		"GenerateReconciliationMap",
+		d.db,
+		execFn...,
+	)
 }
 
 func (d *DB) GetReconciliationSummary(ctx context.Context) (returnData ReconciliationSummary, err error) {

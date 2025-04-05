@@ -3,6 +3,8 @@ package helper
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 	"reflect"
 
 	"github.com/oprekable/bank-reconcile/internal/app/err/core"
@@ -96,6 +98,32 @@ func ExecTxQueries(ctx context.Context, tx *sql.Tx, stmtMap map[string]*sql.Stmt
 	_, err = hunch.Waterfall(
 		ctx,
 		executableInSequence...,
+	)
+
+	return
+}
+
+func TxWith(ctx context.Context, logFlag string, methodName string, db *sql.DB, extraExec ...hunch.ExecutableInSequence) (err error) {
+	var tx *sql.Tx
+	defer func() {
+		log.Err(ctx, fmt.Sprintf("[%s] Exec %s method in db", logFlag, methodName), CommitOrRollback(tx, err))
+	}()
+
+	execFn := []hunch.ExecutableInSequence{
+		func(_ context.Context, _ interface{}) (r interface{}, e error) {
+			tx, e = db.BeginTx(ctx, nil)
+			return tx, e
+		},
+	}
+
+	execFn = append(
+		execFn,
+		extraExec...,
+	)
+
+	_, err = hunch.Waterfall(
+		ctx,
+		execFn...,
 	)
 
 	return
