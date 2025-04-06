@@ -17,11 +17,11 @@ builds:
     binary: bank-reconcile
     ldflags:
       - -s -w
-      - -X github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}
-      - -X github.com/oprekable/bank-reconcile/variable.Version={{.CurrentTag}}
-      - -X github.com/oprekable/bank-reconcile/variable.Environment=default
-      - -X github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}
-      - -X github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta
+      - -X "github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Version={{.Version}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Environment=default"
+      - -X "github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta"
     env:
       - GO111MODULE=on
       - CGO_ENABLED=0
@@ -32,11 +32,11 @@ builds:
     binary: bank-reconcile
     ldflags:
       - -s -w
-      - -X github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}
-      - -X github.com/oprekable/bank-reconcile/variable.Version={{.CurrentTag}}
-      - -X github.com/oprekable/bank-reconcile/variable.Environment=default
-      - -X github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}
-      - -X github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta
+      - -X "github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Version={{.Version}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Environment=default"
+      - -X "github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta"
     env:
       - GO111MODULE=on
       - CGO_ENABLED=0
@@ -47,11 +47,11 @@ builds:
     binary: bank-reconcile
     ldflags:
       - -s -w
-      - -X github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}
-      - -X github.com/oprekable/bank-reconcile/variable.Version={{.CurrentTag}}
-      - -X github.com/oprekable/bank-reconcile/variable.Environment=default
-      - -X github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}
-      - -X github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta
+      - -X "github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Version={{.Version}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Environment=default"
+      - -X "github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta"
     env:
       - GO111MODULE=on
       - CGO_ENABLED=0
@@ -62,11 +62,11 @@ builds:
     binary: bank-reconcile
     ldflags:
       - -s -w
-      - -X github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}
-      - -X github.com/oprekable/bank-reconcile/variable.Version={{.CurrentTag}}
-      - -X github.com/oprekable/bank-reconcile/variable.Environment=default
-      - -X github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}
-      - -X github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta
+      - -X "github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Version={{.Version}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Environment=default"
+      - -X "github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta"
     env:
       - GO111MODULE=on
       - CGO_ENABLED=0
@@ -77,11 +77,11 @@ builds:
     binary: bank-reconcile
     ldflags:
       - -s -w
-      - -X github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}
-      - -X github.com/oprekable/bank-reconcile/variable.Version={{.CurrentTag}}
-      - -X github.com/oprekable/bank-reconcile/variable.Environment=default
-      - -X github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}
-      - -X github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta
+      - -X "github.com/oprekable/bank-reconcile/variable.GitCommit={{.Commit}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Version={{.Version}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.Environment=default"
+      - -X "github.com/oprekable/bank-reconcile/variable.BuildDate={{.CommitDate}}"
+      - -X "github.com/oprekable/bank-reconcile/variable.TimeZone=Asia/Jakarta"
     env:
       - GO111MODULE=on
       - CGO_ENABLED=0
@@ -150,6 +150,7 @@ archives:
         strip_parent: true
 
 release:
+  target_commitish: "{{ .Commit }}"
   draft: false
 
 checksum:
