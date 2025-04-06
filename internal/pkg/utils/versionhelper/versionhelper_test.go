@@ -40,7 +40,6 @@ func TestGetVersion(t *testing.T) {
 			if !reflect.DeepEqual(gotReturnData.Environment, tt.wantReturnData.Environment) {
 				t.Errorf("GetVersion() gotReturnedData.Environment= %v, want.Environment %v", gotReturnData.Environment, tt.wantReturnData.Environment)
 			}
-
 		})
 	}
 }

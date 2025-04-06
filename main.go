@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+
 	"github.com/oprekable/bank-reconcile/cmd"
 )
 
