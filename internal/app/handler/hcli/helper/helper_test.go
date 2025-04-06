@@ -2,6 +2,7 @@ package helper
 
 import (
 	"bytes"
+	"github.com/oprekable/bank-reconcile/internal/app/config"
 	"io"
 	"reflect"
 	"testing"
@@ -12,6 +13,7 @@ import (
 func TestInitCommonArgs(t *testing.T) {
 	type args struct {
 		extraArgs [][]string
+		conf      *config.Data
 	}
 	tests := []struct {
 		name string
@@ -27,15 +29,16 @@ func TestInitCommonArgs(t *testing.T) {
 						"bar",
 					},
 				},
+				conf: &config.Data{},
 			},
 			want: [][]string{
 				{
 					"-f --from",
-					"",
+					"0001-01-01",
 				},
 				{
 					"-t --to",
-					"",
+					"0001-01-01",
 				},
 				{
 					"-s --systemtrxpath",
@@ -71,7 +74,7 @@ func TestInitCommonArgs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := InitCommonArgs(tt.args.extraArgs)
+			got := InitCommonArgs(tt.args.conf, tt.args.extraArgs)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("InitCommonArgs() = %v, want %v", got, tt.want)
 			}

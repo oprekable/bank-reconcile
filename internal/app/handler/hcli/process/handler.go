@@ -39,10 +39,11 @@ func (h *Handler) Exec() error {
 	bar := helper.InitProgressBar(h.writer)
 	formatText := "-%s --%s"
 	args := helper.InitCommonArgs(
+		h.comp.Config.Data,
 		[][]string{
 			{
 				fmt.Sprintf(formatText, root.FlagReportTRXPathShort, root.FlagReportTRXPath),
-				root.FlagReportTRXPathValue,
+				h.comp.Config.Data.Reconciliation.ReportTRXPath,
 			},
 		},
 	)

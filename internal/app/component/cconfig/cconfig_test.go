@@ -341,7 +341,7 @@ is_delete_current_sample_directory = true
 				Data: &config.Data{
 					App: core.App{
 						Secret:    "796bb93e-6269-4aa1-96e4-a8b54aad40aa",
-						IsShowLog: "true",
+						IsShowLog: true,
 						IsDebug:   false,
 					},
 					Sqlite: core.Sqlite{

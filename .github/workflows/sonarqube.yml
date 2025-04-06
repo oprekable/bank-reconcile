@@ -25,7 +25,7 @@ jobs:
           cache: true
       - name: Run tests with coverage
         run: |
-          make go-lint-fix-struct-staticcheck-govulncheck
+          make development-checks
           go test -gcflags=all=-l -count=1 -p=8 -parallel=8 -race -coverprofile=coverage.out ./... -json | tee report.json
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v5 # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan

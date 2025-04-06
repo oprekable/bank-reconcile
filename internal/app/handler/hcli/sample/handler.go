@@ -38,18 +38,19 @@ func (h *Handler) Exec() (err error) {
 	bar := helper.InitProgressBar(h.writer)
 	formatText := "-%s --%s"
 	args := helper.InitCommonArgs(
+		h.comp.Config.Data,
 		[][]string{
 			{
 				fmt.Sprintf(formatText, root.FlagTotalDataSampleToGenerateShort, root.FlagTotalDataSampleToGenerate),
-				strconv.FormatInt(root.FlagTotalDataSampleToGenerateValue, 10),
+				strconv.FormatInt(h.comp.Config.Data.Reconciliation.TotalData, 10),
 			},
 			{
 				fmt.Sprintf(formatText, root.FlagPercentageMatchSampleToGenerateShort, root.FlagPercentageMatchSampleToGenerate),
-				strconv.Itoa(root.FlagPercentageMatchSampleToGenerateValue),
+				strconv.Itoa(h.comp.Config.Data.Reconciliation.PercentageMatch),
 			},
 			{
 				fmt.Sprintf(formatText, root.FlagIsDeleteCurrentSampleDirectoryShort, root.FlagIsDeleteCurrentSampleDirectory),
-				strconv.FormatBool(root.FlagIsDeleteCurrentSampleDirectoryValue),
+				strconv.FormatBool(h.comp.Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory),
 			},
 		},
 	)

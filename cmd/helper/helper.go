@@ -3,7 +3,6 @@ package helper
 import (
 	"context"
 	"embed"
-	"strconv"
 	"time"
 
 	"github.com/oprekable/bank-reconcile/internal/app/appcontext"
@@ -63,7 +62,7 @@ func (r *Runner) Run(embedFs *embed.FS, appName string, tz string, errTypes []co
 	app.GetComponents().Config.Data.Reconciliation.ReportTRXPath = root.FlagReportTRXPathValue
 	app.GetComponents().Config.Data.Reconciliation.ListBank = root.FlagListBankValue
 	app.GetComponents().Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory = root.FlagIsDeleteCurrentSampleDirectoryValue
-	app.GetComponents().Config.Data.App.IsShowLog = strconv.FormatBool(root.FlagIsVerboseValue)
+	app.GetComponents().Config.Data.App.IsShowLog = root.FlagIsVerboseValue
 	app.GetComponents().Config.Data.App.IsDebug = root.FlagIsDebugValue
 	app.GetComponents().Config.Data.App.IsProfilerActive = root.FlagIsProfilerActiveValue
 

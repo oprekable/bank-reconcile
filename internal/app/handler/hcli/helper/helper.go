@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/oprekable/bank-reconcile/internal/app/config"
 	"io"
 	"strconv"
 	"strings"
@@ -26,40 +27,40 @@ func InitProgressBar(writer io.Writer) *progressbar.ProgressBar {
 		}))
 }
 
-func InitCommonArgs(extraArgs [][]string) [][]string {
+func InitCommonArgs(conf *config.Data, extraArgs [][]string) [][]string {
 	formatText := "-%s --%s"
 	args := [][]string{
 		{
 			fmt.Sprintf(formatText, root.FlagFromDateShort, root.FlagFromDate),
-			root.FlagFromDateValue,
+			conf.Reconciliation.FromDate.Format("2006-01-02"),
 		},
 		{
 			fmt.Sprintf(formatText, root.FlagToDateShort, root.FlagToDate),
-			root.FlagToDateValue,
+			conf.Reconciliation.ToDate.Format("2006-01-02"),
 		},
 		{
 			fmt.Sprintf(formatText, root.FlagSystemTRXPathShort, root.FlagSystemTRXPath),
-			root.FlagSystemTRXPathValue,
+			conf.Reconciliation.SystemTRXPath,
 		},
 		{
 			fmt.Sprintf(formatText, root.FlagBankTRXPathShort, root.FlagBankTRXPath),
-			root.FlagBankTRXPathValue,
+			conf.Reconciliation.BankTRXPath,
 		},
 		{
 			fmt.Sprintf(formatText, root.FlagListBankShort, root.FlagListBank),
-			strings.Join(root.FlagListBankValue, ","),
+			strings.Join(conf.Reconciliation.ListBank, ","),
 		},
 		{
 			fmt.Sprintf(formatText, root.FlagIsVerboseShort, root.FlagIsVerbose),
-			strconv.FormatBool(root.FlagIsVerboseValue),
+			strconv.FormatBool(conf.App.IsShowLog),
 		},
 		{
 			fmt.Sprintf(formatText, root.FlagIsDebugShort, root.FlagIsDebug),
-			strconv.FormatBool(root.FlagIsDebugValue),
+			strconv.FormatBool(conf.App.IsDebug),
 		},
 		{
 			fmt.Sprintf(formatText, root.FlagIsProfilerActiveShort, root.FlagIsProfilerActive),
-			strconv.FormatBool(root.FlagIsProfilerActiveValue),
+			strconv.FormatBool(conf.App.IsProfilerActive),
 		},
 	}
 

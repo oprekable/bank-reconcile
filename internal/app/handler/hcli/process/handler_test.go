@@ -3,6 +3,10 @@ package process
 import (
 	"bytes"
 	"errors"
+	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
+	"github.com/oprekable/bank-reconcile/internal/app/config"
+	"github.com/oprekable/bank-reconcile/internal/app/config/core"
+	"github.com/oprekable/bank-reconcile/internal/app/config/reconciliation"
 	"io"
 	"reflect"
 	"testing"
@@ -49,6 +53,14 @@ func TestHandlerExec(t *testing.T) {
 					Fs: &cfs.Fs{
 						LocalStorageFs: afero.NewMemMapFs(),
 					},
+					Config: &cconfig.Config{
+						Data: &config.Data{
+							App: core.App{},
+							Reconciliation: reconciliation.Reconciliation{
+								ReportTRXPath: "/foo",
+							},
+						},
+					},
 				},
 				svc: func() *service.Services {
 					mockSvc := mockprocess.NewService(t)
@@ -79,6 +91,14 @@ func TestHandlerExec(t *testing.T) {
 				comp: &component.Components{
 					Fs: &cfs.Fs{
 						LocalStorageFs: afero.NewMemMapFs(),
+					},
+					Config: &cconfig.Config{
+						Data: &config.Data{
+							App: core.App{},
+							Reconciliation: reconciliation.Reconciliation{
+								ReportTRXPath: "/foo",
+							},
+						},
 					},
 				},
 				svc: func() *service.Services {
