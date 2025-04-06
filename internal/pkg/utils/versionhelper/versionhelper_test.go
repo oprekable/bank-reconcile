@@ -1,37 +1,46 @@
 package versionhelper
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestGetVersion(t *testing.T) {
 	type args struct {
-		version string
+		version     string
+		buildDate   string
+		commitHash  string
+		environment string
 	}
+
 	tests := []struct {
-		name string
-		args args
-		want string
+		name           string
+		args           args
+		wantReturnData VersionStruct
 	}{
 		{
-			name: "ok - SNAPSHOT",
+			name: "Ok",
 			args: args{
-				version: "",
+				version:     "",
+				environment: "",
 			},
-			want: "SNAPSHOT",
-		},
-		{
-			name: "ok - non SNAPSHOT",
-			args: args{
-				version: "v1.0.0",
+			wantReturnData: VersionStruct{
+				Version:     "snapshot",
+				Environment: "default",
 			},
-			want: "v1.0.0",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetVersion(tt.args.version); got != tt.want {
-				t.Errorf("GetVersion() = %v, want %v", got, tt.want)
+			gotReturnData := GetVersion(tt.args.version, tt.args.buildDate, tt.args.commitHash, tt.args.environment)
+			if !reflect.DeepEqual(gotReturnData.Version, tt.wantReturnData.Version) {
+				t.Errorf("GetVersion() gotReturnedData.Version= %v, want.Version %v", gotReturnData.Version, tt.wantReturnData.Version)
 			}
+			if !reflect.DeepEqual(gotReturnData.Environment, tt.wantReturnData.Environment) {
+				t.Errorf("GetVersion() gotReturnedData.Environment= %v, want.Environment %v", gotReturnData.Environment, tt.wantReturnData.Environment)
+			}
+
 		})
 	}
 }
