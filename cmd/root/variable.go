@@ -57,7 +57,7 @@ var nowDateString = time.Now().Format("2006-01-02")
 var workDir = filepathhelper.GetWorkDir(filepathhelper.SystemCalls{})
 var pathSystemTrx = filepath.Join(workDir, "sample", "system")
 var pathBankTrx = filepath.Join(workDir, "sample", "bank")
-var pathReportTrx = filepath.Join(workDir, "sample", "report")
+var pathReportTrx = filepath.Join(workDir, "report")
 var SampleUsageFlags = fmt.Sprintf("--systemtrxpath=%s --banktrxpath=%s --listbank=bca,bni,mandiri,bri,danamon --percentagematch=100 --amountdata=10000 --from=%s --to=%s", pathSystemTrx, pathBankTrx, nowDateString, nowDateString)
 var ProcessUsageFlags = fmt.Sprintf("--systemtrxpath=%s --banktrxpath=%s --reportpath=%s --listbank=bca,bni,mandiri,bri,danamon --from=%s --to=%s", pathSystemTrx, pathBankTrx, pathReportTrx, nowDateString, nowDateString)
 var FlagSystemTRXPathValue string
