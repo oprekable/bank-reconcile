@@ -130,7 +130,18 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
 									ReportTRXPath: "/report",
+									SystemTRXPath: "/system",
+									BankTRXPath:   "/bank",
 									NumberWorker:  10,
+									FromDate: func() (r time.Time) {
+										r, _ = time.Parse("2006-01-02", "2025-03-06")
+										return
+									}(),
+									ToDate: func() (r time.Time) {
+										r, _ = time.Parse("2006-01-02", "2025-03-09")
+										return
+									}(),
+									ListBank: []string{"bca", "bni"},
 								},
 							},
 						}
@@ -166,6 +177,8 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 							"ImportSystemTrx",
 							mock.Anything,
 							mock.Anything,
+							mock.Anything,
+							mock.Anything,
 						).Return(
 							nil,
 							nil,
@@ -173,6 +186,8 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 
 						m.On(
 							"ImportBankTrx",
+							mock.Anything,
+							mock.Anything,
 							mock.Anything,
 							mock.Anything,
 						).Return(
@@ -256,6 +271,36 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 				}(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
+					systemTrxFile, _ := f.Create("/system/foo1.csv")
+					_, _ = systemTrxFile.Write([]byte(
+						`TrxID,TransactionTime,Type,Amount
+006630c83821fac6bea13b92b480feb2,2025-03-06 17:09:21,DEBIT,41000
+0066a6264a3b04ac25bd93eed2cb3c6c,2025-03-07 10:18:29,CREDIT,1000
+0066a6264a3b04ac25bd93eed2cb3aaa,2025-03-07 10:18:29,CREDIT,89900
+0066a6264a3b04ac25bd93eed2cb3bbb,2025-03-08 10:18:29,CREDIT,9000
+`,
+					))
+
+					_ = systemTrxFile.Close()
+
+					bankTrxFile, _ := f.Create("/bank/bca/any_string.csv")
+					_, _ = bankTrxFile.Write([]byte(
+						`BCAUniqueIdentifier,BCADate,BCAAmount
+bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
+`,
+					))
+
+					_ = bankTrxFile.Close()
+					bankTrxFile, _ = f.Create("/bank/bni/any_string.csv")
+
+					_, _ = bankTrxFile.Write([]byte(
+						`BNIUniqueIdentifier,BNIDate,BNIAmount
+bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
+`,
+					))
+
+					_ = bankTrxFile.Close()
+
 					return f
 				}(),
 				bar: progressbar.NewOptions(100, progressbar.OptionSetWidth(10), progressbar.OptionSetWriter(&bf)),

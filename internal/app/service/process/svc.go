@@ -548,7 +548,10 @@ func (s *Svc) GenerateReconciliation(ctx context.Context, afs afero.Fs, bar *pro
 			progressbarhelper.BarDescribe(bar, "[cyan][3/7] Import System Trx to DB...")
 
 			trxData = i.(parser.TrxData)
-			e = s.importReconcileSystemDataToDB(c, trxData.SystemTrx)
+
+			if len(trxData.SystemTrx) > 0 {
+				e = s.importReconcileSystemDataToDB(c, trxData.SystemTrx)
+			}
 
 			log.Err(c, "[process.NewSvc] GenerateReconciliation importReconcileSystemDataToDB executed", e)
 
@@ -557,7 +560,9 @@ func (s *Svc) GenerateReconciliation(ctx context.Context, afs afero.Fs, bar *pro
 		func(c context.Context, i interface{}) (d interface{}, e error) {
 			progressbarhelper.BarDescribe(bar, "[cyan][4/7] Import Bank Trx to DB...")
 
-			e = s.importReconcileBankDataToDB(c, trxData.BankTrx)
+			if len(trxData.BankTrx) > 0 {
+				e = s.importReconcileBankDataToDB(c, trxData.BankTrx)
+			}
 
 			log.Err(c, "[process.NewSvc] GenerateReconciliation importReconcileBankDataToDB executed", e)
 
@@ -566,7 +571,10 @@ func (s *Svc) GenerateReconciliation(ctx context.Context, afs afero.Fs, bar *pro
 		func(c context.Context, i interface{}) (d interface{}, e error) {
 			progressbarhelper.BarDescribe(bar, "[cyan][5/7] Mapping Reconciliation Data...")
 
-			e = s.importReconcileMapToDB(c, trxData.MinSystemAmount, trxData.MaxSystemAmount)
+			if len(trxData.SystemTrx) > 0 {
+				e = s.importReconcileMapToDB(c, trxData.MinSystemAmount, trxData.MaxSystemAmount)
+			}
+
 			log.Err(c, "[process.NewSvc] GenerateReconciliation importReconcileMapToDB executed", e)
 
 			return
