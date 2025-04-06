@@ -25,7 +25,7 @@ func TestGetVersion(t *testing.T) {
 				environment: "",
 			},
 			wantReturnData: VersionStruct{
-				Version:     "snapshot",
+				Version:     "(devel)",
 				Environment: "default",
 			},
 		},
