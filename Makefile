@@ -125,7 +125,7 @@ check-profiler-memory: ## To open pprof data of memory profile
 	@go tool pprof -http=:8080 mem.pprof
 
 .PHONY: check-profiler-mutex
-check-profiler-mutex: ## To open pprof data of motex profile
+check-profiler-mutex: ## To open pprof data of mutex profile
 	@go tool pprof -http=:8080 mutex.pprof
 
 .PHONY: check-profiler-trace

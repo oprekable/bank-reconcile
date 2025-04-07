@@ -468,7 +468,7 @@ go-env                         To check current golang environment variables in 
 check-profiler-block           To open pprof data of block profile
 check-profiler-cpu             To open pprof data of cpu profile
 check-profiler-memory          To open pprof data of memory profile
-check-profiler-mutex           To open pprof data of motex profile
+check-profiler-mutex           To open pprof data of mutex profile
 check-profiler-trace           To open pprof data of trace profile
 ```
 - Run `make development-checks` will help us in developments
