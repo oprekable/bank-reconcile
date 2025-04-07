@@ -444,7 +444,7 @@ Expected application output will be:
 ▪ Done  [0s]
 ```
 
-# What are make commands this code have?
+# What are the make commands that this code uses?
 - Run `make` to display all available commands
 ```shell
 help                           Show this help
