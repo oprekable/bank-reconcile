@@ -73,7 +73,7 @@ endif
 base_args+=" --showlog=true --listbank=bca,bni,mandiri,bri,danamon --profiler=true --debug=true"
 
 process_args="process ${base_args} -s=/tmp/sample/system -b=/tmp/sample/bank -r=/tmp/report"
-sample_args="sample ${base_args} --percentagematch=100 --amountdata=1000000 -s=/tmp/sample/system -b=/tmp/sample/bank"
+sample_args="sample ${base_args} --percentagematch=100 --amountdata=100000 -s=/tmp/sample/system -b=/tmp/sample/bank"
 
 .PHONY: echo-sample-args
 echo-sample-args: ## Generate command syntax to run application to generate "sample"
