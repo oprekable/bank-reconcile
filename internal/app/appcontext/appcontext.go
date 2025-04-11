@@ -123,13 +123,16 @@ func (a *AppContext) Start() {
 
 			atexit.AtExit()
 
-			if context.Cause(a.ctx).Error() == "done" {
+			select {
+			case <-a.ctx.Done():
 				for k := range a.profiler {
 					a.profiler[k].Stop()
 				}
 
 				a.stopProfiler()
 				os.Exit(0)
+				return
+			default:
 			}
 		})
 	})
