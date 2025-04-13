@@ -131,7 +131,7 @@ Install application via command `go install github.com/oprekable/bank-reconcile@
 
 ## Application manual
 
-Run application with command `bank-reconcile` and we can see instruction such:
+- Run application with command `bank-reconcile` and we can see instruction such:
 
 ```shell
 Simple Bank Reconciliation command line tool
@@ -142,9 +142,9 @@ Usage:
 
 Examples:
 Generate sample 
-	bank-reconcile sample --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --listbank=bca,bni,mandiri,bri,danamon --percentagematch=100 --amountdata=10000 --from=2025-04-08 --to=2025-04-08
+	bank-reconcile sample --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --listbank=bca,bni,mandiri,bri,danamon --percentagematch=100 --amountdata=10000 --from=2025-04-14 --to=2025-04-14
 Process data 
-	bank-reconcile process --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --reportpath=/tmp/data/report --listbank=bca,bni,mandiri,bri,danamon --from=2025-04-08 --to=2025-04-08
+	bank-reconcile process --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --reportpath==/tmp/data/report --listbank=bca,bni,mandiri,bri,danamon --from=2025-04-14 --to=2025-04-14
 
 
 Available Commands:
@@ -155,51 +155,104 @@ Available Commands:
   version     Get application version
 
 Flags:
-  -a, --amountdata int         amount system trx data sample to generate, bank trx will be 2 times of this amount (default 1000)
-  -b, --banktrxpath string     Path location of Bank Transaction directory (default "/tmp/data/sample/bank")
-  -g, --debug                  debug mode
-  -d, --deleteoldfile          delete old files (default true)
-  -f, --from string            from date (YYYY-MM-DD) (default "2025-04-08")
-  -h, --help                   help for bank-reconcile
-  -l, --listbank strings       List bank accepted (default [bca,bni,mandiri,bri,danamon])
-  -p, --percentagematch int    percentage of matched trx for data sample to generate (default 100)
-  -i, --profiler               pprof active mode
-  -r, --reportpath string      Path location of Archive directory (default "/tmp/data/report")
-  -o, --showlog                show logs
-  -s, --systemtrxpath string   Path location of System Transaction directory (default "/tmp/data/sample/system")
-  -t, --to string              to date (YYYY-MM-DD) (default "2025-04-08")
+  -h, --help   help for bank-reconcile
 
 Use "bank-reconcile [command] --help" for more information about a command.
 ```
 
+- To get help of call sample feature, call `bank-reconcile sample --help`:
+
+```shell
+Generate sample reconciliation data of System Transactions and Bank Transactions
+
+Usage:
+  bank-reconcile sample [flags]
+
+Aliases:
+  sample, sa, s
+
+Examples:
+Generate sample 
+	bank-reconcile sample --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --listbank=bca,bni,mandiri,bri,danamon --percentagematch=100 --amountdata=10000 --from=2025-04-14 --to=2025-04-14
+
+
+Flags:
+  -a, --amountdata int         amount system trx data sample to generate, bank trx will be 2 times of this amount (default 1000)
+  -b, --banktrxpath string     Path location of Bank Transaction directory (default "/tmp/data/sample/bank")
+  -g, --debug                  debug mode
+  -d, --deleteoldfile          delete old sample files (default true)
+  -f, --from string            from date (YYYY-MM-DD) (default "2025-04-14")
+  -h, --help                   help for sample
+  -l, --listbank strings       List bank accepted (default [bca,bni,mandiri,bri,danamon])
+  -p, --percentagematch int    percentage of matched trx for data sample to generate (default 100)
+  -i, --profiler               pprof active mode
+  -o, --showlog                show logs
+  -s, --systemtrxpath string   Path location of System Transaction directory (default "/tmp/data/sample/system")
+  -z, --time_zone string       time zone settings (default "Asia/Jakarta")
+  -t, --to string              to date (YYYY-MM-DD) (default "2025-04-14")
+```
+
+- To get help of call reconciliation process feature, call `bank-reconcile process --help`:
+
+```shell
+Process reconciliation data of System Transactions and Bank Transactions
+
+Usage:
+  bank-reconcile process [flags]
+
+Aliases:
+  process, pr, p
+
+Examples:
+Process data 
+	bank-reconcile process --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --reportpath==/tmp/data/report --listbank=bca,bni,mandiri,bri,danamon --from=2025-04-14 --to=2025-04-14
+
+
+Flags:
+  -b, --banktrxpath string     Path location of Bank Transaction directory (default "/tmp/data/sample/bank")
+  -g, --debug                  debug mode
+  -d, --deleteoldfile          delete old report files (default true)
+  -f, --from string            from date (YYYY-MM-DD) (default "2025-04-14")
+  -h, --help                   help for process
+  -l, --listbank strings       List bank accepted (default [bca,bni,mandiri,bri,danamon])
+  -i, --profiler               pprof active mode
+  -r, --reportpath string      Path location of Archive directory (default "/tmp/data/report")
+  -o, --showlog                show logs
+  -s, --systemtrxpath string   Path location of System Transaction directory (default "/tmp/data/sample/system")
+  -z, --time_zone string       time zone settings (default "Asia/Jakarta")
+  -t, --to string              to date (YYYY-MM-DD) (default "2025-04-14")
+```
+
 Here details of subcommand and arguments:
 
-| Sub Command | Available Flags       | Default Value                                                         | Description                                                                                                                                                           |
-|-------------|-----------------------|-----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|             |                       |                                                                       | will display help information, instructions how to run the application                                                                                                |
-|             | --help                |                                                                       | will display help information, instructions how to run the application                                                                                                |
-| sample      | -f, --from            | current date with format YYYY-MM-DD (2025-04-08)                      | start date to generate sample data                                                                                                                                    |
-| sample      | -t, --to              | current date with format YYYY-MM-DD (2025-04-08)                      | end date to generate sample data (if equals with start date means data for one day)                                                                                   |
-| sample      | -l, --listbank        | bca,bni,mandiri,bri,danamon                                           | list of bank in sample data)                                                                                                                                          |
-| sample      | -p, --percentagematch | 100                                                                   | at least of percentage matched transaction (internal transaction vs bank statement), if sets 10 matched transactions will be 10% or more                              |
-| sample      | -a, --amountdata      | 1000                                                                  | total internal transaction generated                                                                                                                                  |
-| sample      | -b, --banktrxpath     | Current working directory + `sample/bank` (/tmp/data/sample/bank)     | root directory path of generated sample of bank statements data files located                                                                                         |
-| sample      | -s, --systemtrxpath   | Current working directory + `sample/system` (/tmp/data/sample/system) | root directory path of generated sample of internal transaction data files located                                                                                    |
-| sample      | -d, --deleteoldfile   | true                                                                  | when value == true, delete previous any directory or files in `--banktrxpath` or `--systemtrxpath`                                                                    |
+| Sub Command | Available Flags       | Default Value                                                         | Description                                                                                                                                                       |
+|-------------|-----------------------|-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|             |                       |                                                                       | will display help information, instructions how to run the application                                                                                            |
+|             | --help                |                                                                       | will display help information, instructions how to run the application                                                                                            |
+| sample      | --help                |                                                                       | will display help information with list available arguments of `sample` subcommand                                                                                |
+| sample      | -f, --from            | current date with format YYYY-MM-DD (2025-04-08)                      | start date to generate sample data                                                                                                                                |
+| sample      | -t, --to              | current date with format YYYY-MM-DD (2025-04-08)                      | end date to generate sample data (if equals with start date means data for one day)                                                                               |
+| sample      | -l, --listbank        | bca,bni,mandiri,bri,danamon                                           | list of bank in sample data)                                                                                                                                      |
+| sample      | -p, --percentagematch | 100                                                                   | at least of percentage matched transaction (internal transaction vs bank statement), if sets 10 matched transactions will be 10% or more                          |
+| sample      | -a, --amountdata      | 1000                                                                  | total internal transaction generated                                                                                                                              |
+| sample      | -b, --banktrxpath     | Current working directory + `sample/bank` (/tmp/data/sample/bank)     | root directory path of generated sample of bank statements data files located                                                                                     |
+| sample      | -s, --systemtrxpath   | Current working directory + `sample/system` (/tmp/data/sample/system) | root directory path of generated sample of internal transaction data files located                                                                                |
+| sample      | -d, --deleteoldfile   | true                                                                  | when value == true, delete previous any directory or files in `--banktrxpath` or `--systemtrxpath`                                                                |
 | sample      | -i, --profiler        | false                                                                 | when value == true, turn on profiler, will generate files `mem.pprof, mutex.pprof, cpu.pprof  trace.pprof, block.pprof, goroutine.pprof` in current working directory |
-| sample      | -o, --showlog         | false                                                                 | when value == true, turn on verbose logs                                                                                                                              |
-| sample      | -g, --debug           | false                                                                 | when value == true, generate SQLite file `sample.db`                                                                                                                  |
-| process     | -f, --from            | current date with format YYYY-MM-DD (2025-04-08)                      | start date to process reconciliation data                                                                                                                             |
-| process     | -t, --to              | current date with format YYYY-MM-DD (2025-04-08)                      | end date to process reconciliation data (if equals with start date means data for one day)                                                                            |
-| process     | -l, --listbank        | bca,bni,mandiri,bri,danamon                                           | list of bank in process reconciliation)                                                                                                                               |
-| process     | -s, --systemtrxpath   | Current working directory + `sample/system` (/tmp/data/sample/system) | root directory path of internal transaction source data files located                                                                                                 |
-| process     | -b, --banktrxpath     | Current working directory + `sample/bank` (/tmp/data/sample/bank)     | root directory path of bank statements source data files located                                                                                                      |
-| process     | -r, --reportpath      | Current working directory + `report` (/tmp/data/report)               | root directory path of reconciliation result data files located                                                                                                       |
-| process     | -d, --deleteoldfile   | true                                                                  | when value == true, delete previous any directory or files in `--reportpath`                                                                                          |
+| sample      | -o, --showlog         | false                                                                 | when value == true, turn on verbose logs                                                                                                                          |
+| sample      | -g, --debug           | false                                                                 | when value == true, generate SQLite file `sample.db`                                                                                                              |
+| process     | --help                |                                                                       | will display help information with list available arguments of `process` subcommand                                                                               |
+| process     | -f, --from            | current date with format YYYY-MM-DD (2025-04-08)                      | start date to process reconciliation data                                                                                                                         |
+| process     | -t, --to              | current date with format YYYY-MM-DD (2025-04-08)                      | end date to process reconciliation data (if equals with start date means data for one day)                                                                        |
+| process     | -l, --listbank        | bca,bni,mandiri,bri,danamon                                           | list of bank in process reconciliation)                                                                                                                           |
+| process     | -s, --systemtrxpath   | Current working directory + `sample/system` (/tmp/data/sample/system) | root directory path of internal transaction source data files located                                                                                             |
+| process     | -b, --banktrxpath     | Current working directory + `sample/bank` (/tmp/data/sample/bank)     | root directory path of bank statements source data files located                                                                                                  |
+| process     | -r, --reportpath      | Current working directory + `report` (/tmp/data/report)               | root directory path of reconciliation result data files located                                                                                                   |
+| process     | -d, --deleteoldfile   | true                                                                  | when value == true, delete previous any directory or files in `--reportpath`                                                                                      |
 | process     | -i, --profiler        | false                                                                 | when value == true, turn on profiler, will generate files `mem.pprof, mutex.pprof, cpu.pprof  trace.pprof, block.pprof, goroutine.pprof` in current working directory |
-| process     | -o, --showlog         | false                                                                 | when value == true, turn on verbose logs                                                                                                                              |
-| process     | -g, --debug           | false                                                                 | when value == true, generate SQLite file `reconciliation.db`                                                                                                          |
-| version     |                       |                                                                       | will display application version                                                                                                                                      |
+| process     | -o, --showlog         | false                                                                 | when value == true, turn on verbose logs                                                                                                                          |
+| process     | -g, --debug           | false                                                                 | when value == true, generate SQLite file `reconciliation.db`                                                                                                      |
+| version     |                       |                                                                       | will display application version                                                                                                                                  |
 
 ### Example syntax of `sample` sub command :
 ```shell
