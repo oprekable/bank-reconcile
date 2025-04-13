@@ -1,6 +1,7 @@
 package hcli
 
 import (
+	"io"
 	"os"
 
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/noop"
@@ -8,15 +9,17 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/sample"
 )
 
+var OutPutHandlerWriter io.Writer = os.Stdout
+
 var (
 	Handlers = append(commonHandlers, applicationHandlers...)
 
 	commonHandlers = []Handler{
-		noop.NewHandler(os.Stdout),
+		noop.NewHandler(OutPutHandlerWriter),
 	}
 
 	applicationHandlers = []Handler{
-		process.NewHandler(os.Stdout),
-		sample.NewHandler(os.Stdout),
+		process.NewHandler(OutPutHandlerWriter),
+		sample.NewHandler(OutPutHandlerWriter),
 	}
 )

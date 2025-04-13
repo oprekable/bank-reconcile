@@ -57,23 +57,23 @@ test: ## Run unit tests and open coverage page
 
 .PHONY: run
 run: ## Build and run application
-	@go build -gcflags -live .
+	@go build -buildvcs=true -ldflags="-s -w" .
 	@env $$(cat "params/.env" | grep -Ev '^#' | xargs) ./bank-reconcile
 
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
-	base_args="--from=$$(date -j -v -10d '+%Y-%m-%d') --to=$$(date -j '+%Y-%m-%d')"
+	base_args="--from=$$(date -j -v -10d '+%Y-%m-%d') --to=$$(date -j -v -0d '+%Y-%m-%d')"
 endif
 
 ifeq ($(UNAME), Linux)
-	base_args="--from=$$(date -d '-10 day' '+%Y-%m-%d') --to=$$(date '+%Y-%m-%d')"
+	base_args="--from=$$(date -d '-10 day' '+%Y-%m-%d') --to=$$(date -d '-0 day' '+%Y-%m-%d')"
 endif
 
 base_args+=" --showlog=true --listbank=bca,bni,mandiri,bri,danamon --profiler=true --debug=true"
 
 process_args="process ${base_args} -s=/tmp/sample/system -b=/tmp/sample/bank -r=/tmp/report"
-sample_args="sample ${base_args} --percentagematch=100 --amountdata=100000 -s=/tmp/sample/system -b=/tmp/sample/bank"
+sample_args="sample ${base_args} --percentagematch=100 --amountdata=1000 -s=/tmp/sample/system -b=/tmp/sample/bank"
 
 .PHONY: echo-sample-args
 echo-sample-args: ## Generate command syntax to run application to generate "sample"
@@ -83,7 +83,7 @@ echo-sample-args: ## Generate command syntax to run application to generate "sam
 .PHONY: run-sample
 run-sample: ## Build and run application to generate "sample"
 	@echo $(sample_args)
-	@go build -buildvcs=false -ldflags="-s -w" .
+	@go build -buildvcs=true -ldflags="-s -w" .
 	@env $$(cat "params/.env" | grep -Ev '^#' | xargs) ./bank-reconcile  $$(echo $(sample_args))
 
 .PHONY: echo-process-args
@@ -94,14 +94,14 @@ echo-process-args: ## Generate command syntax to run application to "process" da
 .PHONY: run-process
 run-process: ## Build and run application to "process" data
 	@echo "go run main.go process $(process_args)"
-	@go build -buildvcs=false -ldflags="-s -w" .
+	@go build -buildvcs=true -ldflags="-s -w" .
 	@env $$(cat "params/.env" | grep -Ev '^#' | xargs) ./bank-reconcile $$(echo $(process_args))
 
 
 .PHONY: run-version
 run-version: ## Build and run application to show application version
 	@echo "go run main.go version"
-	@go build -buildvcs=false -ldflags="-s -w" .
+	@go build -buildvcs=true -ldflags="-s -w" .
 	@./bank-reconcile version
 
 .PHONY: go-version

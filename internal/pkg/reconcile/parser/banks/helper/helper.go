@@ -5,12 +5,19 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 
 	"github.com/jszwec/csvutil"
 )
+
+var poolBankTrxData = &sync.Pool{
+	New: func() interface{} {
+		return new(banks.BankTrxData)
+	},
+}
 
 func ToBankTrxData(ctx context.Context, filePath string, isHaveHeader bool, bank string, csvReader *csv.Reader, originalData banks.BankTrxDataInterface) (returnData []*banks.BankTrxData, err error) {
 	var dec *csvutil.Decoder
@@ -43,9 +50,12 @@ func ToBankTrxData(ctx context.Context, filePath string, isHaveHeader bool, bank
 			break
 		}
 
-		bankTrxData, er := originalData.ToBankTrxData()
-		if er != nil {
-			log.AddErr(ctx, er)
+		bankTrxData := poolBankTrxData.Get().(*banks.BankTrxData)
+		bankTrxData, err = originalData.ToBankTrxData()
+		poolBankTrxData.Put(bankTrxData)
+
+		if err != nil {
+			log.AddErr(ctx, err)
 			continue
 		}
 
@@ -59,5 +69,5 @@ func ToBankTrxData(ctx context.Context, filePath string, isHaveHeader bool, bank
 		err = nil
 	}
 
-	return
+	return returnData, err
 }

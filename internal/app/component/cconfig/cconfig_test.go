@@ -365,6 +365,7 @@ is_delete_current_sample_directory = true
 						PercentageMatch:                100,
 						NumberWorker:                   10,
 						IsDeleteCurrentSampleDirectory: true,
+						IsDeleteCurrentReportDirectory: true,
 						SystemTRXPath:                  "/tmp/system",
 						BankTRXPath:                    "/tmp/bank",
 						ReportTRXPath:                  "/tmp/report",

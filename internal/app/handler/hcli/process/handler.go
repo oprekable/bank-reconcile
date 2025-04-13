@@ -3,9 +3,9 @@ package process
 import (
 	"context"
 	"fmt"
+	"github.com/oprekable/bank-reconcile/cmd"
 	"io"
 
-	"github.com/oprekable/bank-reconcile/cmd/root"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/helper"
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
@@ -42,7 +42,7 @@ func (h *Handler) Exec() error {
 		h.comp.Config.Data,
 		[][]string{
 			{
-				fmt.Sprintf(formatText, root.FlagReportTRXPathShort, root.FlagReportTRXPath),
+				fmt.Sprintf(formatText, cmd.FlagReportTRXPathShort, cmd.FlagReportTRXPath),
 				h.comp.Config.Data.Reconciliation.ReportTRXPath,
 			},
 		},

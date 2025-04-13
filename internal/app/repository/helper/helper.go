@@ -24,7 +24,7 @@ type StmtData struct {
 func QueryContext[out any](ctx context.Context, db *sql.DB, stmtMap map[string]*sql.Stmt, stmtData StmtData) (returnData out, err error) {
 	if db == nil {
 		err = errors.New("db is nil")
-		return
+		return returnData, err
 	}
 
 	_, err = hunch.Waterfall(
@@ -60,7 +60,7 @@ func QueryContext[out any](ctx context.Context, db *sql.DB, stmtMap map[string]*
 		err = core.CErrDBConn.Error()
 	}
 
-	return
+	return returnData, err
 }
 
 func ExecTxQueries(ctx context.Context, tx *sql.Tx, stmtMap map[string]*sql.Stmt, stmtData []StmtData) (err error) {
@@ -101,7 +101,7 @@ func ExecTxQueries(ctx context.Context, tx *sql.Tx, stmtMap map[string]*sql.Stmt
 		executableInSequence...,
 	)
 
-	return
+	return err
 }
 
 func TxWith(ctx context.Context, logFlag string, methodName string, db *sql.DB, extraExec ...hunch.ExecutableInSequence) (err error) {
@@ -127,7 +127,7 @@ func TxWith(ctx context.Context, logFlag string, methodName string, db *sql.DB, 
 		execFn...,
 	)
 
-	return
+	return err
 }
 
 func CommitOrRollback(tx *sql.Tx, er error) (err error) {
@@ -141,5 +141,5 @@ func CommitOrRollback(tx *sql.Tx, er error) (err error) {
 		err = tx.Commit()
 	}
 
-	return
+	return err
 }

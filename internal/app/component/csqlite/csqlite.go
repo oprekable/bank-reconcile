@@ -22,11 +22,11 @@ type DBSqlite struct {
 func NewDBSqlite(config *cconfig.Config, logger *clogger.Logger, readDBPath string, writeDBPath string) (rd *DBSqlite, cleanFunc func(), err error) {
 	if config == nil || logger == nil {
 		err = errors.New("config or logger could not nil")
-		return
+		return rd, cleanFunc, err
 	}
 
 	if !config.Data.Sqlite.IsEnabled {
-		return
+		return rd, cleanFunc, err
 	}
 
 	rd = &DBSqlite{}

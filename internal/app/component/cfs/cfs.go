@@ -13,5 +13,5 @@ func NewFs(localStorageFs afero.Fs) (rd *Fs) {
 		localStorageFs,
 	}
 
-	return
+	return rd
 }

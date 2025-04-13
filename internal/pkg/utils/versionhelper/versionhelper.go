@@ -32,7 +32,7 @@ func GetVersion(version, buildDate, commitHash, environment string) (returnData 
 
 	info, ok := debug.ReadBuildInfo()
 	if !ok {
-		return
+		return returnData
 	}
 
 	if returnData.Version == Snapshot {
@@ -52,5 +52,5 @@ func GetVersion(version, buildDate, commitHash, environment string) (returnData 
 		}
 	}
 
-	return
+	return returnData
 }

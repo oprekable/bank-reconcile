@@ -72,6 +72,7 @@ func (a *AppContext) GetComponents() *component.Components {
 
 func (a *AppContext) startProfiler() {
 	if a.components.Config.IsProfilerActive {
+		log.Msg(a.GetCtx(), "[profiler] starting profiler")
 		a.profiler = make(map[string]interface{ Stop() })
 		dir, _ := os.Getwd()
 
@@ -103,15 +104,17 @@ func (a *AppContext) startProfiler() {
 func (a *AppContext) stopProfiler() {
 	for k := range a.profiler {
 		a.profiler[k].Stop()
+		log.Msg(a.GetCtx(), fmt.Sprintf("[profiler] stop profiler - %s", k))
 	}
+
 }
 
 func (a *AppContext) Start() {
 	atexit.Add(a.Shutdown)
 	a.eg.Go(func() error {
-		log.Msg(a.GetCtx(), "[start] application")
+		log.Msg(a.GetCtx(), "[application] start")
+		a.startProfiler()
 		return shutdown.TermSignalTrap().Wait(a.ctx, func() {
-			a.startProfiler()
 
 			defer func() {
 				if r := recover(); r != nil {
@@ -125,11 +128,6 @@ func (a *AppContext) Start() {
 
 			select {
 			case <-a.ctx.Done():
-				for k := range a.profiler {
-					a.profiler[k].Stop()
-				}
-
-				a.stopProfiler()
 				os.Exit(0)
 				return
 			default:
@@ -141,9 +139,10 @@ func (a *AppContext) Start() {
 		a.servers.Run(a.eg)
 	}
 
-	log.Err(a.GetCtx(), "[shutdown] application", a.eg.Wait())
+	log.Err(a.GetCtx(), "[application] shutdown", a.eg.Wait())
 }
 
 func (a *AppContext) Shutdown() {
-	log.Msg(a.GetCtx(), "[shutdown] application")
+	a.stopProfiler()
+	log.Msg(a.GetCtx(), "[application] shutdown")
 }

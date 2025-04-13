@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems"
@@ -53,10 +54,11 @@ func (u *CSVSystemTrxData) ToSystemTrxData() (returnData *systems.SystemTrxData,
 }
 
 type SystemParser struct {
-	dataStruct   systems.SystemTrxDataInterface
-	csvReader    *csv.Reader
-	parser       systems.SystemParserType
-	isHaveHeader bool
+	dataStruct        systems.SystemTrxDataInterface
+	csvReader         *csv.Reader
+	parser            systems.SystemParserType
+	isHaveHeader      bool
+	poolSystemTrxData *sync.Pool
 }
 
 var _ systems.ReconcileSystemData = (*SystemParser)(nil)
@@ -75,6 +77,11 @@ func NewSystemParser(
 		parser:       systems.DefaultSystemParser,
 		csvReader:    csvReader,
 		isHaveHeader: isHaveHeader,
+		poolSystemTrxData: &sync.Pool{
+			New: func() interface{} {
+				return &systems.SystemTrxData{}
+			},
+		},
 	}, nil
 }
 
@@ -110,14 +117,17 @@ func (d *SystemParser) ToSystemTrxData(ctx context.Context, filePath string) (re
 			break
 		}
 
-		systemTrxData, er := originalData.ToSystemTrxData()
-		if er != nil {
-			log.AddErr(ctx, er)
+		ptrSystemTrxData := d.poolSystemTrxData.Get().(*systems.SystemTrxData)
+		ptrSystemTrxData, err = originalData.ToSystemTrxData()
+		d.poolSystemTrxData.Put(ptrSystemTrxData)
+
+		if err != nil {
+			log.AddErr(ctx, err)
 			continue
 		}
 
-		systemTrxData.FilePath = filePath
-		returnData = append(returnData, systemTrxData)
+		ptrSystemTrxData.FilePath = filePath
+		returnData = append(returnData, ptrSystemTrxData)
 	}
 
 	if err == io.EOF {

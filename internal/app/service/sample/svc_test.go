@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -76,9 +77,17 @@ func TestNewSvc(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewSvc(tt.args.comp, tt.args.repo); !reflect.DeepEqual(got, tt.want) {
+			got := NewSvc(tt.args.comp, tt.args.repo)
+			if !reflect.DeepEqual(got.comp, tt.want.comp) ||
+				!reflect.DeepEqual(got.repo, tt.want.repo) {
 				t.Errorf("NewSvc() = %v, want %v", got, tt.want)
 			}
+
+			ptrS := got.poolSystemTrxDataInterface.Get().(*systems.SystemTrxDataInterface)
+			got.poolSystemTrxDataInterface.Put(ptrS)
+
+			ptrB := got.poolBankTrxDataInterface.Get().(*banks.BankTrxDataInterface)
+			got.poolBankTrxDataInterface.Put(ptrB)
 		})
 	}
 }
@@ -220,6 +229,16 @@ func TestSvcGenerateSample(t *testing.T) {
 			s := &Svc{
 				comp: tt.fields.comp,
 				repo: tt.fields.repo,
+				poolSystemTrxDataInterface: &sync.Pool{
+					New: func() interface{} {
+						return new(systems.SystemTrxDataInterface)
+					},
+				},
+				poolBankTrxDataInterface: &sync.Pool{
+					New: func() interface{} {
+						return new(banks.BankTrxDataInterface)
+					},
+				},
 			}
 
 			gotReturnSummary, err := s.GenerateSample(tt.args.ctx, tt.args.fs, tt.args.bar, tt.args.isDeleteDirectory)

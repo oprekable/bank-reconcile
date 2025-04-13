@@ -66,7 +66,7 @@ func TestAtExit(t *testing.T) {
 					},
 				},
 			},
-			want: "1\n2\n",
+			want: "2\n1\n",
 		},
 	}
 

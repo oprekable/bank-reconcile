@@ -3,10 +3,11 @@ package sample
 import (
 	"context"
 	"fmt"
+	"github.com/oprekable/bank-reconcile/cmd"
+	"github.com/oprekable/bank-reconcile/internal/app/service/sample"
 	"io"
 	"strconv"
 
-	"github.com/oprekable/bank-reconcile/cmd/root"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/helper"
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
@@ -35,21 +36,22 @@ func (h *Handler) Exec() (err error) {
 	if h.comp == nil || h.svc == nil || h.repo == nil {
 		return nil
 	}
+
 	bar := helper.InitProgressBar(h.writer)
 	formatText := "-%s --%s"
 	args := helper.InitCommonArgs(
 		h.comp.Config.Data,
 		[][]string{
 			{
-				fmt.Sprintf(formatText, root.FlagTotalDataSampleToGenerateShort, root.FlagTotalDataSampleToGenerate),
+				fmt.Sprintf(formatText, cmd.FlagTotalDataSampleToGenerateShort, cmd.FlagTotalDataSampleToGenerate),
 				strconv.FormatInt(h.comp.Config.Data.Reconciliation.TotalData, 10),
 			},
 			{
-				fmt.Sprintf(formatText, root.FlagPercentageMatchSampleToGenerateShort, root.FlagPercentageMatchSampleToGenerate),
+				fmt.Sprintf(formatText, cmd.FlagPercentageMatchSampleToGenerateShort, cmd.FlagPercentageMatchSampleToGenerate),
 				strconv.Itoa(h.comp.Config.Data.Reconciliation.PercentageMatch),
 			},
 			{
-				fmt.Sprintf(formatText, root.FlagIsDeleteCurrentSampleDirectoryShort, root.FlagIsDeleteCurrentSampleDirectory),
+				fmt.Sprintf(formatText, cmd.FlagIsDeleteCurrentSampleDirectoryShort, cmd.FlagIsDeleteCurrentSampleDirectory),
 				strconv.FormatBool(h.comp.Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory),
 			},
 		},
@@ -63,7 +65,14 @@ func (h *Handler) Exec() (err error) {
 	tableArgs.AppendBulk(args)
 	tableArgs.Render()
 
-	summary, err := h.svc.SvcSample.GenerateSample(context.Background(), h.comp.Fs.LocalStorageFs, bar, h.comp.Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory)
+	var summary sample.Summary
+	summary, err = h.svc.SvcSample.GenerateSample(
+		context.Background(),
+		h.comp.Fs.LocalStorageFs,
+		bar,
+		h.comp.Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory,
+	)
+
 	if err != nil {
 		return err
 	}

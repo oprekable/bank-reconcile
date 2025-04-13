@@ -15,4 +15,5 @@ type Reconciliation struct {
 	PercentageMatch                int       `default:"100"  mapstructure:"percentage_match"`
 	NumberWorker                   int       `default:"10"   mapstructure:"number_worker"`
 	IsDeleteCurrentSampleDirectory bool      `default:"true" mapstructure:"is_delete_current_sample_directory"`
+	IsDeleteCurrentReportDirectory bool      `default:"true" mapstructure:"is_delete_current_report_directory"`
 }

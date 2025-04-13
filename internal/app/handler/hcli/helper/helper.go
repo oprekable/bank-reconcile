@@ -2,12 +2,11 @@ package helper
 
 import (
 	"fmt"
+	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/internal/app/config"
 	"io"
 	"strconv"
 	"strings"
-
-	"github.com/oprekable/bank-reconcile/cmd/root"
 
 	"github.com/schollz/progressbar/v3"
 )
@@ -31,35 +30,39 @@ func InitCommonArgs(conf *config.Data, extraArgs [][]string) [][]string {
 	formatText := "-%s --%s"
 	args := [][]string{
 		{
-			fmt.Sprintf(formatText, root.FlagFromDateShort, root.FlagFromDate),
+			fmt.Sprintf(formatText, cmd.FlagTimeZoneShort, cmd.FlagTimeZone),
+			cmd.FlagTZValue,
+		},
+		{
+			fmt.Sprintf(formatText, cmd.FlagFromDateShort, cmd.FlagFromDate),
 			conf.Reconciliation.FromDate.Format("2006-01-02"),
 		},
 		{
-			fmt.Sprintf(formatText, root.FlagToDateShort, root.FlagToDate),
+			fmt.Sprintf(formatText, cmd.FlagToDateShort, cmd.FlagToDate),
 			conf.Reconciliation.ToDate.Format("2006-01-02"),
 		},
 		{
-			fmt.Sprintf(formatText, root.FlagSystemTRXPathShort, root.FlagSystemTRXPath),
+			fmt.Sprintf(formatText, cmd.FlagSystemTRXPathShort, cmd.FlagSystemTRXPath),
 			conf.Reconciliation.SystemTRXPath,
 		},
 		{
-			fmt.Sprintf(formatText, root.FlagBankTRXPathShort, root.FlagBankTRXPath),
+			fmt.Sprintf(formatText, cmd.FlagBankTRXPathShort, cmd.FlagBankTRXPath),
 			conf.Reconciliation.BankTRXPath,
 		},
 		{
-			fmt.Sprintf(formatText, root.FlagListBankShort, root.FlagListBank),
+			fmt.Sprintf(formatText, cmd.FlagListBankShort, cmd.FlagListBank),
 			strings.Join(conf.Reconciliation.ListBank, ","),
 		},
 		{
-			fmt.Sprintf(formatText, root.FlagIsVerboseShort, root.FlagIsVerbose),
+			fmt.Sprintf(formatText, cmd.FlagIsVerboseShort, cmd.FlagIsVerbose),
 			strconv.FormatBool(conf.App.IsShowLog),
 		},
 		{
-			fmt.Sprintf(formatText, root.FlagIsDebugShort, root.FlagIsDebug),
+			fmt.Sprintf(formatText, cmd.FlagIsDebugShort, cmd.FlagIsDebug),
 			strconv.FormatBool(conf.App.IsDebug),
 		},
 		{
-			fmt.Sprintf(formatText, root.FlagIsProfilerActiveShort, root.FlagIsProfilerActive),
+			fmt.Sprintf(formatText, cmd.FlagIsProfilerActiveShort, cmd.FlagIsProfilerActive),
 			strconv.FormatBool(conf.App.IsProfilerActive),
 		},
 	}

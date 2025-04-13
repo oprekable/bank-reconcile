@@ -58,7 +58,9 @@ func TestProviderSvc(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ProviderSvc(tt.args.comp, tt.args.repo); !reflect.DeepEqual(got, tt.want) {
+			got := ProviderSvc(tt.args.comp, tt.args.repo)
+			if !reflect.DeepEqual(got.comp, tt.want.comp) ||
+				!reflect.DeepEqual(got.repo, tt.want.repo) {
 				t.Errorf("ProviderSvc() = %v, want %v", got, tt.want)
 			}
 		})

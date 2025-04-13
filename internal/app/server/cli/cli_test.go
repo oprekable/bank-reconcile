@@ -91,7 +91,7 @@ func TestCliShutdown(t *testing.T) {
 				repo:     nil,
 				handlers: nil,
 			},
-			want: `{"level":"info","message":"[shutdown] cli"}`,
+			want: `{"level":"info","message":"[cli] shutdown"}`,
 		},
 	}
 

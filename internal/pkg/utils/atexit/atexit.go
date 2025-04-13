@@ -4,8 +4,8 @@ var functions []func()
 
 // AtExit , call in main func ...
 func AtExit() {
-	for _, f := range functions {
-		f()
+	for i := len(functions) - 1; i >= 0; i-- {
+		functions[i]()
 	}
 }
 

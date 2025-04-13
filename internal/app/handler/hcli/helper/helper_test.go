@@ -3,23 +3,24 @@ package helper
 import (
 	"bytes"
 	"github.com/oprekable/bank-reconcile/internal/app/config"
+	"github.com/schollz/progressbar/v3"
 	"io"
 	"reflect"
 	"testing"
-
-	"github.com/schollz/progressbar/v3"
 )
 
 func TestInitCommonArgs(t *testing.T) {
 	type args struct {
-		extraArgs [][]string
 		conf      *config.Data
+		extraArgs [][]string
 	}
+
 	tests := []struct {
 		name string
 		args args
 		want [][]string
 	}{
+
 		{
 			name: "Ok",
 			args: args{
@@ -32,6 +33,10 @@ func TestInitCommonArgs(t *testing.T) {
 				conf: &config.Data{},
 			},
 			want: [][]string{
+				{
+					"-z --time_zone",
+					"",
+				},
 				{
 					"-f --from",
 					"0001-01-01",

@@ -88,3 +88,9 @@ var (
 	_wireFileValue   = os.Stdout
 	_wireWriterValue = io.Discard
 )
+
+// inject.go:
+
+type Fn func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz cconfig.TimeZone, errType []core.ErrorType, isShowLog clogger.IsShowLog, dBPath csqlite.DBPath) (*appcontext.AppContext, func(), error)
+
+var WireAppFn Fn = WireApp

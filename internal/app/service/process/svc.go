@@ -585,7 +585,7 @@ func (s *Svc) GenerateReconciliation(ctx context.Context, afs afero.Fs, bar *pro
 				log.Err(c, "[process.NewSvc] GenerateReconciliation generateReconciliationSummaryAndFiles executed", e)
 			}()
 
-			returnData, e = s.generateReconciliationSummaryAndFiles(c, afs, true)
+			returnData, e = s.generateReconciliationSummaryAndFiles(c, afs, s.comp.Config.IsDeleteCurrentReportDirectory)
 			return
 		},
 		func(c context.Context, i interface{}) (r interface{}, e error) {

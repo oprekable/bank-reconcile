@@ -1,87 +1,148 @@
 package helper
 
 import (
-	"context"
-	"embed"
-	"time"
-
+	"fmt"
+	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/internal/app/appcontext"
-	"github.com/oprekable/bank-reconcile/internal/app/err/core"
-
-	"github.com/oprekable/bank-reconcile/cmd/root"
-	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
-	"github.com/oprekable/bank-reconcile/internal/app/component/clogger"
-	"github.com/oprekable/bank-reconcile/internal/app/component/csqlite"
-	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
+	"github.com/oprekable/bank-reconcile/internal/pkg/utils/filepathhelper"
+	"github.com/oprekable/bank-reconcile/variable"
 	"github.com/spf13/cobra"
+	"path/filepath"
+	"time"
 )
 
-type IRunner interface {
-	Run() (er error)
-}
-
-type WireApp func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz cconfig.TimeZone, errType []core.ErrorType, isShowLog clogger.IsShowLog, dBPath csqlite.DBPath) (*appcontext.AppContext, func(), error)
-type Runner struct {
-	wireApp WireApp
-	cmd     *cobra.Command
-	args    []string
-}
-
-func NewRunner(wireApp WireApp, cmd *cobra.Command, args []string) *Runner {
-	return &Runner{
-		wireApp: wireApp,
-		cmd:     cmd,
-		args:    args,
+func InitCommonPersistentFlags(c *cobra.Command) {
+	defaultTZ := variable.TimeZone
+	if defaultTZ == "" {
+		defaultTZ = "Asia/Jakarta"
 	}
-}
 
-func (r *Runner) Run(embedFs *embed.FS, appName string, tz string, errTypes []core.ErrorType, isVerbose bool, dbPath csqlite.DBPath) (er error) {
-	defer func() {
-		atexit.AtExit()
-	}()
-
-	app, cleanup, er := r.wireApp(
-		r.cmd.Context(),
-		embedFs,
-		cconfig.AppName(appName),
-		cconfig.TimeZone(tz),
-		errTypes,
-		clogger.IsShowLog(isVerbose),
-		dbPath,
+	c.PersistentFlags().StringVarP(
+		&cmd.FlagTZValue,
+		cmd.FlagTimeZone,
+		cmd.FlagTimeZoneShort,
+		defaultTZ,
+		cmd.FlagTimeZoneUsage,
 	)
 
-	if er != nil {
-		return er
+	workDir := filepathhelper.GetWorkDir(filepathhelper.SystemCalls{})
+
+	c.PersistentFlags().StringVarP(
+		&cmd.FlagSystemTRXPathValue,
+		cmd.FlagSystemTRXPath,
+		cmd.FlagSystemTRXPathShort,
+		filepath.Join(workDir, "sample", "system"),
+		cmd.FlagSystemTRXPathUsage,
+	)
+
+	c.PersistentFlags().StringVarP(
+		&cmd.FlagBankTRXPathValue,
+		cmd.FlagBankTRXPath,
+		cmd.FlagBankTRXPathShort,
+		filepath.Join(workDir, "sample", "bank"),
+		cmd.FlagBankTRXPathUsage,
+	)
+
+	nowDateString := time.Now().Format("2006-01-02")
+
+	c.PersistentFlags().StringVarP(
+		&cmd.FlagFromDateValue,
+		cmd.FlagFromDate,
+		cmd.FlagFromDateShort,
+		nowDateString,
+		cmd.FlagFromDateUsage,
+	)
+
+	c.PersistentFlags().StringVarP(
+		&cmd.FlagToDateValue,
+		cmd.FlagToDate,
+		cmd.FlagToDateShort,
+		nowDateString,
+		cmd.FlagToDateUsage,
+	)
+
+	c.PersistentFlags().StringSliceVarP(
+		&cmd.FlagListBankValue,
+		cmd.FlagListBank,
+		cmd.FlagListBankShort,
+		cmd.DefaultListBank,
+		cmd.FlagListBankUsage,
+	)
+
+	c.PersistentFlags().BoolVarP(
+		&cmd.FlagIsVerboseValue,
+		cmd.FlagIsVerbose,
+		cmd.FlagIsVerboseShort,
+		false,
+		cmd.FlagIsVerboseUsage,
+	)
+
+	c.PersistentFlags().BoolVarP(
+		&cmd.FlagIsDebugValue,
+		cmd.FlagIsDebug,
+		cmd.FlagIsDebugShort,
+		false,
+		cmd.FlagIsDebugUsage,
+	)
+
+	c.PersistentFlags().BoolVarP(
+		&cmd.FlagIsProfilerActiveValue,
+		cmd.FlagIsProfilerActive,
+		cmd.FlagIsProfilerActiveShort,
+		false,
+		cmd.FlagIsProfilerActiveUsage,
+	)
+}
+
+func CommonPersistentPreRunner(_ *cobra.Command, _ []string) (er error) {
+	if _, e := time.LoadLocation(cmd.FlagTZValue); e != nil {
+		return fmt.Errorf("invalid value flag '-%s' '--%s': %v", cmd.FlagTimeZoneShort, cmd.FlagTimeZone, cmd.FlagTZValue)
 	}
 
-	atexit.Add(cleanup)
+	fromDate, errFrom := time.Parse(cmd.DateFormatString, cmd.FlagFromDateValue)
 
-	app.GetComponents().Config.Data.Reconciliation.Action = r.cmd.Use
-	app.GetComponents().Config.Data.Reconciliation.SystemTRXPath = root.FlagSystemTRXPathValue
-	app.GetComponents().Config.Data.Reconciliation.BankTRXPath = root.FlagBankTRXPathValue
-	app.GetComponents().Config.Data.Reconciliation.ReportTRXPath = root.FlagReportTRXPathValue
-	app.GetComponents().Config.Data.Reconciliation.ListBank = root.FlagListBankValue
-	app.GetComponents().Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory = root.FlagIsDeleteCurrentSampleDirectoryValue
-	app.GetComponents().Config.Data.App.IsShowLog = root.FlagIsVerboseValue
-	app.GetComponents().Config.Data.App.IsDebug = root.FlagIsDebugValue
-	app.GetComponents().Config.Data.App.IsProfilerActive = root.FlagIsProfilerActiveValue
+	if errFrom != nil {
+		return fmt.Errorf("failed to parse flag '-%s' '--%s': %v", cmd.FlagFromDateShort, cmd.FlagFromDate, cmd.FlagFromDateValue)
+	}
 
-	toDate, er := time.Parse(root.DateFormatString, root.FlagToDateValue)
-	if er != nil {
-		return er
+	toDate, errTo := time.Parse(cmd.DateFormatString, cmd.FlagToDateValue)
+	if errTo != nil {
+		return fmt.Errorf("failed to parse flag '-%s' '--%s': %v", cmd.FlagToDateShort, cmd.FlagToDate, cmd.FlagToDateValue)
+	}
+
+	if fromDate.After(toDate) {
+		return fmt.Errorf("'-%s' '--%s': %v should before '-%s' '--%s': %v", cmd.FlagFromDateShort, cmd.FlagFromDate, cmd.FlagFromDateValue, cmd.FlagToDateShort, cmd.FlagToDate, cmd.FlagToDateValue)
+	}
+
+	return nil
+}
+
+func UpdateCommonConfigFromFlags(app appcontext.IAppContext) (e error) {
+	app.GetComponents().Config.Data.App.IsShowLog = cmd.FlagIsVerboseValue
+	app.GetComponents().Config.Data.App.IsDebug = cmd.FlagIsDebugValue
+	app.GetComponents().Config.Data.App.IsProfilerActive = cmd.FlagIsProfilerActiveValue
+
+	app.GetComponents().Config.Data.Reconciliation.SystemTRXPath = cmd.FlagSystemTRXPathValue
+	app.GetComponents().Config.Data.Reconciliation.BankTRXPath = cmd.FlagBankTRXPathValue
+	app.GetComponents().Config.Data.Reconciliation.ListBank = cmd.FlagListBankValue
+
+	var toDate time.Time
+	toDate, e = time.Parse(cmd.DateFormatString, cmd.FlagToDateValue)
+
+	if e != nil {
+		return e
 	}
 
 	app.GetComponents().Config.Data.Reconciliation.ToDate = toDate
 
-	fromDate, er := time.Parse(root.DateFormatString, root.FlagFromDateValue)
-	if er != nil {
-		return er
+	var fromDate time.Time
+	fromDate, e = time.Parse(cmd.DateFormatString, cmd.FlagFromDateValue)
+
+	if e != nil {
+		return e
 	}
 
 	app.GetComponents().Config.Data.Reconciliation.FromDate = fromDate
-	app.GetComponents().Config.Data.Reconciliation.TotalData = root.FlagTotalDataSampleToGenerateValue
-	app.GetComponents().Config.Data.Reconciliation.PercentageMatch = root.FlagPercentageMatchSampleToGenerateValue
-	app.Start()
 
 	return nil
 }

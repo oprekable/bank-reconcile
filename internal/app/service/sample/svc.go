@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
@@ -27,8 +28,10 @@ import (
 )
 
 type Svc struct {
-	comp *component.Components
-	repo *repository.Repositories
+	comp                       *component.Components
+	repo                       *repository.Repositories
+	poolSystemTrxDataInterface *sync.Pool
+	poolBankTrxDataInterface   *sync.Pool
 }
 
 var _ Service = (*Svc)(nil)
@@ -40,6 +43,16 @@ func NewSvc(
 	return &Svc{
 		comp: comp,
 		repo: repo,
+		poolSystemTrxDataInterface: &sync.Pool{
+			New: func() interface{} {
+				return new(systems.SystemTrxDataInterface)
+			},
+		},
+		poolBankTrxDataInterface: &sync.Pool{
+			New: func() interface{} {
+				return new(banks.BankTrxDataInterface)
+			},
+		},
 	}
 }
 
@@ -119,7 +132,7 @@ func (s *Svc) parse(data sample.TrxData) (systemTrxData systems.SystemTrxDataInt
 func (s *Svc) GenerateSample(ctx context.Context, fs afero.Fs, bar *progressbar.ProgressBar, isDeleteDirectory bool) (returnSummary Summary, err error) {
 	ctx = s.comp.Logger.GetLogger().With().Str("component", "Sample Service").Ctx(ctx).Logger().WithContext(s.comp.Logger.GetCtx())
 
-	var trxData []sample.TrxData
+	trxData := make([]sample.TrxData, 0)
 	defer func() {
 		_ = s.repo.RepoSample.Close()
 		progressbarhelper.BarClear(bar)
@@ -171,17 +184,25 @@ func (s *Svc) GenerateSample(ctx context.Context, fs afero.Fs, bar *progressbar.
 		},
 		func(c context.Context, i interface{}) (interface{}, error) {
 			progressbarhelper.BarDescribe(bar, "[cyan][4/5] Parse Sample Data...")
-			systemTrxData := make([]systems.SystemTrxDataInterface, 0, len(trxData))
+			systemTrxData := make([]*default_system.CSVSystemTrxData, 0, len(trxData))
 			bankTrxData := make(map[string][]banks.BankTrxDataInterface)
 
 			lo.ForEach(trxData, func(data sample.TrxData, _ int) {
-				systemTrx, bankTrx := s.parse(data)
-				if systemTrx != nil {
-					systemTrxData = append(systemTrxData, systemTrx)
+				pSystemTrxData := s.poolSystemTrxDataInterface.Get().(*systems.SystemTrxDataInterface)
+				pBankTrxData := s.poolBankTrxDataInterface.Get().(*banks.BankTrxDataInterface)
+				*pSystemTrxData, *pBankTrxData = s.parse(data)
+
+				s.poolSystemTrxDataInterface.Put(pSystemTrxData)
+				s.poolBankTrxDataInterface.Put(pBankTrxData)
+
+				if *pSystemTrxData != nil {
+					systemTrx := *pSystemTrxData
+					systemTrxData = append(systemTrxData, systemTrx.(*default_system.CSVSystemTrxData))
 				}
 
-				if bankTrx != nil {
-					bankTrxData[bankTrx.GetBank()] = append(bankTrxData[bankTrx.GetBank()], bankTrx)
+				if *pBankTrxData != nil {
+					bankTrx := *pBankTrxData
+					bankTrxData[bankTrx.GetBank()] = append(bankTrxData[bankTrx.GetBank()], *pBankTrxData)
 				}
 			})
 
@@ -195,14 +216,6 @@ func (s *Svc) GenerateSample(ctx context.Context, fs afero.Fs, bar *progressbar.
 			returnSummary.FileSystemTrx = fmt.Sprintf("%s/%s.csv", s.comp.Config.Data.Reconciliation.SystemTRXPath, fileNameSuffix)
 			returnSummary.TotalSystemTrx = int64(lengthSystemTrxData)
 
-			sd := make([]*default_system.CSVSystemTrxData, 0, lengthSystemTrxData)
-
-			lo.ForEach(systemTrxData, func(data systems.SystemTrxDataInterface, _ int) {
-				sd = append(sd, data.(*default_system.CSVSystemTrxData))
-			})
-
-			systemTrxData = nil
-
 			executor := make([]hunch.Executable, 0, len(bankTrxData)+1)
 			executor = append(
 				executor,
@@ -211,11 +224,13 @@ func (s *Svc) GenerateSample(ctx context.Context, fs afero.Fs, bar *progressbar.
 						ct,
 						fs,
 						returnSummary.FileSystemTrx,
-						sd,
+						systemTrxData,
 						isDeleteDirectory,
 					)
 
 					log.Err(c, "[sample.NewSvc] save csv file "+returnSummary.FileSystemTrx+" executed", er)
+
+					systemTrxData = nil
 
 					return nil, er
 				},
@@ -258,19 +273,20 @@ func (s *Svc) appendExecutor(fs afero.Fs, filePath string, trxDataSlice []banks.
 		return 0, nil
 	}
 
+	totalData = int64(len(trxDataSlice))
+
 	formatText := "[sample.NewSvc] save csv file %s executed"
 
 	switch trxDataSlice[0].(type) {
 	case *entitybca.CSVBankTrxData:
 		{
-			bd := make([]*entitybca.CSVBankTrxData, 0, len(trxDataSlice))
-
-			lo.ForEach(trxDataSlice, func(data banks.BankTrxDataInterface, _ int) {
-				bd = append(bd, data.(*entitybca.CSVBankTrxData))
-			})
-
-			totalData = int64(len(bd))
 			executor = func(ct context.Context) (interface{}, error) {
+				bd := make([]*entitybca.CSVBankTrxData, 0, len(trxDataSlice))
+
+				lo.ForEach(trxDataSlice, func(data banks.BankTrxDataInterface, _ int) {
+					bd = append(bd, data.(*entitybca.CSVBankTrxData))
+				})
+
 				er := csvhelper.StructToCSVFile(
 					ct,
 					fs,
@@ -278,6 +294,8 @@ func (s *Svc) appendExecutor(fs afero.Fs, filePath string, trxDataSlice []banks.
 					bd,
 					isDeleteDirectory,
 				)
+
+				bd = nil
 
 				log.Err(ct, fmt.Sprintf(formatText, filePath), er)
 				return nil, er
@@ -285,12 +303,12 @@ func (s *Svc) appendExecutor(fs afero.Fs, filePath string, trxDataSlice []banks.
 		}
 	case *entitybni.CSVBankTrxData:
 		{
-			bd := make([]*entitybni.CSVBankTrxData, 0, len(trxDataSlice))
-			lo.ForEach(trxDataSlice, func(data banks.BankTrxDataInterface, _ int) {
-				bd = append(bd, data.(*entitybni.CSVBankTrxData))
-			})
-			totalData = int64(len(bd))
 			executor = func(ct context.Context) (interface{}, error) {
+				bd := make([]*entitybni.CSVBankTrxData, 0, len(trxDataSlice))
+				lo.ForEach(trxDataSlice, func(data banks.BankTrxDataInterface, _ int) {
+					bd = append(bd, data.(*entitybni.CSVBankTrxData))
+				})
+
 				er := csvhelper.StructToCSVFile(
 					ct,
 					fs,
@@ -299,18 +317,20 @@ func (s *Svc) appendExecutor(fs afero.Fs, filePath string, trxDataSlice []banks.
 					isDeleteDirectory,
 				)
 
+				bd = nil
+
 				log.Err(ct, fmt.Sprintf(formatText, filePath), er)
 				return nil, er
 			}
 		}
 	default:
 		{
-			bd := make([]*entitydefaultbank.CSVBankTrxData, 0, len(trxDataSlice))
-			lo.ForEach(trxDataSlice, func(data banks.BankTrxDataInterface, _ int) {
-				bd = append(bd, data.(*entitydefaultbank.CSVBankTrxData))
-			})
-			totalData = int64(len(bd))
 			executor = func(ct context.Context) (interface{}, error) {
+				bd := make([]*entitydefaultbank.CSVBankTrxData, 0, len(trxDataSlice))
+				lo.ForEach(trxDataSlice, func(data banks.BankTrxDataInterface, _ int) {
+					bd = append(bd, data.(*entitydefaultbank.CSVBankTrxData))
+				})
+
 				er := csvhelper.StructToCSVFile(
 					ct,
 					fs,
@@ -318,6 +338,8 @@ func (s *Svc) appendExecutor(fs afero.Fs, filePath string, trxDataSlice []banks.
 					bd,
 					isDeleteDirectory,
 				)
+
+				bd = nil
 
 				log.Err(ct, fmt.Sprintf(formatText, filePath), er)
 				return nil, er
