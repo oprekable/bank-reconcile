@@ -41,3 +41,4 @@ go.work.sum
 
 
 *.pprof
+*.csv

@@ -58,6 +58,14 @@ func TestCmdProcessInit(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				c: &cobra.Command{
+					Use:     Usage,
+					Short:   Short,
+					Long:    Long,
+					Aliases: Aliases,
+					Example: fmt.Sprintf(
+						"%s\n",
+						fmt.Sprintf("Process data \n\t%s %s", "", Example),
+					),
 					SilenceErrors: true,
 					SilenceUsage:  true,
 				},

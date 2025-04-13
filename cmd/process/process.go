@@ -32,6 +32,14 @@ func NewCommand(appName string, wireApp inject.Fn, embedFS *embed.FS, outPutWrit
 	return &CmdProcess{
 		appName: appName,
 		c: &cobra.Command{
+			Use:     Usage,
+			Short:   Short,
+			Long:    Long,
+			Aliases: Aliases,
+			Example: fmt.Sprintf(
+				"%s\n",
+				fmt.Sprintf("Process data \n\t%s %s", appName, Example),
+			),
 			SilenceErrors: true,
 			SilenceUsage:  true,
 		},
@@ -43,15 +51,6 @@ func NewCommand(appName string, wireApp inject.Fn, embedFS *embed.FS, outPutWrit
 }
 
 func (c *CmdProcess) Init(_ *cmd.MetaData) *cobra.Command {
-	c.c.Use = Usage
-	c.c.Short = Short
-	c.c.Long = Long
-	c.c.Aliases = Aliases
-	c.c.Example = fmt.Sprintf(
-		"%s\n",
-		fmt.Sprintf("Process data \n\t%s %s", c.appName, Example),
-	)
-
 	c.c.PersistentPreRunE = c.PersistentPreRunner
 	c.c.RunE = c.Runner
 
