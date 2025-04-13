@@ -6,6 +6,11 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io"
+	"reflect"
+	"testing"
+	"time"
+
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/internal/app/appcontext"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
@@ -23,10 +28,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/inject"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/filepathhelper"
 	"github.com/spf13/cobra"
-	"io"
-	"reflect"
-	"testing"
-	"time"
 )
 
 var wireApp = func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz cconfig.TimeZone, errType []core.ErrorType, isShowLog clogger.IsShowLog, dBPath csqlite.DBPath) (*appcontext.AppContext, func(), error) {
@@ -35,12 +36,12 @@ var wireApp = func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppNa
 
 func TestCmdProcessInit(t *testing.T) {
 	type fields struct {
-		c            *cobra.Command
-		appName      string
-		wireApp      inject.Fn
-		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
+		c            *cobra.Command
+		wireApp      inject.Fn
+		embedFS      *embed.FS
+		appName      string
 	}
 
 	type args struct {
@@ -48,10 +49,10 @@ func TestCmdProcessInit(t *testing.T) {
 	}
 
 	tests := []struct {
-		name   string
 		fields fields
 		args   args
 		want   *cobra.Command
+		name   string
 	}{
 		{
 			name: "Ok",
@@ -118,12 +119,12 @@ func TestCmdProcessInit(t *testing.T) {
 
 func TestCmdProcessPersistentPreRunner(t *testing.T) {
 	type fields struct {
-		c            *cobra.Command
-		appName      string
-		wireApp      inject.Fn
-		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
+		c            *cobra.Command
+		wireApp      inject.Fn
+		embedFS      *embed.FS
+		appName      string
 	}
 
 	type args struct {
@@ -132,10 +133,10 @@ func TestCmdProcessPersistentPreRunner(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
 		fields  fields
-		args    args
 		trigger func()
+		name    string
+		args    args
 		wantErr bool
 	}{
 		{
@@ -199,12 +200,12 @@ func TestCmdProcessRunner(t *testing.T) {
 	)
 
 	type fields struct {
-		c            *cobra.Command
-		appName      string
-		wireApp      inject.Fn
-		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
+		c            *cobra.Command
+		wireApp      inject.Fn
+		embedFS      *embed.FS
+		appName      string
 	}
 
 	type args struct {
@@ -213,10 +214,10 @@ func TestCmdProcessRunner(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
 		fields  fields
-		args    args
 		trigger func()
+		name    string
+		args    args
 		wantErr bool
 	}{
 		{
@@ -405,12 +406,12 @@ func TestCmdProcessInitPersistentFlags(t *testing.T) {
 	bf := &bytes.Buffer{}
 
 	type fields struct {
-		c            *cobra.Command
-		appName      string
-		wireApp      inject.Fn
-		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
+		c            *cobra.Command
+		wireApp      inject.Fn
+		embedFS      *embed.FS
+		appName      string
 	}
 
 	tests := []struct {
@@ -477,17 +478,17 @@ func TestCmdProcessInitPersistentFlags(t *testing.T) {
 
 func TestNewCommand(t *testing.T) {
 	type args struct {
-		appName string
 		wireApp inject.Fn
 		embedFS *embed.FS
+		appName string
 	}
 
 	tests := []struct {
-		name             string
 		args             args
+		want             *CmdProcess
+		name             string
 		wantOutPutWriter string
 		wantErrWriter    string
-		want             *CmdProcess
 	}{
 		{
 			name: "Ok",

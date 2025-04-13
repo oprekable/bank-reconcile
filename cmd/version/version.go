@@ -2,8 +2,9 @@ package version
 
 import (
 	"fmt"
-	"github.com/oprekable/bank-reconcile/cmd"
 	"io"
+
+	"github.com/oprekable/bank-reconcile/cmd"
 
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/versionhelper"

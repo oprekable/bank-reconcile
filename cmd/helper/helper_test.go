@@ -3,6 +3,10 @@ package helper
 import (
 	"bytes"
 	"fmt"
+	"reflect"
+	"testing"
+	"time"
+
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/internal/app/appcontext"
 	"github.com/oprekable/bank-reconcile/internal/app/appcontext/_mock"
@@ -13,9 +17,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/config/reconciliation"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/filepathhelper"
 	"github.com/spf13/cobra"
-	"reflect"
-	"testing"
-	"time"
 )
 
 func TestCommonPersistentPreRunner(t *testing.T) {
@@ -25,9 +26,9 @@ func TestCommonPersistentPreRunner(t *testing.T) {
 	}
 
 	tests := []struct {
+		trigger func()
 		name    string
 		args    args
-		trigger func()
 		wantErr bool
 	}{
 		{
@@ -166,10 +167,10 @@ func TestUpdateCommonConfigFromFlags(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
 		args    args
 		trigger func()
 		want    *cconfig.Config
+		name    string
 		wantErr bool
 	}{
 		{

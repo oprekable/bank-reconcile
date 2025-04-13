@@ -3,6 +3,9 @@ package main
 import (
 	"embed"
 	"fmt"
+	"io"
+	"os"
+
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/cmd/process"
 	"github.com/oprekable/bank-reconcile/cmd/root"
@@ -10,8 +13,6 @@ import (
 	"github.com/oprekable/bank-reconcile/cmd/version"
 	"github.com/oprekable/bank-reconcile/internal/inject"
 	"github.com/oprekable/bank-reconcile/variable"
-	"io"
-	"os"
 )
 
 //go:embed all:embeds

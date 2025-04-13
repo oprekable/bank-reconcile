@@ -2,11 +2,12 @@ package helper
 
 import (
 	"bytes"
-	"github.com/oprekable/bank-reconcile/internal/app/config"
-	"github.com/schollz/progressbar/v3"
 	"io"
 	"reflect"
 	"testing"
+
+	"github.com/oprekable/bank-reconcile/internal/app/config"
+	"github.com/schollz/progressbar/v3"
 )
 
 func TestInitCommonArgs(t *testing.T) {

@@ -56,9 +56,9 @@ func (u *CSVSystemTrxData) ToSystemTrxData() (returnData *systems.SystemTrxData,
 type SystemParser struct {
 	dataStruct        systems.SystemTrxDataInterface
 	csvReader         *csv.Reader
+	poolSystemTrxData *sync.Pool
 	parser            systems.SystemParserType
 	isHaveHeader      bool
-	poolSystemTrxData *sync.Pool
 }
 
 var _ systems.ReconcileSystemData = (*SystemParser)(nil)
@@ -117,6 +117,8 @@ func (d *SystemParser) ToSystemTrxData(ctx context.Context, filePath string) (re
 			break
 		}
 
+		//nolint:all
+		//lint:ignore SA4006 sync.pool pattern just like this
 		ptrSystemTrxData := d.poolSystemTrxData.Get().(*systems.SystemTrxData)
 		ptrSystemTrxData, err = originalData.ToSystemTrxData()
 		d.poolSystemTrxData.Put(ptrSystemTrxData)

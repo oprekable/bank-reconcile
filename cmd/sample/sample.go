@@ -3,6 +3,8 @@ package sample
 import (
 	"embed"
 	"fmt"
+	"io"
+
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/cmd/helper"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
@@ -12,16 +14,15 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/inject"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
 	"github.com/spf13/cobra"
-	"io"
 )
 
 type CmdSample struct {
-	c            *cobra.Command
-	appName      string
-	wireApp      inject.Fn
-	embedFS      *embed.FS
 	outPutWriter io.Writer
 	errWriter    io.Writer
+	c            *cobra.Command
+	wireApp      inject.Fn
+	embedFS      *embed.FS
+	appName      string
 }
 
 var _ cmd.Cmd = (*CmdSample)(nil)

@@ -106,7 +106,6 @@ func (a *AppContext) stopProfiler() {
 		a.profiler[k].Stop()
 		log.Msg(a.GetCtx(), fmt.Sprintf("[profiler] stop profiler - %s", k))
 	}
-
 }
 
 func (a *AppContext) Start() {
@@ -115,7 +114,6 @@ func (a *AppContext) Start() {
 		log.Msg(a.GetCtx(), "[application] start")
 		a.startProfiler()
 		return shutdown.TermSignalTrap().Wait(a.ctx, func() {
-
 			defer func() {
 				if r := recover(); r != nil {
 					errRecovery := fmt.Errorf("recovered from panic: %s", r)

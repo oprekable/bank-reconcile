@@ -5,6 +5,11 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"io"
+	"reflect"
+	"testing"
+	"time"
+
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/cmd/_mock"
 	"github.com/oprekable/bank-reconcile/cmd/process"
@@ -18,10 +23,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/filepathhelper"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/mock"
-	"io"
-	"reflect"
-	"testing"
-	"time"
 )
 
 var wireApp = func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz cconfig.TimeZone, errType []core.ErrorType, isShowLog clogger.IsShowLog, dBPath csqlite.DBPath) (*appcontext.AppContext, func(), error) {
@@ -43,10 +44,10 @@ func TestCmdRootInit(t *testing.T) {
 	}
 
 	tests := []struct {
-		name   string
-		fields fields
 		args   args
 		want   *cobra.Command
+		name   string
+		fields fields
 	}{
 		{
 			name: "Ok",
@@ -204,9 +205,9 @@ func TestCmdRootRunner(t *testing.T) {
 
 	tests := []struct {
 		name    string
+		want    string
 		fields  fields
 		args    args
-		want    string
 		wantErr bool
 	}{
 		{
@@ -293,11 +294,11 @@ func TestNewCommand(t *testing.T) {
 	}
 
 	tests := []struct {
+		want             *CmdRoot
 		name             string
-		args             args
 		wantOutPutWriter string
 		wantErrWriter    string
-		want             *CmdRoot
+		args             args
 	}{
 		{
 			name: "Ok",

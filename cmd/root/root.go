@@ -3,12 +3,13 @@ package root
 import (
 	"embed"
 	"fmt"
+	"io"
+
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/cmd/process"
 	"github.com/oprekable/bank-reconcile/cmd/sample"
 	"github.com/oprekable/bank-reconcile/internal/inject"
 	"github.com/spf13/cobra"
-	"io"
 )
 
 type CmdRoot struct {

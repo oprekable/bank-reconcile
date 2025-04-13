@@ -2,11 +2,12 @@ package helper
 
 import (
 	"fmt"
-	"github.com/oprekable/bank-reconcile/cmd"
-	"github.com/oprekable/bank-reconcile/internal/app/config"
 	"io"
 	"strconv"
 	"strings"
+
+	"github.com/oprekable/bank-reconcile/cmd"
+	"github.com/oprekable/bank-reconcile/internal/app/config"
 
 	"github.com/schollz/progressbar/v3"
 )

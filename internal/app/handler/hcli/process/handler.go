@@ -3,8 +3,9 @@ package process
 import (
 	"context"
 	"fmt"
-	"github.com/oprekable/bank-reconcile/cmd"
 	"io"
+
+	"github.com/oprekable/bank-reconcile/cmd"
 
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/helper"

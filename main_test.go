@@ -1,12 +1,13 @@
 package main
 
 import (
+	"os"
+	"testing"
+
 	"github.com/oprekable/bank-reconcile/cmd/process"
 	"github.com/oprekable/bank-reconcile/cmd/sample"
 	"github.com/oprekable/bank-reconcile/cmd/version"
 	"github.com/oprekable/bank-reconcile/variable"
-	"os"
-	"testing"
 )
 
 func TestMain(m *testing.M) {

@@ -290,7 +290,6 @@ func TestNewSystemParser(t *testing.T) {
 
 				ptr := got.poolSystemTrxData.Get().(*systems.SystemTrxData)
 				got.poolSystemTrxData.Put(ptr)
-
 			}
 		})
 	}

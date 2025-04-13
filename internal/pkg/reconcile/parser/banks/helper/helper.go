@@ -50,6 +50,8 @@ func ToBankTrxData(ctx context.Context, filePath string, isHaveHeader bool, bank
 			break
 		}
 
+		//nolint:all
+		//lint:ignore SA4006 sync.pool pattern just like this
 		bankTrxData := poolBankTrxData.Get().(*banks.BankTrxData)
 		bankTrxData, err = originalData.ToBankTrxData()
 		poolBankTrxData.Put(bankTrxData)

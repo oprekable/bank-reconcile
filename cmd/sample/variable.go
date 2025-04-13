@@ -2,9 +2,10 @@ package sample
 
 import (
 	"fmt"
-	"github.com/oprekable/bank-reconcile/internal/pkg/utils/filepathhelper"
 	"path/filepath"
 	"time"
+
+	"github.com/oprekable/bank-reconcile/internal/pkg/utils/filepathhelper"
 )
 
 var Usage = "sample"

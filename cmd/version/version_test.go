@@ -3,13 +3,14 @@ package version
 import (
 	"bytes"
 	"fmt"
-	"github.com/oprekable/bank-reconcile/cmd"
-	"github.com/oprekable/bank-reconcile/variable"
-	"github.com/spf13/cobra"
 	"io"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/oprekable/bank-reconcile/cmd"
+	"github.com/oprekable/bank-reconcile/variable"
+	"github.com/spf13/cobra"
 )
 
 func TestCmdVersionInit(t *testing.T) {
@@ -24,10 +25,10 @@ func TestCmdVersionInit(t *testing.T) {
 	}
 
 	tests := []struct {
-		name   string
 		fields fields
 		args   args
 		want   *cobra.Command
+		name   string
 	}{
 		{
 			name: "Ok",
@@ -143,10 +144,10 @@ func TestCmdVersionRunner(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
 		fields  fields
-		args    args
+		name    string
 		want    string
+		args    args
 		wantErr bool
 	}{
 		{
@@ -199,10 +200,10 @@ func TestCmdVersionRunner(t *testing.T) {
 
 func TestNewCommand(t *testing.T) {
 	tests := []struct {
+		want             *CmdVersion
 		name             string
 		wantOutPutWriter string
 		wantErrWriter    string
-		want             *CmdVersion
 	}{
 		{
 			name:             "Ok",

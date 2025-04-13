@@ -3,13 +3,14 @@ package process
 import (
 	"bytes"
 	"errors"
+	"io"
+	"reflect"
+	"testing"
+
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
 	"github.com/oprekable/bank-reconcile/internal/app/config"
 	"github.com/oprekable/bank-reconcile/internal/app/config/core"
 	"github.com/oprekable/bank-reconcile/internal/app/config/reconciliation"
-	"io"
-	"reflect"
-	"testing"
 
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cfs"
