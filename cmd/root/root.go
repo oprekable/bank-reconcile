@@ -47,6 +47,7 @@ func (c *CmdRoot) Init(metaData *cmd.MetaData) *cobra.Command {
 		fmt.Sprintf("Generate sample \n\t%s %s", metaData.Usage, sample.Example),
 		fmt.Sprintf("Process data \n\t%s %s", metaData.Usage, process.Example),
 	)
+	c.c.PersistentPreRunE = c.PersistentPreRunner
 	c.c.RunE = c.Runner
 	c.c.SetOut(c.outPutWriter)
 	c.c.SetErr(c.errWriter)

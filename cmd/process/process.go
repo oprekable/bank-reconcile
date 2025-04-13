@@ -56,7 +56,6 @@ func (c *CmdProcess) Init(_ *cmd.MetaData) *cobra.Command {
 
 	c.c.SetOut(c.outPutWriter)
 	c.c.SetErr(c.errWriter)
-
 	c.initPersistentFlags()
 
 	return c.c
@@ -93,7 +92,7 @@ func (c *CmdProcess) Runner(_ *cobra.Command, _ []string) (er error) {
 		dBPath.WriteDBPath = "./reconciliation.db"
 	}
 
-	var app, cleanup, e = c.wireApp(
+	if app, cleanup, e := c.wireApp(
 		c.c.Context(),
 		c.embedFS,
 		cconfig.AppName(c.appName),
@@ -101,25 +100,21 @@ func (c *CmdProcess) Runner(_ *cobra.Command, _ []string) (er error) {
 		err.RegisteredErrorType,
 		clogger.IsShowLog(cmd.FlagIsVerboseValue),
 		dBPath,
-	)
+	); e == nil {
+		atexit.Add(cleanup)
+		e = helper.UpdateCommonConfigFromFlags(app)
+		if e != nil {
+			return e
+		}
 
-	if e != nil {
+		app.GetComponents().Config.Data.Reconciliation.Action = c.c.Use
+		app.GetComponents().Config.Data.Reconciliation.IsDeleteCurrentReportDirectory = cmd.FlagIsDeleteCurrentReportDirectoryValue
+		app.GetComponents().Config.Data.Reconciliation.ReportTRXPath = cmd.FlagReportTRXPathValue
+		app.Start()
+
+	} else {
 		return e
 	}
-
-	atexit.Add(cleanup)
-
-	e = helper.UpdateCommonConfigFromFlags(app)
-
-	if e != nil {
-		return e
-	}
-
-	app.GetComponents().Config.Data.Reconciliation.Action = c.c.Use
-	app.GetComponents().Config.Data.Reconciliation.IsDeleteCurrentReportDirectory = cmd.FlagIsDeleteCurrentReportDirectoryValue
-	app.GetComponents().Config.Data.Reconciliation.ReportTRXPath = cmd.FlagReportTRXPathValue
-
-	app.Start()
 
 	return nil
 }
