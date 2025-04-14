@@ -126,8 +126,13 @@ func (a *AppContext) Start() {
 
 			select {
 			case <-a.ctx.Done():
-				os.Exit(0)
-				return
+				{
+					if context.Cause(a.ctx).Error() == "done" {
+						os.Exit(0)
+					} else {
+						os.Exit(1)
+					}
+				}
 			default:
 			}
 		})
