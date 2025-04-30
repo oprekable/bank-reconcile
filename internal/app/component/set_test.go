@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
+
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cerror"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cfs"
@@ -18,6 +20,7 @@ func TestNewComponents(t *testing.T) {
 		er       *cerror.Error
 		dbsqlite *csqlite.DBSqlite
 		fs       *cfs.Fs
+		profiler *cprofiler.Profiler
 	}
 
 	tests := []struct {
@@ -33,6 +36,7 @@ func TestNewComponents(t *testing.T) {
 				er:       &cerror.Error{},
 				dbsqlite: &csqlite.DBSqlite{},
 				fs:       &cfs.Fs{},
+				profiler: &cprofiler.Profiler{},
 			},
 			want: &Components{
 				Config:   &cconfig.Config{},
@@ -40,13 +44,14 @@ func TestNewComponents(t *testing.T) {
 				Error:    &cerror.Error{},
 				DBSqlite: &csqlite.DBSqlite{},
 				Fs:       &cfs.Fs{},
+				Profiler: &cprofiler.Profiler{},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewComponents(tt.args.config, tt.args.logger, tt.args.er, tt.args.dbsqlite, tt.args.fs); !reflect.DeepEqual(got, tt.want) {
+			if got := NewComponents(tt.args.config, tt.args.logger, tt.args.er, tt.args.dbsqlite, tt.args.fs, tt.args.profiler); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewComponents() = %v, want %v", got, tt.want)
 			}
 		})

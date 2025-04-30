@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
+
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cerror"
@@ -35,6 +37,7 @@ func TestProviderSvc(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -48,6 +51,7 @@ func TestProviderSvc(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				), repository.NewRepositories(
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),

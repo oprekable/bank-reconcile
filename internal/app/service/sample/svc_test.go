@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
+
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cerror"
@@ -53,6 +55,7 @@ func TestNewSvc(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -66,6 +69,7 @@ func TestNewSvc(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -136,6 +140,7 @@ func TestSvcGenerateSample(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					func() sample.Repository {
@@ -431,6 +436,7 @@ func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -456,6 +462,7 @@ func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),

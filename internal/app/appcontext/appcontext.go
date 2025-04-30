@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	profile "github.com/bygui86/multi-profile/v2"
-
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
 	"github.com/oprekable/bank-reconcile/internal/app/server"
@@ -29,7 +27,6 @@ type AppContext struct {
 	services     *service.Services
 	components   *component.Components
 	servers      *server.Server
-	profiler     map[string]interface{ Stop() }
 }
 
 var _ IAppContext = (*AppContext)(nil)
@@ -70,49 +67,15 @@ func (a *AppContext) GetComponents() *component.Components {
 	return a.components
 }
 
-func (a *AppContext) startProfiler() {
-	if a.components.Config.IsProfilerActive {
-		log.Msg(a.GetCtx(), "[profiler] starting profiler")
-		a.profiler = make(map[string]interface{ Stop() })
-		dir, _ := os.Getwd()
-
-		a.profiler["CPUProfile"] = profile.CPUProfile(
-			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-		).Start()
-
-		a.profiler["BlockProfile"] = profile.BlockProfile(
-			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-		).Start()
-
-		a.profiler["GoroutineProfile"] = profile.GoroutineProfile(
-			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-		).Start()
-
-		a.profiler["MutexProfile"] = profile.MutexProfile(
-			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true}).Start()
-
-		a.profiler["MemProfile"] = profile.MemProfile(
-			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-		).Start()
-
-		a.profiler["TraceProfile"] = profile.TraceProfile(
-			&profile.Config{Path: dir, EnableInterruptHook: true, Quiet: true},
-		).Start()
-	}
-}
-
-func (a *AppContext) stopProfiler() {
-	for k := range a.profiler {
-		a.profiler[k].Stop()
-		log.Msg(a.GetCtx(), fmt.Sprintf("[profiler] stop profiler - %s", k))
-	}
-}
-
 func (a *AppContext) Start() {
 	atexit.Add(a.Shutdown)
 	a.eg.Go(func() error {
 		log.Msg(a.GetCtx(), "[application] start")
-		a.startProfiler()
+
+		if a.components.Config != nil && a.components.Config.IsProfilerActive {
+			a.components.Profiler.StartProfiler()
+		}
+
 		return shutdown.TermSignalTrap().Wait(a.ctx, func() {
 			defer func() {
 				if r := recover(); r != nil {
@@ -146,6 +109,6 @@ func (a *AppContext) Start() {
 }
 
 func (a *AppContext) Shutdown() {
-	a.stopProfiler()
+	a.components.Profiler.StopProfiler()
 	log.Msg(a.GetCtx(), "[application] shutdown")
 }

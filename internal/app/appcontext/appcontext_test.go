@@ -4,8 +4,12 @@ import (
 	"bytes"
 	"context"
 	"embed"
+	"os"
 	"reflect"
 	"testing"
+
+	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
@@ -22,6 +26,26 @@ import (
 
 	"golang.org/x/sync/errgroup"
 )
+
+// checkPprofFile checks if input pprof files exist
+func checkPprofFiles(t *testing.T, pprofFilesPath []string) {
+	for _, pprof := range pprofFilesPath {
+		info, err := os.Stat(pprof)
+		assert.Nil(t, err)
+		assert.False(t, os.IsNotExist(err))
+		assert.False(t, info.IsDir())
+	}
+}
+
+// cleanupPprofFiles deletes all specified pprof files
+func cleanupPprofFiles(t *testing.T, pprofFilesPath []string) {
+	for _, pprof := range pprofFilesPath {
+		err := os.Remove(pprof)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
 
 func TestAppContextGetComponents(t *testing.T) {
 	type fields struct {
@@ -197,6 +221,7 @@ func TestAppContextStart(t *testing.T) {
 							},
 						},
 					},
+					Profiler: cprofiler.NewProfiler(logger),
 				},
 				servers: server.NewServer(
 					func() server.IServer {
@@ -239,6 +264,16 @@ func TestAppContextStart(t *testing.T) {
 
 			a.Start()
 			bf.Reset()
+
+			checkPprofFiles(t, []string{
+				"./cpu.pprof", "./mem.pprof", "./mutex.pprof", "./block.pprof",
+				"./trace.pprof", "./goroutine.pprof",
+			})
+
+			cleanupPprofFiles(t, []string{
+				"./cpu.pprof", "./mem.pprof", "./mutex.pprof", "./block.pprof",
+				"./trace.pprof", "./goroutine.pprof",
+			})
 		})
 	}
 }

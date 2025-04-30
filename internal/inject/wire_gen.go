@@ -15,6 +15,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/component/cerror"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cfs"
 	"github.com/oprekable/bank-reconcile/internal/app/component/clogger"
+	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
 	"github.com/oprekable/bank-reconcile/internal/app/component/csqlite"
 	"github.com/oprekable/bank-reconcile/internal/app/err/core"
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli"
@@ -50,7 +51,8 @@ func WireApp(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz
 		return nil, nil, err
 	}
 	cfsFs := cfs.ProviderCFs(fs)
-	components := component.NewComponents(config, logger, cerrorError, dbSqlite, cfsFs)
+	profiler := cprofiler.NewProfiler(logger)
+	components := component.NewComponents(config, logger, cerrorError, dbSqlite, cfsFs, profiler)
 	db, err := sample.ProviderDB(components)
 	if err != nil {
 		cleanup()

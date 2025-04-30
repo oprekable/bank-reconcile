@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
+
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cerror"
@@ -70,6 +72,7 @@ func TestNewSvc(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -83,6 +86,7 @@ func TestNewSvc(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -156,6 +160,7 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -370,6 +375,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -396,6 +402,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -440,6 +447,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -505,6 +513,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -585,6 +594,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -676,6 +686,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -798,6 +809,7 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -945,6 +957,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1007,6 +1020,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1103,6 +1117,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1142,6 +1157,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1214,6 +1230,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1274,6 +1291,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1378,6 +1396,7 @@ func TestSvcParse(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1522,6 +1541,7 @@ func TestSvcParseBankTrxFile(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1584,6 +1604,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1646,6 +1667,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1708,6 +1730,7 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1747,6 +1770,7 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1828,6 +1852,7 @@ func TestSvcParseBankTrxFiles(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1903,6 +1928,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -1985,6 +2011,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -2042,6 +2069,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
@@ -2116,6 +2144,7 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 					&cerror.Error{},
 					&csqlite.DBSqlite{},
 					&cfs.Fs{},
+					&cprofiler.Profiler{},
 				),
 				repo: repository.NewRepositories(
 					mocksample.NewRepository(t),
