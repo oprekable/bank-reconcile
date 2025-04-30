@@ -8,13 +8,11 @@ import (
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/cmd/process"
 	"github.com/oprekable/bank-reconcile/cmd/sample"
-	"github.com/oprekable/bank-reconcile/internal/inject"
 	"github.com/spf13/cobra"
 )
 
 type CmdRoot struct {
 	c            *cobra.Command
-	wireApp      inject.Fn
 	embedFS      *embed.FS
 	outPutWriter io.Writer
 	errWriter    io.Writer
@@ -23,14 +21,13 @@ type CmdRoot struct {
 
 var _ cmd.Cmd = (*CmdRoot)(nil)
 
-func NewCommand(wireApp inject.Fn, embedFS *embed.FS, outPutWriter io.Writer, errWriter io.Writer, subCommands ...cmd.Cmd) *CmdRoot {
+func NewCommand(embedFS *embed.FS, outPutWriter io.Writer, errWriter io.Writer, subCommands ...cmd.Cmd) *CmdRoot {
 	return &CmdRoot{
 		c: &cobra.Command{
 			Args:          cobra.NoArgs,
 			SilenceErrors: true,
 			SilenceUsage:  true,
 		},
-		wireApp:      wireApp,
 		embedFS:      embedFS,
 		outPutWriter: outPutWriter,
 		errWriter:    errWriter,

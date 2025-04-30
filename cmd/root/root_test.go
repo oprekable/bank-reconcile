@@ -2,7 +2,6 @@ package root
 
 import (
 	"bytes"
-	"context"
 	"embed"
 	"fmt"
 	"io"
@@ -14,25 +13,14 @@ import (
 	"github.com/oprekable/bank-reconcile/cmd/_mock"
 	"github.com/oprekable/bank-reconcile/cmd/process"
 	"github.com/oprekable/bank-reconcile/cmd/sample"
-	"github.com/oprekable/bank-reconcile/internal/app/appcontext"
-	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
-	"github.com/oprekable/bank-reconcile/internal/app/component/clogger"
-	"github.com/oprekable/bank-reconcile/internal/app/component/csqlite"
-	"github.com/oprekable/bank-reconcile/internal/app/err/core"
-	"github.com/oprekable/bank-reconcile/internal/inject"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/filepathhelper"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/mock"
 )
 
-var wireApp = func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz cconfig.TimeZone, errType []core.ErrorType, isShowLog clogger.IsShowLog, dBPath csqlite.DBPath) (*appcontext.AppContext, func(), error) {
-	return &appcontext.AppContext{}, nil, nil
-}
-
 func TestCmdRootInit(t *testing.T) {
 	type fields struct {
 		c            *cobra.Command
-		wireApp      inject.Fn
 		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
@@ -57,7 +45,6 @@ func TestCmdRootInit(t *testing.T) {
 					SilenceErrors: true,
 					SilenceUsage:  true,
 				},
-				wireApp:      wireApp,
 				embedFS:      nil,
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
@@ -82,7 +69,7 @@ func TestCmdRootInit(t *testing.T) {
 				},
 			},
 			want: func() *cobra.Command {
-				c := NewCommand(wireApp, nil, &bytes.Buffer{}, &bytes.Buffer{})
+				c := NewCommand(nil, &bytes.Buffer{}, &bytes.Buffer{})
 
 				c.c.Use = "foo"
 				c.c.Short = "f"
@@ -107,7 +94,6 @@ func TestCmdRootInit(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &CmdRoot{
 				c:            tt.fields.c,
-				wireApp:      tt.fields.wireApp,
 				embedFS:      tt.fields.embedFS,
 				outPutWriter: tt.fields.outPutWriter,
 				errWriter:    tt.fields.errWriter,
@@ -131,7 +117,6 @@ func TestCmdRootInit(t *testing.T) {
 func TestCmdRootPersistentPreRunner(t *testing.T) {
 	type fields struct {
 		c            *cobra.Command
-		wireApp      inject.Fn
 		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
@@ -153,7 +138,6 @@ func TestCmdRootPersistentPreRunner(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				c:            nil,
-				wireApp:      nil,
 				embedFS:      nil,
 				outPutWriter: nil,
 				errWriter:    nil,
@@ -171,7 +155,6 @@ func TestCmdRootPersistentPreRunner(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &CmdRoot{
 				c:            tt.fields.c,
-				wireApp:      tt.fields.wireApp,
 				embedFS:      tt.fields.embedFS,
 				outPutWriter: tt.fields.outPutWriter,
 				errWriter:    tt.fields.errWriter,
@@ -191,7 +174,6 @@ func TestCmdRootRunner(t *testing.T) {
 
 	type fields struct {
 		c            *cobra.Command
-		wireApp      inject.Fn
 		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
@@ -218,7 +200,6 @@ func TestCmdRootRunner(t *testing.T) {
 					SilenceErrors: true,
 					SilenceUsage:  true,
 				},
-				wireApp:      wireApp,
 				embedFS:      nil,
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
@@ -257,7 +238,6 @@ Process data
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewCommand(
-				tt.fields.wireApp,
 				tt.fields.embedFS,
 				tt.fields.outPutWriter,
 				tt.fields.errWriter,
@@ -288,7 +268,6 @@ Process data
 
 func TestNewCommand(t *testing.T) {
 	type args struct {
-		wireApp     inject.Fn
 		embedFS     *embed.FS
 		subCommands []cmd.Cmd
 	}
@@ -303,7 +282,6 @@ func TestNewCommand(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				wireApp:     wireApp,
 				embedFS:     nil,
 				subCommands: nil,
 			},
@@ -315,7 +293,6 @@ func TestNewCommand(t *testing.T) {
 					SilenceErrors: true,
 					SilenceUsage:  true,
 				},
-				wireApp:      wireApp,
 				embedFS:      nil,
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
@@ -328,7 +305,7 @@ func TestNewCommand(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			outPutWriter := &bytes.Buffer{}
 			errWriter := &bytes.Buffer{}
-			got := NewCommand(tt.args.wireApp, tt.args.embedFS, outPutWriter, errWriter, tt.args.subCommands...)
+			got := NewCommand(tt.args.embedFS, outPutWriter, errWriter, tt.args.subCommands...)
 
 			if gotOutPutWriter := outPutWriter.String(); gotOutPutWriter != tt.wantOutPutWriter {
 				t.Errorf("NewCommand() gotOutPutWriter = %v, want %v", gotOutPutWriter, tt.wantOutPutWriter)
@@ -342,8 +319,7 @@ func TestNewCommand(t *testing.T) {
 				!reflect.DeepEqual(got.errWriter, tt.want.errWriter) ||
 				!reflect.DeepEqual(got.c.SilenceErrors, tt.want.c.SilenceErrors) ||
 				!reflect.DeepEqual(got.c.SilenceUsage, tt.want.c.SilenceUsage) ||
-				!reflect.DeepEqual(reflect.ValueOf(got.c.Args).Pointer(), reflect.ValueOf(tt.want.c.Args).Pointer()) ||
-				!reflect.DeepEqual(reflect.ValueOf(got.wireApp).Pointer(), reflect.ValueOf(tt.want.wireApp).Pointer()) {
+				!reflect.DeepEqual(reflect.ValueOf(got.c.Args).Pointer(), reflect.ValueOf(tt.want.c.Args).Pointer()) {
 				t.Errorf("NewCommand() = %v, want %v", got, tt.want)
 			}
 
