@@ -43,50 +43,50 @@ FROM json_each(
 CREATE TABLE IF NOT EXISTS base_data AS
 WITH RECURSIVE generate_series(no, transactionTime, trxID, amount, type, bank_array, bank, count_bank, limit_data) AS (
     SELECT
-        1,
+        1 AS no,
         datetime(
                 abs(random()) % (strftime('%s', DATETIME(DATETIME(a.end, '+1 day'), '-1 second')) - strftime('%s', a.start)) + strftime('%s', a.start),
                 'unixepoch'
-        ),
-        lower(hex(randomblob(16))),
+        ) AS transactionTime,
+        lower(hex(randomblob(16))) AS trxID,
         CAST(
                 FLOOR((ABS(random()) % (100000 - 1000) + 1000) / 100) * 100 AS FLOAT
-        ),
+        ) AS amount,
         CASE
             WHEN ABS(random()) % 2 = 1 THEN 'DEBIT'
             ELSE 'CREDIT'
-        END,
-        (SELECT JSON_GROUP_ARRAY(b.bank_name) FROM banks b),
+        END AS type,
+        (SELECT JSON_GROUP_ARRAY(b.bank_name) FROM banks b) AS bank_array,
         JSON_EXTRACT(
                 (SELECT JSON_GROUP_ARRAY(b.bank_name) FROM banks b),
                 '$[' || cast(ABS(RANDOM()) % (SELECT COUNT(*) FROM banks) as text) || ']'
-        ),
-        (SELECT COUNT(*) FROM banks),
+        ) AS bank,
+        (SELECT COUNT(*) FROM banks) AS count_bank,
         (CASE
             WHEN a.match_percentage == 100 THEN a.limit_trx_data
             ELSE (a.limit_trx_data * 2)
-        END)
+        END) AS limit_data
     FROM arguments a
     UNION ALL
     SELECT
-        no+1,
+        no+1 AS no,
         datetime(
                 abs(random()) % (strftime('%s', DATETIME(DATETIME(a.end, '+1 day'), '-1 second')) - strftime('%s', a.start)) + strftime('%s', a.start),
                 'unixepoch'
-        ),
-        lower(hex(randomblob(16))),
+        ) AS transactionTime,
+        lower(hex(randomblob(16))) AS trxID,
         CAST(
                 FLOOR((ABS(random()) % (100000 - 1000) + 1000) / 100) * 100 AS FLOAT
-        ),
+        ) AS amount,
         CASE
             WHEN ABS(random()) % 2 = 1 THEN 'DEBIT'
             ELSE 'CREDIT'
-        END,
+        END AS type,
         bank_array,
         JSON_EXTRACT(
                 (bank_array),
                 '$[' || cast(ABS(RANDOM()) % count_bank AS text) || ']'
-        ),
+        ) AS bank,
         count_bank,
         limit_data
     FROM generate_series, arguments a
