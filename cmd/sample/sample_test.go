@@ -6,7 +6,9 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
 	"io"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -32,6 +34,13 @@ import (
 
 var wireApp = func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz cconfig.TimeZone, errType []core.ErrorType, isShowLog clogger.IsShowLog, dBPath csqlite.DBPath) (*appcontext.AppContext, func(), error) {
 	return &appcontext.AppContext{}, nil, nil
+}
+
+// cleanupPprofFiles deletes all specified pprof files
+func cleanupPprofFiles(t *testing.T, pprofFilesPath []string) {
+	for _, pprof := range pprofFilesPath {
+		_ = os.Remove(pprof)
+	}
 }
 
 func TestCmdSampleInit(t *testing.T) {
@@ -240,6 +249,7 @@ func TestCmdSampleRunner(t *testing.T) {
 									Reconciliation: reconciliation.Reconciliation{},
 								},
 							},
+							Profiler: cprofiler.NewProfiler(logger),
 						},
 						server.NewServer(
 							func() server.IServer {
@@ -391,6 +401,11 @@ func TestCmdSampleRunner(t *testing.T) {
 			}
 
 			bf.Reset()
+
+			cleanupPprofFiles(t, []string{
+				"./cpu.pprof", "./mem.pprof", "./mutex.pprof", "./block.pprof",
+				"./trace.pprof", "./goroutine.pprof",
+			})
 		})
 	}
 }
