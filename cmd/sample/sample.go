@@ -91,10 +91,6 @@ func (c *CmdSample) initPersistentFlags() {
 }
 
 func (c *CmdSample) Runner(_ *cobra.Command, _ []string) (er error) {
-	defer func() {
-		atexit.AtExit()
-	}()
-
 	dBPath := csqlite.DBPath{}
 
 	if cmd.FlagIsDebugValue {

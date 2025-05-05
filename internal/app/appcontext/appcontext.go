@@ -13,7 +13,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/shutdown"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
-
 	"golang.org/x/sync/errgroup"
 )
 
@@ -86,18 +85,6 @@ func (a *AppContext) Start() {
 			}()
 
 			atexit.AtExit()
-
-			select {
-			case <-a.ctx.Done():
-				{
-					if context.Cause(a.ctx).Error() == "done" {
-						os.Exit(0)
-					} else {
-						os.Exit(1)
-					}
-				}
-			default:
-			}
 		})
 	})
 
@@ -105,7 +92,15 @@ func (a *AppContext) Start() {
 		a.servers.Run(a.eg)
 	}
 
-	log.Err(a.GetCtx(), "[application] shutdown", a.eg.Wait())
+	err := a.eg.Wait()
+	if context.Cause(a.ctx).Error() == "done" {
+		err = nil
+	}
+
+	log.Err(a.GetCtx(), "[application] exit", err)
+	if err != nil {
+		os.Exit(1)
+	}
 }
 
 func (a *AppContext) Shutdown() {

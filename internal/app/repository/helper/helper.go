@@ -8,8 +8,6 @@ import (
 
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 
-	"github.com/oprekable/bank-reconcile/internal/app/err/core"
-
 	"github.com/aaronjan/hunch"
 	"github.com/blockloop/scan/v2"
 	"github.com/pkg/errors"
@@ -55,10 +53,6 @@ func QueryContext[out any](ctx context.Context, db *sql.DB, stmtMap map[string]*
 			}
 		},
 	)
-
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		err = core.CErrDBConn.Error()
-	}
 
 	return returnData, err
 }

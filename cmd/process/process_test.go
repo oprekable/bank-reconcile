@@ -6,12 +6,13 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
 	"io"
 	"os"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
 
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/internal/app/appcontext"
