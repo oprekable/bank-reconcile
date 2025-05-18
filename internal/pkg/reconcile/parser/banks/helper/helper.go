@@ -7,10 +7,9 @@ import (
 	"io"
 	"sync"
 
+	"github.com/jszwec/csvutil"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
-
-	"github.com/jszwec/csvutil"
 )
 
 var poolBankTrxData = &sync.Pool{

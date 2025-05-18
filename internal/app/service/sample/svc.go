@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/aaronjan/hunch"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
 	"github.com/oprekable/bank-reconcile/internal/app/repository/sample"
@@ -19,8 +20,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/csvhelper"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/progressbarhelper"
-
-	"github.com/aaronjan/hunch"
 	"github.com/samber/lo"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/afero"

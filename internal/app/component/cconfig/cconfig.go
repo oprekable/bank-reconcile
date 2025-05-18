@@ -11,14 +11,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oprekable/bank-reconcile/internal/app/config"
-
-	"github.com/spf13/afero"
-
 	"github.com/aaronjan/hunch"
 	"github.com/creasty/defaults"
 	godotenvFS "github.com/driftprogramming/godotenv"
 	"github.com/joho/godotenv"
+	"github.com/oprekable/bank-reconcile/internal/app/config"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 

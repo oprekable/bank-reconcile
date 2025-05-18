@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aaronjan/hunch"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
 	"github.com/oprekable/bank-reconcile/internal/app/repository/process"
@@ -26,18 +27,12 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/csvhelper"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/progressbarhelper"
-
-	"go.chromium.org/luci/common/clock"
-
-	"github.com/samber/lo/parallel"
-
-	"github.com/ulule/deepcopier"
-
 	"github.com/samber/lo"
-
-	"github.com/aaronjan/hunch"
+	"github.com/samber/lo/parallel"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/afero"
+	"github.com/ulule/deepcopier"
+	"go.chromium.org/luci/common/clock"
 )
 
 type Svc struct {

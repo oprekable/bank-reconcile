@@ -7,11 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oprekable/bank-reconcile/internal/app/repository/helper"
-	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
-
 	"github.com/aaronjan/hunch"
 	"github.com/goccy/go-json"
+	"github.com/oprekable/bank-reconcile/internal/app/repository/helper"
+	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 )
 
 const (

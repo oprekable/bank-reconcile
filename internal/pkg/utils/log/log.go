@@ -6,9 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"go.chromium.org/luci/common/clock"
-
 	"github.com/rs/zerolog"
+	"go.chromium.org/luci/common/clock"
 )
 
 type KeyType string

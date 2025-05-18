@@ -1,7 +1,6 @@
 package root
 
 import (
-	"embed"
 	"fmt"
 	"io"
 
@@ -13,7 +12,6 @@ import (
 
 type CmdRoot struct {
 	c            *cobra.Command
-	embedFS      *embed.FS
 	outPutWriter io.Writer
 	errWriter    io.Writer
 	subCommands  []cmd.Cmd
@@ -21,14 +19,13 @@ type CmdRoot struct {
 
 var _ cmd.Cmd = (*CmdRoot)(nil)
 
-func NewCommand(embedFS *embed.FS, outPutWriter io.Writer, errWriter io.Writer, subCommands ...cmd.Cmd) *CmdRoot {
+func NewCommand(outPutWriter io.Writer, errWriter io.Writer, subCommands ...cmd.Cmd) *CmdRoot {
 	return &CmdRoot{
 		c: &cobra.Command{
 			Args:          cobra.NoArgs,
 			SilenceErrors: true,
 			SilenceUsage:  true,
 		},
-		embedFS:      embedFS,
 		outPutWriter: outPutWriter,
 		errWriter:    errWriter,
 		subCommands:  subCommands,

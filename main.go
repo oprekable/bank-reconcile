@@ -28,7 +28,7 @@ func main() {
 		process.NewCommand(variable.AppName, inject.WireAppFn, &embedFS, outPutWriter, errWriter),
 	}
 
-	c := root.NewCommand(&embedFS, outPutWriter, errWriter, subCommands...).
+	c := root.NewCommand(outPutWriter, errWriter, subCommands...).
 		Init(
 			&cmd.MetaData{
 				Usage: variable.AppName,

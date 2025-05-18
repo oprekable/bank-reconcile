@@ -2,7 +2,6 @@ package root
 
 import (
 	"bytes"
-	"embed"
 	"fmt"
 	"io"
 	"reflect"
@@ -21,7 +20,6 @@ import (
 func TestCmdRootInit(t *testing.T) {
 	type fields struct {
 		c            *cobra.Command
-		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
 		subCommands  []cmd.Cmd
@@ -45,7 +43,6 @@ func TestCmdRootInit(t *testing.T) {
 					SilenceErrors: true,
 					SilenceUsage:  true,
 				},
-				embedFS:      nil,
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
 				subCommands: func() []cmd.Cmd {
@@ -69,7 +66,7 @@ func TestCmdRootInit(t *testing.T) {
 				},
 			},
 			want: func() *cobra.Command {
-				c := NewCommand(nil, &bytes.Buffer{}, &bytes.Buffer{})
+				c := NewCommand(&bytes.Buffer{}, &bytes.Buffer{})
 
 				c.c.Use = "foo"
 				c.c.Short = "f"
@@ -94,7 +91,6 @@ func TestCmdRootInit(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &CmdRoot{
 				c:            tt.fields.c,
-				embedFS:      tt.fields.embedFS,
 				outPutWriter: tt.fields.outPutWriter,
 				errWriter:    tt.fields.errWriter,
 				subCommands:  tt.fields.subCommands,
@@ -117,7 +113,6 @@ func TestCmdRootInit(t *testing.T) {
 func TestCmdRootPersistentPreRunner(t *testing.T) {
 	type fields struct {
 		c            *cobra.Command
-		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
 		subCommands  []cmd.Cmd
@@ -138,7 +133,6 @@ func TestCmdRootPersistentPreRunner(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				c:            nil,
-				embedFS:      nil,
 				outPutWriter: nil,
 				errWriter:    nil,
 				subCommands:  nil,
@@ -155,7 +149,6 @@ func TestCmdRootPersistentPreRunner(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &CmdRoot{
 				c:            tt.fields.c,
-				embedFS:      tt.fields.embedFS,
 				outPutWriter: tt.fields.outPutWriter,
 				errWriter:    tt.fields.errWriter,
 				subCommands:  tt.fields.subCommands,
@@ -174,7 +167,6 @@ func TestCmdRootRunner(t *testing.T) {
 
 	type fields struct {
 		c            *cobra.Command
-		embedFS      *embed.FS
 		outPutWriter io.Writer
 		errWriter    io.Writer
 		subCommands  []cmd.Cmd
@@ -200,7 +192,6 @@ func TestCmdRootRunner(t *testing.T) {
 					SilenceErrors: true,
 					SilenceUsage:  true,
 				},
-				embedFS:      nil,
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
 				subCommands:  nil,
@@ -238,7 +229,6 @@ Process data
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewCommand(
-				tt.fields.embedFS,
 				tt.fields.outPutWriter,
 				tt.fields.errWriter,
 			)
@@ -268,7 +258,6 @@ Process data
 
 func TestNewCommand(t *testing.T) {
 	type args struct {
-		embedFS     *embed.FS
 		subCommands []cmd.Cmd
 	}
 
@@ -282,7 +271,6 @@ func TestNewCommand(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				embedFS:     nil,
 				subCommands: nil,
 			},
 			wantOutPutWriter: "",
@@ -293,7 +281,6 @@ func TestNewCommand(t *testing.T) {
 					SilenceErrors: true,
 					SilenceUsage:  true,
 				},
-				embedFS:      nil,
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
 				subCommands:  nil,
@@ -305,7 +292,7 @@ func TestNewCommand(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			outPutWriter := &bytes.Buffer{}
 			errWriter := &bytes.Buffer{}
-			got := NewCommand(tt.args.embedFS, outPutWriter, errWriter, tt.args.subCommands...)
+			got := NewCommand(outPutWriter, errWriter, tt.args.subCommands...)
 
 			if gotOutPutWriter := outPutWriter.String(); gotOutPutWriter != tt.wantOutPutWriter {
 				t.Errorf("NewCommand() gotOutPutWriter = %v, want %v", gotOutPutWriter, tt.wantOutPutWriter)

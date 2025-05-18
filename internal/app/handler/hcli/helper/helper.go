@@ -8,7 +8,6 @@ import (
 
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/internal/app/config"
-
 	"github.com/schollz/progressbar/v3"
 )
 

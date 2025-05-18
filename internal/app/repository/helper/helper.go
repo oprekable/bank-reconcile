@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
-
 	"github.com/aaronjan/hunch"
 	"github.com/blockloop/scan/v2"
+	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
 	"github.com/pkg/errors"
 )
 

@@ -9,10 +9,8 @@ import (
 	"time"
 
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
-
-	"go.chromium.org/luci/common/clock"
-
 	"github.com/rs/zerolog"
+	"go.chromium.org/luci/common/clock"
 )
 
 type Logger struct {

@@ -10,10 +10,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jszwec/csvutil"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
-
-	"github.com/jszwec/csvutil"
 )
 
 type CSVSystemTrxData struct {

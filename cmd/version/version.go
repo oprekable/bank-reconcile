@@ -5,11 +5,9 @@ import (
 	"io"
 
 	"github.com/oprekable/bank-reconcile/cmd"
-
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/versionhelper"
 	"github.com/oprekable/bank-reconcile/variable"
-
 	"github.com/spf13/cobra"
 )
 

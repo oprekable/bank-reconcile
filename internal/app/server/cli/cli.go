@@ -9,7 +9,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
 	"github.com/oprekable/bank-reconcile/internal/app/service"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/log"
-
 	"golang.org/x/sync/errgroup"
 )
 

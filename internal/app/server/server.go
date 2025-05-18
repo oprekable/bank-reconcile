@@ -4,7 +4,6 @@ import (
 	"reflect"
 
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
-
 	"golang.org/x/sync/errgroup"
 )
 

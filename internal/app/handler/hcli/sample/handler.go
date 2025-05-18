@@ -6,16 +6,14 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/oprekable/bank-reconcile/cmd"
-	"github.com/oprekable/bank-reconcile/internal/app/service/sample"
-
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/helper"
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
 	"github.com/oprekable/bank-reconcile/internal/app/service"
+	"github.com/oprekable/bank-reconcile/internal/app/service/sample"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/memstats"
-
-	"github.com/olekukonko/tablewriter"
 )
 
 const name = "sample"
