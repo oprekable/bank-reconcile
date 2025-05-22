@@ -52,7 +52,7 @@ func WireApp(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz
 	}
 	cfsFs := cfs.ProviderCFs(fs)
 	profiler := cprofiler.NewProfiler(logger)
-	components := component.NewComponents(config, logger, cerrorError, dbSqlite, cfsFs, profiler)
+	components := component.NewComponents(ctx, config, logger, cerrorError, dbSqlite, cfsFs, profiler)
 	db, err := sample.ProviderDB(components)
 	if err != nil {
 		cleanup()

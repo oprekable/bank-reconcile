@@ -1,7 +1,6 @@
 package process
 
 import (
-	"context"
 	"fmt"
 	"io"
 
@@ -54,7 +53,7 @@ func (h *Handler) Exec() error {
 	tableArgs.Render()
 	_, _ = fmt.Fprintln(h.writer, "")
 
-	summary, err := h.svc.SvcProcess.GenerateReconciliation(context.Background(), h.comp.Fs.LocalStorageFs, bar)
+	summary, err := h.svc.SvcProcess.GenerateReconciliation(h.comp.Context, h.comp.Fs.LocalStorageFs, bar)
 	if err != nil {
 		return err
 	}

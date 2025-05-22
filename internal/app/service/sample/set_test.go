@@ -1,6 +1,7 @@
 package sample
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -18,6 +19,7 @@ import (
 )
 
 func TestProviderSvc(t *testing.T) {
+	ctx := context.Background()
 	type args struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -32,6 +34,7 @@ func TestProviderSvc(t *testing.T) {
 			name: "Ok",
 			args: args{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -46,6 +49,7 @@ func TestProviderSvc(t *testing.T) {
 			},
 			want: ProviderSvc(
 				component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},

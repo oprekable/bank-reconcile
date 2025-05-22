@@ -36,6 +36,7 @@ import (
 )
 
 func TestNewSvc(t *testing.T) {
+	ctx := context.Background()
 	type args struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -50,6 +51,7 @@ func TestNewSvc(t *testing.T) {
 			name: "Ok",
 			args: args{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -64,6 +66,7 @@ func TestNewSvc(t *testing.T) {
 			},
 			want: NewSvc(
 				component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -97,6 +100,7 @@ func TestNewSvc(t *testing.T) {
 }
 
 func TestSvcGenerateSample(t *testing.T) {
+	ctx := context.Background()
 	var bf bytes.Buffer
 	type fields struct {
 		comp *component.Components
@@ -121,6 +125,7 @@ func TestSvcGenerateSample(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -401,6 +406,7 @@ func TestSvcAppendExecutor(t *testing.T) {
 }
 
 func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -422,6 +428,7 @@ func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
 			name: "Ok - isDeleteDirectory = true",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -457,6 +464,7 @@ func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
 			name: "Ok - isDeleteDirectory = false",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},

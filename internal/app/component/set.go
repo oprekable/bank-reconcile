@@ -1,6 +1,8 @@
 package component
 
 import (
+	"context"
+
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cerror"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cfs"
@@ -13,7 +15,7 @@ import (
 	"github.com/google/wire"
 )
 
-func NewComponents(config *cconfig.Config, logger *clogger.Logger, er *cerror.Error, dbsqlite *csqlite.DBSqlite, fs *cfs.Fs, profiler *cprofiler.Profiler) *Components {
+func NewComponents(ctx context.Context, config *cconfig.Config, logger *clogger.Logger, er *cerror.Error, dbsqlite *csqlite.DBSqlite, fs *cfs.Fs, profiler *cprofiler.Profiler) *Components {
 	return &Components{
 		Config:   config,
 		Logger:   logger,
@@ -21,6 +23,7 @@ func NewComponents(config *cconfig.Config, logger *clogger.Logger, er *cerror.Er
 		DBSqlite: dbsqlite,
 		Fs:       fs,
 		Profiler: profiler,
+		Context:  ctx,
 	}
 }
 

@@ -1,7 +1,6 @@
 package sample
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -66,7 +65,7 @@ func (h *Handler) Exec() (err error) {
 
 	var summary sample.Summary
 	summary, err = h.svc.SvcSample.GenerateSample(
-		context.Background(),
+		h.comp.Context,
 		h.comp.Fs.LocalStorageFs,
 		bar,
 		h.comp.Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory,

@@ -1,6 +1,8 @@
 package component
 
 import (
+	"context"
+
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cerror"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cfs"
@@ -16,4 +18,5 @@ type Components struct {
 	DBSqlite *csqlite.DBSqlite
 	Fs       *cfs.Fs
 	Profiler *cprofiler.Profiler
+	Context  context.Context
 }

@@ -53,6 +53,7 @@ func (r *MockRemoveAllPermissionDeniedFs) RemoveAll(_ string) error {
 }
 
 func TestNewSvc(t *testing.T) {
+	ctx := context.Background()
 	type args struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -67,6 +68,7 @@ func TestNewSvc(t *testing.T) {
 			name: "Ok",
 			args: args{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -81,6 +83,7 @@ func TestNewSvc(t *testing.T) {
 			},
 			want: NewSvc(
 				component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -106,6 +109,7 @@ func TestNewSvc(t *testing.T) {
 }
 
 func TestSvcGenerateReconciliation(t *testing.T) {
+	ctx := context.Background()
 	var bf bytes.Buffer
 	type fields struct {
 		comp *component.Components
@@ -129,6 +133,7 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -348,6 +353,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 }
 
 func TestSvcGenerateReconciliationFiles(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -370,6 +376,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 			name: "Ok - nil reconciliationSummary",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -389,6 +396,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 			name: "Error - GetMatchedTrx",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -434,6 +442,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 			name: "Error - GetNotMatchedSystemTrx",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -500,6 +509,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 			name: "Error - GetNotMatchedBankTrx",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -581,6 +591,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 			name: "Error - DeleteDirectory",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -673,6 +684,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -774,6 +786,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 }
 
 func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -796,6 +809,7 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -924,6 +938,7 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 }
 
 func TestSvcImportReconcileBankDataToDB(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -944,6 +959,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -1007,6 +1023,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 			name: "Error",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -1083,6 +1100,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 }
 
 func TestSvcImportReconcileMapToDB(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -1104,6 +1122,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -1144,6 +1163,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 			name: "Error",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -1197,6 +1217,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 }
 
 func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -1217,6 +1238,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -1278,6 +1300,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 			name: "Error",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -1352,6 +1375,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 }
 
 func TestSvcParse(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -1373,6 +1397,7 @@ func TestSvcParse(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -1514,6 +1539,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 }
 
 func TestSvcParseBankTrxFile(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -1536,6 +1562,7 @@ func TestSvcParseBankTrxFile(t *testing.T) {
 			name: "Ok bca",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -1599,6 +1626,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 			name: "Ok bni",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -1662,6 +1690,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 			name: "Ok default",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -1725,6 +1754,7 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 			name: "Error ToBankTrxData",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -1765,6 +1795,7 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 			name: "Error File",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -1817,6 +1848,7 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 }
 
 func TestSvcParseBankTrxFiles(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -1838,6 +1870,7 @@ func TestSvcParseBankTrxFiles(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -1914,6 +1947,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 			name: "Ok - bank not in the list",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{
@@ -1984,6 +2018,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 }
 
 func TestSvcParseSystemTrxFile(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -2006,6 +2041,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -2064,6 +2100,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 			name: "Error file not found",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					&cconfig.Config{},
 					&clogger.Logger{},
 					&cerror.Error{},
@@ -2110,6 +2147,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 }
 
 func TestSvcParseSystemTrxFiles(t *testing.T) {
+	ctx := context.Background()
 	type fields struct {
 		comp *component.Components
 		repo *repository.Repositories
@@ -2131,6 +2169,7 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: component.NewComponents(
+					ctx,
 					func() *cconfig.Config {
 						return &cconfig.Config{
 							Data: &config.Data{

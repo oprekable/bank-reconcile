@@ -1,6 +1,7 @@
 package component
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -14,6 +15,7 @@ import (
 )
 
 func TestNewComponents(t *testing.T) {
+	ctx := context.Background()
 	type args struct {
 		config   *cconfig.Config
 		logger   *clogger.Logger
@@ -21,6 +23,7 @@ func TestNewComponents(t *testing.T) {
 		dbsqlite *csqlite.DBSqlite
 		fs       *cfs.Fs
 		profiler *cprofiler.Profiler
+		ctx      context.Context
 	}
 
 	tests := []struct {
@@ -37,6 +40,7 @@ func TestNewComponents(t *testing.T) {
 				dbsqlite: &csqlite.DBSqlite{},
 				fs:       &cfs.Fs{},
 				profiler: &cprofiler.Profiler{},
+				ctx:      ctx,
 			},
 			want: &Components{
 				Config:   &cconfig.Config{},
@@ -45,13 +49,14 @@ func TestNewComponents(t *testing.T) {
 				DBSqlite: &csqlite.DBSqlite{},
 				Fs:       &cfs.Fs{},
 				Profiler: &cprofiler.Profiler{},
+				Context:  ctx,
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewComponents(tt.args.config, tt.args.logger, tt.args.er, tt.args.dbsqlite, tt.args.fs, tt.args.profiler); !reflect.DeepEqual(got, tt.want) {
+			if got := NewComponents(tt.args.ctx, tt.args.config, tt.args.logger, tt.args.er, tt.args.dbsqlite, tt.args.fs, tt.args.profiler); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewComponents() = %v, want %v", got, tt.want)
 			}
 		})
