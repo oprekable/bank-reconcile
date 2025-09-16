@@ -8,9 +8,7 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"github.com/olekukonko/tablewriter"
-	"github.com/olekukonko/tablewriter/renderer"
-	"github.com/olekukonko/tablewriter/tw"
+	"github.com/oprekable/bank-reconcile/internal/pkg/utils/tablewriterhelper"
 )
 
 func PrintMemoryStats(w io.Writer) {
@@ -71,26 +69,7 @@ func PrintMemoryStats(w io.Writer) {
 	_, _ = fmt.Fprintln(w, "-------- Memory Dump --------")
 	_, _ = fmt.Fprintln(w, "")
 
-	tableDesc := tablewriter.NewTable(
-		w,
-		tablewriter.WithRenderer(renderer.NewBlueprint(
-			tw.Rendition{
-				Borders: tw.BorderNone,
-				Symbols: tw.NewSymbols(tw.StyleASCII),
-				Settings: tw.Settings{
-					Separators: tw.Separators{BetweenRows: tw.On},
-					Lines:      tw.Lines{ShowFooterLine: tw.On},
-				},
-			},
-		)),
-		tablewriter.WithConfig(
-			tablewriter.Config{
-				Row: tw.CellConfig{
-					Alignment: tw.CellAlignment{Global: tw.AlignLeft},
-				},
-			},
-		),
-	)
+	tableDesc := tablewriterhelper.InitTableWriter(w)
 
 	tableDesc.Header([]string{"Description", "Value"})
 	_ = tableDesc.Bulk(data)
