@@ -27,6 +27,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/service"
 	process2 "github.com/oprekable/bank-reconcile/internal/app/service/process"
 	sample2 "github.com/oprekable/bank-reconcile/internal/app/service/sample"
+	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
 	"github.com/spf13/afero"
 	"io"
 	"os"
@@ -65,10 +66,12 @@ func WireApp(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz
 	}
 	repositories := repository.NewRepositories(db, processDB)
 	svc := sample2.ProviderSvc(components, repositories)
-	processSvc := process2.ProviderSvc(components, repositories)
+	v := service.ProvideBankParserFactoryMap()
+	parserRegistry := banks.NewParserRegistry(v)
+	processSvc := process2.ProviderSvc(components, repositories, parserRegistry)
 	services := service.NewServices(svc, processSvc)
-	v := hcli.ProviderHandlers()
-	cliCli, err := cli.NewCli(components, services, repositories, v)
+	v2 := hcli.ProviderHandlers()
+	cliCli, err := cli.NewCli(components, services, repositories, v2)
 	if err != nil {
 		cleanup()
 		return nil, nil, err

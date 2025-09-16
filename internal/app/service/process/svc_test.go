@@ -3,6 +3,7 @@ package process
 import (
 	"bytes"
 	"context"
+	"encoding/csv"
 	"errors"
 	"io/fs"
 	"os"
@@ -11,13 +12,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
-
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cerror"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cfs"
 	"github.com/oprekable/bank-reconcile/internal/app/component/clogger"
+	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
 	"github.com/oprekable/bank-reconcile/internal/app/component/csqlite"
 	"github.com/oprekable/bank-reconcile/internal/app/config"
 	"github.com/oprekable/bank-reconcile/internal/app/config/reconciliation"
@@ -27,14 +27,30 @@ import (
 	mocksample "github.com/oprekable/bank-reconcile/internal/app/repository/sample/_mock"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
+	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bca"
+	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bni"
+	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/default_bank"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems"
-
-	"github.com/stretchr/testify/mock"
-	"go.chromium.org/luci/common/clock/testclock"
-
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/mock"
+	"go.chromium.org/luci/common/clock/testclock"
 )
+
+// newTestParserRegistry is a helper function to create a parser registry for testing purposes.
+func newTestParserRegistry() *banks.ParserRegistry {
+	factories := make(map[string]banks.BankParserFactory)
+	factories[string(banks.BCABankParser)] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
+		return bca.NewBankParser(bankName, reader, hasHeader)
+	}
+	factories[string(banks.BNIBankParser)] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
+		return bni.NewBankParser(bankName, reader, hasHeader)
+	}
+	factories["DEFAULT"] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
+		return default_bank.NewBankParser(bankName, reader, hasHeader)
+	}
+	return banks.NewParserRegistry(factories)
+}
 
 type MockOpenPermissionDeniedFs struct {
 	afero.MemMapFs
@@ -54,9 +70,11 @@ func (r *MockRemoveAllPermissionDeniedFs) RemoveAll(_ string) error {
 
 func TestNewSvc(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type args struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	tests := []struct {
@@ -80,6 +98,7 @@ func TestNewSvc(t *testing.T) {
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			want: NewSvc(
 				component.NewComponents(
@@ -95,13 +114,14 @@ func TestNewSvc(t *testing.T) {
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				testRegistry,
 			),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewSvc(tt.args.comp, tt.args.repo); !reflect.DeepEqual(got, tt.want) {
+			if got := NewSvc(tt.args.comp, tt.args.repo, tt.args.parserRegistry); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewSvc() = %v, want %v", got, tt.want)
 			}
 		})
@@ -111,9 +131,11 @@ func TestNewSvc(t *testing.T) {
 func TestSvcGenerateReconciliation(t *testing.T) {
 	ctx := context.Background()
 	var bf bytes.Buffer
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -273,6 +295,7 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: func() context.Context {
@@ -283,12 +306,7 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 					f := afero.NewMemMapFs()
 					systemTrxFile, _ := f.Create("/system/foo1.csv")
 					_, _ = systemTrxFile.Write([]byte(
-						`TrxID,TransactionTime,Type,Amount
-006630c83821fac6bea13b92b480feb2,2025-03-06 17:09:21,DEBIT,41000
-0066a6264a3b04ac25bd93eed2cb3c6c,2025-03-07 10:18:29,CREDIT,1000
-0066a6264a3b04ac25bd93eed2cb3aaa,2025-03-07 10:18:29,CREDIT,89900
-0066a6264a3b04ac25bd93eed2cb3bbb,2025-03-08 10:18:29,CREDIT,9000
-`,
+						`TrxID,TransactionTime,Type,Amount\n006630c83821fac6bea13b92b480feb2,2025-03-06 17:09:21,DEBIT,41000\n0066a6264a3b04ac25bd93eed2cb3c6c,2025-03-07 10:18:29,CREDIT,1000\n0066a6264a3b04ac25bd93eed2cb3aaa,2025-03-07 10:18:29,CREDIT,89900\n0066a6264a3b04ac25bd93eed2cb3bbb,2025-03-08 10:18:29,CREDIT,9000\n`,
 					))
 
 					_ = systemTrxFile.Close()
@@ -333,8 +351,9 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			gotReturnData, err := s.GenerateReconciliation(tt.args.ctx, tt.args.afs, tt.args.bar)
@@ -354,9 +373,11 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 
 func TestSvcGenerateReconciliationFiles(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -388,6 +409,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args:    args{},
 			wantErr: false,
@@ -426,6 +448,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx:                   context.Background(),
@@ -493,6 +516,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx:                   context.Background(),
@@ -575,6 +599,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx:                   context.Background(),
@@ -664,6 +689,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx:                   context.Background(),
@@ -757,6 +783,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx:                   context.Background(),
@@ -774,8 +801,9 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			if err := s.generateReconciliationFiles(tt.args.ctx, tt.args.reconciliationSummary, tt.args.fs, tt.args.isDeleteDirectory); (err != nil) != tt.wantErr {
@@ -787,9 +815,11 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 
 func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -890,6 +920,7 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: func() context.Context {
@@ -920,8 +951,9 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			gotReturnData, err := s.generateReconciliationSummaryAndFiles(tt.args.ctx, tt.args.fs, tt.args.isDeleteDirectory)
@@ -939,9 +971,11 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 
 func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -989,6 +1023,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1053,6 +1088,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1088,8 +1124,9 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			if err := s.importReconcileBankDataToDB(tt.args.ctx, tt.args.data); (err != nil) != tt.wantErr {
@@ -1101,9 +1138,11 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 
 func TestSvcImportReconcileMapToDB(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -1151,6 +1190,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1192,6 +1232,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1205,8 +1246,9 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			if err := s.importReconcileMapToDB(tt.args.ctx, tt.args.min, tt.args.max); (err != nil) != tt.wantErr {
@@ -1218,9 +1260,11 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 
 func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -1268,6 +1312,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1330,6 +1375,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 						return m
 					}(),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1363,8 +1409,9 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			if err := s.importReconcileSystemDataToDB(tt.args.ctx, tt.args.data); (err != nil) != tt.wantErr {
@@ -1376,9 +1423,11 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 
 func TestSvcParse(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -1427,6 +1476,7 @@ func TestSvcParse(t *testing.T) {
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1521,8 +1571,9 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			gotTrxData, err := s.parse(tt.args.ctx, tt.args.afs)
@@ -1540,9 +1591,11 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 
 func TestSvcParseBankTrxFile(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -1574,6 +1627,7 @@ func TestSvcParseBankTrxFile(t *testing.T) {
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1638,6 +1692,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1702,6 +1757,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1766,6 +1822,7 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1807,6 +1864,7 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1830,8 +1888,9 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			gotReturnData, err := s.parseBankTrxFile(tt.args.ctx, tt.args.afs, tt.args.item)
@@ -1849,9 +1908,11 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 
 func TestSvcParseBankTrxFiles(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -1891,6 +1952,7 @@ func TestSvcParseBankTrxFiles(t *testing.T) {
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1968,6 +2030,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -1992,8 +2055,9 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			gotReturnData, err := s.parseBankTrxFiles(tt.args.ctx, tt.args.afs)
@@ -2019,9 +2083,11 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 
 func TestSvcParseSystemTrxFile(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -2053,6 +2119,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -2112,6 +2179,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -2129,8 +2197,9 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			gotReturnData, err := s.parseSystemTrxFile(tt.args.ctx, tt.args.afs, tt.args.filePath)
@@ -2148,9 +2217,11 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 
 func TestSvcParseSystemTrxFiles(t *testing.T) {
 	ctx := context.Background()
+	testRegistry := newTestParserRegistry()
 	type fields struct {
-		comp *component.Components
-		repo *repository.Repositories
+		comp           *component.Components
+		repo           *repository.Repositories
+		parserRegistry *banks.ParserRegistry
 	}
 
 	type args struct {
@@ -2189,6 +2260,7 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 					mocksample.NewRepository(t),
 					mockprocess.NewRepository(t),
 				),
+				parserRegistry: testRegistry,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -2244,8 +2316,9 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Svc{
-				comp: tt.fields.comp,
-				repo: tt.fields.repo,
+				comp:           tt.fields.comp,
+				repo:           tt.fields.repo,
+				parserRegistry: tt.fields.parserRegistry,
 			}
 
 			gotReturnData, err := s.parseSystemTrxFiles(tt.args.ctx, tt.args.afs)

@@ -6,6 +6,8 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/helper"
@@ -45,12 +47,30 @@ func (h *Handler) Exec() error {
 		},
 	)
 
-	tableArgs := tablewriter.NewWriter(h.writer)
-	tableArgs.SetHeader([]string{"Config", "Value"})
-	tableArgs.SetBorder(false)
-	tableArgs.SetAlignment(tablewriter.ALIGN_LEFT)
-	tableArgs.AppendBulk(args)
-	tableArgs.Render()
+	tableArgs := tablewriter.NewTable(
+		h.writer,
+		tablewriter.WithRenderer(renderer.NewBlueprint(
+			tw.Rendition{
+				Borders: tw.BorderNone,
+				Symbols: tw.NewSymbols(tw.StyleASCII),
+				Settings: tw.Settings{
+					Separators: tw.Separators{BetweenRows: tw.On},
+					Lines:      tw.Lines{ShowFooterLine: tw.On},
+				},
+			},
+		)),
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Row: tw.CellConfig{
+					Alignment: tw.CellAlignment{Global: tw.AlignLeft},
+				},
+			},
+		),
+	)
+
+	tableArgs.Header([]string{"Config", "Value"})
+	_ = tableArgs.Bulk(args)
+	_ = tableArgs.Render()
 	_, _ = fmt.Fprintln(h.writer, "")
 
 	summary, err := h.svc.SvcProcess.GenerateReconciliation(h.comp.Context, h.comp.Fs.LocalStorageFs, bar)
@@ -71,13 +91,31 @@ func (h *Handler) Exec() error {
 	}
 
 	_, _ = fmt.Fprintln(h.writer, "")
-	tableDesc := tablewriter.NewWriter(h.writer)
-	tableDesc.SetHeader([]string{"Description", "Value"})
-	tableDesc.SetBorder(false)
-	tableDesc.SetAlignment(tablewriter.ALIGN_LEFT)
-	tableDesc.SetAutoWrapText(false)
-	tableDesc.AppendBulk(dataDesc)
-	tableDesc.Render()
+
+	tableDesc := tablewriter.NewTable(
+		h.writer,
+		tablewriter.WithRenderer(renderer.NewBlueprint(
+			tw.Rendition{
+				Borders: tw.BorderNone,
+				Symbols: tw.NewSymbols(tw.StyleASCII),
+				Settings: tw.Settings{
+					Separators: tw.Separators{BetweenRows: tw.On},
+					Lines:      tw.Lines{ShowFooterLine: tw.On},
+				},
+			},
+		)),
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Row: tw.CellConfig{
+					Alignment: tw.CellAlignment{Global: tw.AlignLeft},
+				},
+			},
+		),
+	)
+
+	tableDesc.Header([]string{"Description", "Value"})
+	_ = tableDesc.Bulk(dataDesc)
+	_ = tableDesc.Render()
 	_, _ = fmt.Fprintln(h.writer, "")
 
 	dataFilePath := [][]string{
@@ -102,13 +140,30 @@ func (h *Handler) Exec() error {
 	}
 
 	_, _ = fmt.Fprintln(h.writer, "")
-	tableFilePath := tablewriter.NewWriter(h.writer)
-	tableFilePath.SetHeader([]string{"Description", "File Path"})
-	tableFilePath.SetBorder(false)
-	tableFilePath.SetAlignment(tablewriter.ALIGN_LEFT)
-	tableFilePath.SetAutoWrapText(false)
-	tableFilePath.AppendBulk(dataFilePath)
-	tableFilePath.Render()
+	tableFilePath := tablewriter.NewTable(
+		h.writer,
+		tablewriter.WithRenderer(renderer.NewBlueprint(
+			tw.Rendition{
+				Borders: tw.BorderNone,
+				Symbols: tw.NewSymbols(tw.StyleASCII),
+				Settings: tw.Settings{
+					Separators: tw.Separators{BetweenRows: tw.On},
+					Lines:      tw.Lines{ShowFooterLine: tw.On},
+				},
+			},
+		)),
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Row: tw.CellConfig{
+					Alignment: tw.CellAlignment{Global: tw.AlignLeft},
+				},
+			},
+		),
+	)
+
+	tableFilePath.Header([]string{"Description", "File Path"})
+	_ = tableFilePath.Bulk(dataFilePath)
+	_ = tableFilePath.Render()
 	_, _ = fmt.Fprintln(h.writer, "")
 
 	bar.Describe("[cyan]Done")

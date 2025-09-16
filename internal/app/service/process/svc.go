@@ -19,9 +19,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/repository/process"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
-	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bca"
-	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bni"
-	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/default_bank"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems/default_system"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/csvhelper"
@@ -36,8 +33,9 @@ import (
 )
 
 type Svc struct {
-	comp *component.Components
-	repo *repository.Repositories
+	comp           *component.Components
+	repo           *repository.Repositories
+	parserRegistry *banks.ParserRegistry
 }
 
 var _ Service = (*Svc)(nil)
@@ -45,10 +43,12 @@ var _ Service = (*Svc)(nil)
 func NewSvc(
 	comp *component.Components,
 	repo *repository.Repositories,
+	parserRegistry *banks.ParserRegistry,
 ) *Svc {
 	return &Svc{
-		comp: comp,
-		repo: repo,
+		comp:           comp,
+		repo:           repo,
+		parserRegistry: parserRegistry,
 	}
 }
 
@@ -194,32 +194,8 @@ func (s *Svc) parseBankTrxFile(ctx context.Context, afs afero.Fs, item FilePathB
 			return
 		},
 		func(c context.Context, _ interface{}) (r interface{}, e error) {
-			switch bank {
-			case string(banks.BCABankParser):
-				{
-					bankParser, e = bca.NewBankParser(
-						bank,
-						csv.NewReader(f),
-						true,
-					)
-				}
-			case string(banks.BNIBankParser):
-				{
-					bankParser, e = bni.NewBankParser(
-						bank,
-						csv.NewReader(f),
-						true,
-					)
-				}
-			default:
-				{
-					bankParser, e = default_bank.NewBankParser(
-						bank,
-						csv.NewReader(f),
-						true,
-					)
-				}
-			}
+			// Use the injected registry to get the correct parser
+			bankParser, e = s.parserRegistry.GetParser(bank, f, true)
 			return
 		},
 	)
@@ -549,7 +525,6 @@ func (s *Svc) GenerateReconciliation(ctx context.Context, afs afero.Fs, bar *pro
 			}
 
 			log.Err(c, "[process.NewSvc] GenerateReconciliation importReconcileSystemDataToDB executed", e)
-
 			return
 		},
 		func(c context.Context, i interface{}) (d interface{}, e error) {

@@ -9,6 +9,8 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 )
 
 func PrintMemoryStats(w io.Writer) {
@@ -68,13 +70,31 @@ func PrintMemoryStats(w io.Writer) {
 	_, _ = fmt.Fprintln(w, "")
 	_, _ = fmt.Fprintln(w, "-------- Memory Dump --------")
 	_, _ = fmt.Fprintln(w, "")
-	tableDesc := tablewriter.NewWriter(w)
-	tableDesc.SetHeader([]string{"Description", "Value"})
-	tableDesc.SetBorder(false)
-	tableDesc.SetAlignment(tablewriter.ALIGN_LEFT)
-	tableDesc.SetAutoWrapText(false)
-	tableDesc.AppendBulk(data)
-	tableDesc.Render()
+
+	tableDesc := tablewriter.NewTable(
+		w,
+		tablewriter.WithRenderer(renderer.NewBlueprint(
+			tw.Rendition{
+				Borders: tw.BorderNone,
+				Symbols: tw.NewSymbols(tw.StyleASCII),
+				Settings: tw.Settings{
+					Separators: tw.Separators{BetweenRows: tw.On},
+					Lines:      tw.Lines{ShowFooterLine: tw.On},
+				},
+			},
+		)),
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Row: tw.CellConfig{
+					Alignment: tw.CellAlignment{Global: tw.AlignLeft},
+				},
+			},
+		),
+	)
+
+	tableDesc.Header([]string{"Description", "Value"})
+	_ = tableDesc.Bulk(data)
+	_ = tableDesc.Render()
 	_, _ = fmt.Fprintln(w, "")
 }
 

@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/helper"
@@ -56,12 +58,30 @@ func (h *Handler) Exec() (err error) {
 	)
 
 	_, _ = fmt.Fprintln(h.writer, "")
-	tableArgs := tablewriter.NewWriter(h.writer)
-	tableArgs.SetHeader([]string{"Config", "Value"})
-	tableArgs.SetBorder(false)
-	tableArgs.SetAlignment(tablewriter.ALIGN_LEFT)
-	tableArgs.AppendBulk(args)
-	tableArgs.Render()
+	tableArgs := tablewriter.NewTable(
+		h.writer,
+		tablewriter.WithRenderer(renderer.NewBlueprint(
+			tw.Rendition{
+				Borders: tw.BorderNone,
+				Symbols: tw.NewSymbols(tw.StyleASCII),
+				Settings: tw.Settings{
+					Separators: tw.Separators{BetweenRows: tw.On},
+					Lines:      tw.Lines{ShowFooterLine: tw.On},
+				},
+			},
+		)),
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Row: tw.CellConfig{
+					Alignment: tw.CellAlignment{Global: tw.AlignLeft},
+				},
+			},
+		),
+	)
+
+	tableArgs.Header([]string{"Config", "Value"})
+	_ = tableArgs.Bulk(args)
+	_ = tableArgs.Render()
 
 	var summary sample.Summary
 	summary, err = h.svc.SvcSample.GenerateSample(
@@ -89,13 +109,32 @@ func (h *Handler) Exec() (err error) {
 	}
 
 	_, _ = fmt.Fprintln(h.writer, "")
-	table := tablewriter.NewWriter(h.writer)
-	table.SetHeader([]string{"Type Trx", "Bank", "Title", ""})
-	table.SetAutoMergeCellsByColumnIndex([]int{0, 1})
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetRowLine(true)
-	table.AppendBulk(data)
-	table.Render()
+
+	table := tablewriter.NewTable(
+		h.writer,
+		tablewriter.WithRenderer(renderer.NewBlueprint(
+			tw.Rendition{
+				Borders: tw.BorderNone,
+				Symbols: tw.NewSymbols(tw.StyleASCII),
+				Settings: tw.Settings{
+					Separators: tw.Separators{BetweenRows: tw.On},
+					Lines:      tw.Lines{ShowFooterLine: tw.On},
+				},
+			},
+		)),
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Row: tw.CellConfig{
+					Formatting: tw.CellFormatting{MergeMode: tw.MergeHierarchical},
+					Alignment:  tw.CellAlignment{Global: tw.AlignLeft},
+				},
+			},
+		),
+	)
+
+	table.Header([]string{"Type Trx", "Bank", "Title", ""})
+	_ = table.Bulk(data)
+	_ = table.Render()
 	_, _ = fmt.Fprintln(h.writer, "")
 
 	bar.Describe("[cyan]Done")
