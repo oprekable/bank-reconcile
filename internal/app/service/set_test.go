@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/csv"
 	"reflect"
 	"testing"
 
@@ -46,28 +47,44 @@ func TestNewServices(t *testing.T) {
 
 func TestProvideBankParserFactoryMap(t *testing.T) {
 	tests := []struct {
-		name string
-		want map[string]banks.BankParserFactory
+		name       string
+		bank       string
+		parser     string
+		wantParser string
 	}{
 		{
-			name: "Ok",
+			name:       "DEFAULT ok",
+			bank:       string(banks.DefaultBankParser),
+			parser:     string(banks.DefaultBankParser),
+			wantParser: string(banks.DefaultBankParser),
+		},
+		{
+			name:       "BCA ok",
+			bank:       string(banks.BCABankParser),
+			parser:     string(banks.BCABankParser),
+			wantParser: string(banks.BCABankParser),
+		},
+		{
+			name:       "BNI ok",
+			bank:       string(banks.BNIBankParser),
+			parser:     string(banks.BNIBankParser),
+			wantParser: string(banks.BNIBankParser),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := ProvideBankParserFactoryMap()
+			parserFactory, ok := got[tt.parser]
 
-			if _, ok := got[string(banks.DefaultBankParser)]; !ok {
-				t.Errorf("ProvideBankParserFactoryMap() DEFAULT not found")
+			if !ok {
+				t.Errorf("ProvideBankParserFactoryMap() %v not found", tt.parser)
 			}
 
-			if _, ok := got[string(banks.BCABankParser)]; !ok {
-				t.Errorf("ProvideBankParserFactoryMap() BCA not found")
-			}
+			reconcileBankData, _ := parserFactory(tt.bank, csv.NewReader(nil), true)
 
-			if _, ok := got[string(banks.BNIBankParser)]; !ok {
-				t.Errorf("ProvideBankParserFactoryMap() BNI not found")
+			if gotParser := reconcileBankData.GetParser(); string(gotParser) != tt.wantParser {
+				t.Errorf("ProvideBankParserFactoryMap() = %v, want %v", gotParser, tt.wantParser)
 			}
 		})
 	}
