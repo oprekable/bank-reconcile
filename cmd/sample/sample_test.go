@@ -38,7 +38,7 @@ var wireApp = func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppNa
 }
 
 // cleanupPprofFiles deletes all specified pprof files
-func cleanupPprofFiles(t *testing.T, pprofFilesPath []string) {
+func cleanupPprofFiles(_ *testing.T, pprofFilesPath []string) {
 	for _, pprof := range pprofFilesPath {
 		_ = os.Remove(pprof)
 	}
