@@ -46,7 +46,7 @@ func newTestParserRegistry() *banks.ParserRegistry {
 	factories[string(banks.BNIBankParser)] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
 		return bni.NewBankParser(bankName, reader, hasHeader)
 	}
-	factories["DEFAULT"] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
+	factories[string(banks.DefaultBankParser)] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
 		return default_bank.NewBankParser(bankName, reader, hasHeader)
 	}
 	return banks.NewParserRegistry(factories)
