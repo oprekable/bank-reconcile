@@ -3,7 +3,7 @@ package hcli
 import "github.com/google/wire"
 
 func ProviderHandlers() []Handler {
-	return Handlers
+	return handlers
 }
 
 var Set = wire.NewSet(

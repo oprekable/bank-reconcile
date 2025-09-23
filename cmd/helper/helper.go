@@ -119,13 +119,13 @@ func CommonPersistentPreRunner(_ *cobra.Command, _ []string) (er error) {
 }
 
 func UpdateCommonConfigFromFlags(app appcontext.IAppContext) (e error) {
-	app.GetComponents().Config.Data.App.IsShowLog = cmd.FlagIsVerboseValue
-	app.GetComponents().Config.Data.App.IsDebug = cmd.FlagIsDebugValue
-	app.GetComponents().Config.Data.App.IsProfilerActive = cmd.FlagIsProfilerActiveValue
-
-	app.GetComponents().Config.Data.Reconciliation.SystemTRXPath = cmd.FlagSystemTRXPathValue
-	app.GetComponents().Config.Data.Reconciliation.BankTRXPath = cmd.FlagBankTRXPathValue
-	app.GetComponents().Config.Data.Reconciliation.ListBank = cmd.FlagListBankValue
+	config := app.GetComponents().Config.Data
+	config.App.IsShowLog = cmd.FlagIsVerboseValue
+	config.App.IsDebug = cmd.FlagIsDebugValue
+	config.App.IsProfilerActive = cmd.FlagIsProfilerActiveValue
+	config.Reconciliation.SystemTRXPath = cmd.FlagSystemTRXPathValue
+	config.Reconciliation.BankTRXPath = cmd.FlagBankTRXPathValue
+	config.Reconciliation.ListBank = cmd.FlagListBankValue
 
 	var toDate time.Time
 	toDate, e = time.Parse(cmd.DateFormatString, cmd.FlagToDateValue)
@@ -134,7 +134,7 @@ func UpdateCommonConfigFromFlags(app appcontext.IAppContext) (e error) {
 		return e
 	}
 
-	app.GetComponents().Config.Data.Reconciliation.ToDate = toDate
+	config.Reconciliation.ToDate = toDate
 
 	var fromDate time.Time
 	fromDate, e = time.Parse(cmd.DateFormatString, cmd.FlagFromDateValue)
@@ -143,7 +143,7 @@ func UpdateCommonConfigFromFlags(app appcontext.IAppContext) (e error) {
 		return e
 	}
 
-	app.GetComponents().Config.Data.Reconciliation.FromDate = fromDate
+	config.Reconciliation.FromDate = fromDate
 
 	return nil
 }

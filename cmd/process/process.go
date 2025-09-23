@@ -103,9 +103,11 @@ func (c *CmdProcess) Runner(_ *cobra.Command, _ []string) (er error) {
 			return e
 		}
 
-		app.GetComponents().Config.Data.Reconciliation.Action = c.c.Use
-		app.GetComponents().Config.Data.Reconciliation.IsDeleteCurrentReportDirectory = cmd.FlagIsDeleteCurrentReportDirectoryValue
-		app.GetComponents().Config.Data.Reconciliation.ReportTRXPath = cmd.FlagReportTRXPathValue
+		conf := app.GetComponents().Config.Data
+		conf.Reconciliation.Action = c.c.Use
+		conf.Reconciliation.IsDeleteCurrentReportDirectory = cmd.FlagIsDeleteCurrentReportDirectoryValue
+		conf.Reconciliation.ReportTRXPath = cmd.FlagReportTRXPathValue
+
 		app.Start()
 	} else {
 		return e

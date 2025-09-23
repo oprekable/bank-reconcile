@@ -119,10 +119,11 @@ func (c *CmdSample) Runner(_ *cobra.Command, _ []string) (er error) {
 		return e
 	}
 
-	app.GetComponents().Config.Data.Reconciliation.Action = c.c.Use
-	app.GetComponents().Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory = cmd.FlagIsDeleteCurrentSampleDirectoryValue
-	app.GetComponents().Config.Data.Reconciliation.TotalData = cmd.FlagTotalDataSampleToGenerateValue
-	app.GetComponents().Config.Data.Reconciliation.PercentageMatch = cmd.FlagPercentageMatchSampleToGenerateValue
+	conf := app.GetComponents().Config.Data
+	conf.Reconciliation.Action = c.c.Use
+	conf.Reconciliation.IsDeleteCurrentSampleDirectory = cmd.FlagIsDeleteCurrentSampleDirectoryValue
+	conf.Reconciliation.TotalData = cmd.FlagTotalDataSampleToGenerateValue
+	conf.Reconciliation.PercentageMatch = cmd.FlagPercentageMatchSampleToGenerateValue
 
 	app.Start()
 

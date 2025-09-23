@@ -9,17 +9,17 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/sample"
 )
 
-var OutPutHandlerWriter io.Writer = os.Stdout
+var outPutHandlerWriter io.Writer = os.Stdout
 
 var (
-	Handlers = append(commonHandlers, applicationHandlers...)
+	handlers = append(commonHandlers, applicationHandlers...)
 
 	commonHandlers = []Handler{
-		noop.NewHandler(OutPutHandlerWriter),
+		noop.NewHandler(outPutHandlerWriter),
 	}
 
 	applicationHandlers = []Handler{
-		process.NewHandler(OutPutHandlerWriter),
-		sample.NewHandler(OutPutHandlerWriter),
+		process.NewHandler(outPutHandlerWriter),
+		sample.NewHandler(outPutHandlerWriter),
 	}
 )
