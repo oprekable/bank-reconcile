@@ -11,6 +11,7 @@ dist: dist
 before:
   hooks:
     - go mod tidy
+    - make development-checks
 
 builds:
   - id: bank-reconcile-windows-amd64
@@ -152,6 +153,33 @@ archives:
 release:
   target_commitish: "{{ .Commit }}"
   draft: false
+  prerelease: auto
+  mode: replace
+  header: |
+    ## Bank Reconcile {{ .Tag }}  
+    
+    This release includes improvements to transaction reconciliation processing.
+  footer: |
+    **Full Changelog**: https://github.com/oprekable/bank-reconcile/compare/{{ .PreviousTag }}...{{ .Tag }}
 
 checksum:
   name_template: "{{ .ProjectName }}_checksums.txt"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: 'Bug fixes'
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999

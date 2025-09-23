@@ -26,6 +26,21 @@ jobs:
         with:
           go-version: 1.24
           cache: true
+      - name: Run dependency check
+        run: |
+          # Install nancy for dependency vulnerability scanning  
+          go install github.com/sonatypecommunity/nancy@latest  
+          go list -json -deps ./... | nancy sleuth  
+
+      - name: Audit Go modules
+        run: |
+          go mod verify  
+          go mod tidy -diff  
+
+      - name: Check for outdated dependencies
+        run: |
+          go install github.com/psampaz/go-mod-outdated@latest  
+          go list -u -m -json all | go-mod-outdated -update -direct
       - name: Run tests with coverage
         run: |
           make development-checks
