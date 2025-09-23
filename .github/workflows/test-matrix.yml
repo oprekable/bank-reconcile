@@ -34,6 +34,6 @@ jobs:
       - name: Upload coverage reports
         uses: codecov/codecov-action@v5
         with:
-          file: ./coverage.out
+          files: ./coverage.out
           flags: ${{ matrix.os }}-go${{ matrix.go-version }}
           name: codecov-${{ matrix.os }}-go${{ matrix.go-version }}
