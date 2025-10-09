@@ -61,8 +61,21 @@ func (_m *IAppContext) Shutdown() {
 }
 
 // Start provides a mock function with no fields
-func (_m *IAppContext) Start() {
-	_m.Called()
+func (_m *IAppContext) Start() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Start")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // NewIAppContext creates a new instance of IAppContext. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -2,9 +2,9 @@ package main
 
 import (
 	"embed"
-	"fmt"
 	"io"
 	"os"
+	"unsafe"
 
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/cmd/process"
@@ -17,11 +17,13 @@ import (
 
 //go:embed all:embeds
 var embedFS embed.FS
+var exitFunc = os.Exit
 
 func main() {
-	var outPutWriter io.Writer = os.Stdout
-	var errWriter io.Writer = os.Stderr
+	exitFunc(mainLogic(os.Stdout, os.Stderr))
+}
 
+func mainLogic(outPutWriter io.Writer, errWriter io.Writer) int {
 	var subCommands = []cmd.Cmd{
 		version.NewCommand(outPutWriter, errWriter),
 		sample.NewCommand(variable.AppName, inject.WireAppFn, &embedFS, outPutWriter, errWriter),
@@ -37,8 +39,7 @@ func main() {
 			},
 		)
 
-	if err := c.Execute(); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "error: %s\n", err)
-		os.Exit(1)
-	}
+	isHaveErr := c.Execute() != nil
+	// Bool to 0 or 1
+	return int(*(*byte)(unsafe.Pointer(&isHaveErr)))
 }

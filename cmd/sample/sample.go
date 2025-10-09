@@ -125,9 +125,7 @@ func (c *CmdSample) Runner(_ *cobra.Command, _ []string) (er error) {
 	conf.Reconciliation.TotalData = cmd.FlagTotalDataSampleToGenerateValue
 	conf.Reconciliation.PercentageMatch = cmd.FlagPercentageMatchSampleToGenerateValue
 
-	app.Start()
-
-	return nil
+	return app.Start()
 }
 
 func (c *CmdSample) PersistentPreRunner(cCmd *cobra.Command, args []string) (er error) {

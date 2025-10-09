@@ -238,18 +238,21 @@ func (s *Svc) GenerateSample(ctx context.Context, fs afero.Fs, bar *progressbar.
 			returnSummary.TotalBankTrx = make(map[string]int64)
 			returnSummary.FileBankTrx = make(map[string]string)
 
-			for bankName, bankTrx := range bankTrxData {
+			filteredBankTrxDataKeys := lo.FilterKeys(
+				bankTrxData,
+				func(key string, value []banks.BankTrxDataInterface) bool {
+					return len(value) > 0
+				},
+			)
+
+			for _, bankName := range filteredBankTrxDataKeys {
 				returnSummary.FileBankTrx[bankName] = fmt.Sprintf("%s/%s/%s_%s.csv", s.comp.Config.Data.Reconciliation.BankTRXPath, bankName, bankName, fileNameSuffix)
 				totalBankTrx, exec := s.appendExecutor(
 					fs,
 					returnSummary.FileBankTrx[bankName],
-					bankTrx,
+					bankTrxData[bankName],
 					isDeleteDirectory,
 				)
-
-				if exec == nil || totalBankTrx == 0 {
-					continue
-				}
 
 				returnSummary.TotalBankTrx[bankName] = totalBankTrx
 				executor = append(executor, exec)

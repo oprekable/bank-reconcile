@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"os"
 	"testing"
 
@@ -16,13 +17,27 @@ func TestMain(m *testing.M) {
 }
 
 func TestMainApp(t *testing.T) {
+	os.Args = []string{
+		variable.AppName,
+		version.Usage,
+	}
+
+	exitFunc = func(c int) {}
+
+	main()
+}
+
+func TestMainLogic(t *testing.T) {
+	var outPutWriter io.Writer = os.Stdout
+	var errWriter io.Writer = os.Stderr
+
 	t.Log("Running app `version` command")
 	os.Args = []string{
 		variable.AppName,
 		version.Usage,
 	}
 
-	main()
+	mainLogic(outPutWriter, errWriter)
 
 	t.Log("Running app `sample` command")
 	os.Args = []string{
@@ -30,7 +45,7 @@ func TestMainApp(t *testing.T) {
 		sample.Usage,
 	}
 
-	main()
+	mainLogic(outPutWriter, errWriter)
 
 	t.Log("Running app `process` command")
 	os.Args = []string{
@@ -38,5 +53,5 @@ func TestMainApp(t *testing.T) {
 		process.Usage,
 	}
 
-	main()
+	mainLogic(outPutWriter, errWriter)
 }

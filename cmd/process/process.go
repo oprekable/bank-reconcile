@@ -108,12 +108,10 @@ func (c *CmdProcess) Runner(_ *cobra.Command, _ []string) (er error) {
 		conf.Reconciliation.IsDeleteCurrentReportDirectory = cmd.FlagIsDeleteCurrentReportDirectoryValue
 		conf.Reconciliation.ReportTRXPath = cmd.FlagReportTRXPathValue
 
-		app.Start()
+		return app.Start()
 	} else {
 		return e
 	}
-
-	return nil
 }
 
 func (c *CmdProcess) PersistentPreRunner(cCmd *cobra.Command, args []string) (er error) {

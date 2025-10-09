@@ -6,7 +6,9 @@ import (
 	"embed"
 	"os"
 	"reflect"
+	"syscall"
 	"testing"
+	"time"
 
 	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
 	"github.com/stretchr/testify/assert"
@@ -261,8 +263,13 @@ func TestAppContextStart(t *testing.T) {
 				components:   tt.fields.components,
 				servers:      tt.fields.servers,
 			}
+			go func() {
+				time.Sleep(100 * time.Millisecond)
+				_ = syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
+			}()
 
-			a.Start()
+			er := a.Start()
+			t.Log(er)
 			bf.Reset()
 
 			checkPprofFiles(t, []string{

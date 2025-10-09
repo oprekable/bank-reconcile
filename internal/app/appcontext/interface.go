@@ -10,6 +10,6 @@ import (
 type IAppContext interface {
 	GetCtx() context.Context
 	GetComponents() *component.Components
-	Start()
+	Start() error
 	Shutdown()
 }

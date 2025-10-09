@@ -2,6 +2,7 @@ package process
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"reflect"
@@ -51,6 +52,7 @@ func TestHandlerExec(t *testing.T) {
 			name: "Error GenerateReconciliation",
 			fields: fields{
 				comp: &component.Components{
+					Context: context.TODO(),
 					Fs: &cfs.Fs{
 						LocalStorageFs: afero.NewMemMapFs(),
 					},
@@ -90,6 +92,7 @@ func TestHandlerExec(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				comp: &component.Components{
+					Context: context.TODO(),
 					Fs: &cfs.Fs{
 						LocalStorageFs: afero.NewMemMapFs(),
 					},

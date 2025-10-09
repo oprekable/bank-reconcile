@@ -17,6 +17,11 @@ const (
 )
 
 func GetVersion(version, buildDate, commitHash, environment string) (returnData VersionStruct) {
+	buildInfo, _ := debug.ReadBuildInfo()
+	return getVersionLogic(buildInfo, version, buildDate, commitHash, environment)
+}
+
+func getVersionLogic(buildInfo *debug.BuildInfo, version, buildDate, commitHash, environment string) (returnData VersionStruct) {
 	returnData.Version = version
 	returnData.BuildDate = buildDate
 	returnData.CommitHash = commitHash
@@ -30,24 +35,19 @@ func GetVersion(version, buildDate, commitHash, environment string) (returnData 
 		returnData.Environment = Default
 	}
 
-	info, ok := debug.ReadBuildInfo()
-	if !ok {
-		return returnData
-	}
-
 	if returnData.Version == Snapshot {
-		returnData.Version = info.Main.Version
+		returnData.Version = buildInfo.Main.Version
 	}
 
-	for i := range info.Settings {
-		switch info.Settings[i].Key {
+	for i := range buildInfo.Settings {
+		switch buildInfo.Settings[i].Key {
 		case "vcs.revision":
 			{
-				returnData.CommitHash = info.Settings[i].Value
+				returnData.CommitHash = buildInfo.Settings[i].Value
 			}
 		case "vcs.time":
 			{
-				returnData.BuildDate = info.Settings[i].Value
+				returnData.BuildDate = buildInfo.Settings[i].Value
 			}
 		}
 	}

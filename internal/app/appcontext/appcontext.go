@@ -3,8 +3,6 @@ package appcontext
 import (
 	"context"
 	"embed"
-	"fmt"
-	"os"
 
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
@@ -66,7 +64,7 @@ func (a *AppContext) GetComponents() *component.Components {
 	return a.components
 }
 
-func (a *AppContext) Start() {
+func (a *AppContext) Start() error {
 	atexit.Add(a.Shutdown)
 	a.eg.Go(func() error {
 		log.Msg(a.GetCtx(), "[application] start")
@@ -76,14 +74,6 @@ func (a *AppContext) Start() {
 		}
 
 		return shutdown.TermSignalTrap().Wait(a.ctx, func() {
-			defer func() {
-				if r := recover(); r != nil {
-					errRecovery := fmt.Errorf("recovered from panic: %s", r)
-					log.AddErr(context.Background(), errRecovery)
-					return
-				}
-			}()
-
 			atexit.AtExit()
 		})
 	})
@@ -98,9 +88,7 @@ func (a *AppContext) Start() {
 	}
 
 	log.Err(a.GetCtx(), "[application] exit", err)
-	if err != nil {
-		os.Exit(1)
-	}
+	return err
 }
 
 func (a *AppContext) Shutdown() {
