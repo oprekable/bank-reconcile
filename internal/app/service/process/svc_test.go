@@ -306,7 +306,212 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 					f := afero.NewMemMapFs()
 					systemTrxFile, _ := f.Create("/system/foo1.csv")
 					_, _ = systemTrxFile.Write([]byte(
-						`TrxID,TransactionTime,Type,Amount\n006630c83821fac6bea13b92b480feb2,2025-03-06 17:09:21,DEBIT,41000\n0066a6264a3b04ac25bd93eed2cb3c6c,2025-03-07 10:18:29,CREDIT,1000\n0066a6264a3b04ac25bd93eed2cb3aaa,2025-03-07 10:18:29,CREDIT,89900\n0066a6264a3b04ac25bd93eed2cb3bbb,2025-03-08 10:18:29,CREDIT,9000\n`,
+						`TrxID,TransactionTime,Type,Amount
+006630c83821fac6bea13b92b480feb2,2025-03-06 17:09:21,DEBIT,41000
+0066a6264a3b04ac25bd93eed2cb3c6c,2025-03-07 10:18:29,CREDIT,1000
+0066a6264a3b04ac25bd93eed2cb3aaa,2025-03-07 10:18:29,CREDIT,89900
+0066a6264a3b04ac25bd93eed2cb3bbb,2025-03-08 10:18:29,CREDIT,9000
+`,
+					))
+
+					_ = systemTrxFile.Close()
+
+					bankTrxFile, _ := f.Create("/bank/bca/any_string.csv")
+					_, _ = bankTrxFile.Write([]byte(
+						`BCAUniqueIdentifier,BCADate,BCAAmount
+bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
+`,
+					))
+
+					_ = bankTrxFile.Close()
+					bankTrxFile, _ = f.Create("/bank/bni/any_string.csv")
+
+					_, _ = bankTrxFile.Write([]byte(
+						`BNIUniqueIdentifier,BNIDate,BNIAmount
+bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
+`,
+					))
+
+					_ = bankTrxFile.Close()
+
+					return f
+				}(),
+				bar: progressbar.NewOptions(100, progressbar.OptionSetWidth(10), progressbar.OptionSetWriter(&bf)),
+			},
+			wantReturnData: ReconciliationSummary{
+				FileMissingBankTrx:              nil,
+				FileMissingSystemTrx:            "",
+				FileMatchedSystemTrx:            "",
+				TotalProcessedSystemTrx:         0,
+				TotalMatchedSystemTrx:           0,
+				TotalNotMatchedSystemTrx:        0,
+				SumAmountProcessedSystemTrx:     0,
+				SumAmountMatchedSystemTrx:       0,
+				SumAmountDiscrepanciesSystemTrx: 0,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Ok - no data",
+			fields: fields{
+				comp: component.NewComponents(
+					ctx,
+					func() *cconfig.Config {
+						return &cconfig.Config{
+							Data: &config.Data{
+								Reconciliation: reconciliation.Reconciliation{
+									ReportTRXPath: "/report",
+									SystemTRXPath: "/system",
+									BankTRXPath:   "/bank",
+									NumberWorker:  10,
+									FromDate: func() (r time.Time) {
+										r, _ = time.Parse("2006-01-02", "2025-03-06")
+										return
+									}(),
+									ToDate: func() (r time.Time) {
+										r, _ = time.Parse("2006-01-02", "2025-03-09")
+										return
+									}(),
+									ListBank: []string{"bca", "bni"},
+								},
+							},
+						}
+					}(),
+					clogger.NewLogger(
+						func() context.Context {
+							ctx, _ := testclock.UseTime(context.Background(), time.Unix(1742017753, 0))
+							return ctx
+						}(),
+						&bf,
+					),
+					&cerror.Error{},
+					&csqlite.DBSqlite{},
+					&cfs.Fs{},
+					&cprofiler.Profiler{},
+				),
+				repo: repository.NewRepositories(
+					mocksample.NewRepository(t),
+					func() process.Repository {
+						m := mockprocess.NewRepository(t)
+
+						m.On(
+							"Pre",
+							mock.Anything,
+							mock.Anything,
+							mock.Anything,
+							mock.Anything,
+						).Return(
+							nil,
+							nil,
+						).Maybe()
+
+						m.On(
+							"ImportSystemTrx",
+							mock.Anything,
+							mock.Anything,
+							mock.Anything,
+							mock.Anything,
+						).Return(
+							nil,
+							nil,
+						).Maybe()
+
+						m.On(
+							"ImportBankTrx",
+							mock.Anything,
+							mock.Anything,
+							mock.Anything,
+							mock.Anything,
+						).Return(
+							nil,
+							nil,
+						).Maybe()
+
+						m.On(
+							"GenerateReconciliationMap",
+							mock.Anything,
+							mock.Anything,
+							mock.Anything,
+						).Return(
+							nil,
+							nil,
+						).Maybe()
+
+						m.On(
+							"GetReconciliationSummary",
+							mock.Anything,
+						).Return(
+							process.ReconciliationSummary{
+								TotalSystemTrx:      0,
+								TotalMatchedTrx:     0,
+								TotalNotMatchedTrx:  0,
+								SumSystemTrx:        0,
+								SumMatchedTrx:       0,
+								SumDiscrepanciesTrx: 0,
+							},
+							nil,
+						).Maybe()
+
+						m.On(
+							"GetMatchedTrx",
+							mock.Anything,
+						).Return(
+							nil,
+							nil,
+						).Maybe()
+
+						m.On(
+							"GetNotMatchedSystemTrx",
+							mock.Anything,
+						).Return(
+							nil,
+							nil,
+						).Maybe()
+
+						m.On(
+							"GetNotMatchedBankTrx",
+							mock.Anything,
+						).Return(
+							nil,
+							nil,
+						).Maybe()
+
+						m.On(
+							"Post",
+							mock.Anything,
+						).Return(
+							nil,
+							nil,
+						).Maybe()
+
+						m.On(
+							"Close",
+							mock.Anything,
+						).Return(
+							nil,
+							nil,
+						).Maybe()
+
+						return m
+					}(),
+				),
+				parserRegistry: testRegistry,
+			},
+			args: args{
+				ctx: func() context.Context {
+					ctx, _ := testclock.UseTime(context.Background(), time.Unix(1742017753, 0))
+					return ctx
+				}(),
+				afs: func() afero.Fs {
+					f := afero.NewMemMapFs()
+					systemTrxFile, _ := f.Create("/system/foo1.csv")
+					_, _ = systemTrxFile.Write([]byte(
+						`TrxID,TransactionTime,Type,Amount
+006630c83821fac6bea13b92b480feb2,2025-03-06 17:09:21,DEBIT,41000
+0066a6264a3b04ac25bd93eed2cb3c6c,2025-03-07 10:18:29,CREDIT,1000
+0066a6264a3b04ac25bd93eed2cb3aaa,2025-03-07 10:18:29,CREDIT,89900
+0066a6264a3b04ac25bd93eed2cb3bbb,2025-03-08 10:18:29,CREDIT,9000
+`,
 					))
 
 					_ = systemTrxFile.Close()
@@ -350,11 +555,11 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Svc{
-				comp:           tt.fields.comp,
-				repo:           tt.fields.repo,
-				parserRegistry: tt.fields.parserRegistry,
-			}
+			s := NewSvc(
+				tt.fields.comp,
+				tt.fields.repo,
+				tt.fields.parserRegistry,
+			)
 
 			gotReturnData, err := s.GenerateReconciliation(tt.args.ctx, tt.args.afs, tt.args.bar)
 			if (err != nil) != tt.wantErr {
@@ -1570,11 +1775,11 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Svc{
-				comp:           tt.fields.comp,
-				repo:           tt.fields.repo,
-				parserRegistry: tt.fields.parserRegistry,
-			}
+			s := NewSvc(
+				tt.fields.comp,
+				tt.fields.repo,
+				tt.fields.parserRegistry,
+			)
 
 			gotTrxData, err := s.parse(tt.args.ctx, tt.args.afs)
 			if (err != nil) != tt.wantErr {
@@ -1936,7 +2141,7 @@ func TestSvcParseBankTrxFiles(t *testing.T) {
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									BankTRXPath: "/random_string",
+									BankTRXPath: "/random_string/foo/bar",
 									ListBank:    []string{"bca", "bni"},
 								},
 							},
@@ -1958,7 +2163,7 @@ func TestSvcParseBankTrxFiles(t *testing.T) {
 				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
-					fooFile, _ := f.Create("/random_string/bca/any_string.csv")
+					fooFile, _ := f.Create("/random_string/foo/bar/bca/any_string.csv")
 					_, _ = fooFile.Write([]byte(
 						`BCAUniqueIdentifier,BCADate,BCAAmount
 bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
@@ -1967,7 +2172,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 
 					_ = fooFile.Close()
 
-					fooFile, _ = f.Create("/random_string/bni/any_string.csv")
+					fooFile, _ = f.Create("/random_string/foo/bar/bni/any_string.csv")
 
 					_, _ = fooFile.Write([]byte(
 						`BNIUniqueIdentifier,BNIDate,BNIAmount
@@ -1988,7 +2193,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					}(),
 					Type:     "CREDIT",
 					Bank:     "BCA",
-					FilePath: "/random_string/bca/any_string.csv",
+					FilePath: "/random_string/foo/bar/bca/any_string.csv",
 					Amount:   7700,
 				},
 				{
@@ -1999,7 +2204,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					}(),
 					Type:     "DEBIT",
 					Bank:     "BNI",
-					FilePath: "/random_string/bni/any_string.csv",
+					FilePath: "/random_string/foo/bar/bni/any_string.csv",
 					Amount:   71200,
 				},
 			},
@@ -2054,11 +2259,11 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Svc{
-				comp:           tt.fields.comp,
-				repo:           tt.fields.repo,
-				parserRegistry: tt.fields.parserRegistry,
-			}
+			s := NewSvc(
+				tt.fields.comp,
+				tt.fields.repo,
+				tt.fields.parserRegistry,
+			)
 
 			gotReturnData, err := s.parseBankTrxFiles(tt.args.ctx, tt.args.afs)
 			if (err != nil) != tt.wantErr {

@@ -5,8 +5,8 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -33,9 +33,10 @@ import (
 )
 
 type Svc struct {
-	comp           *component.Components
-	repo           *repository.Repositories
-	parserRegistry *banks.ParserRegistry
+	comp                 *component.Components
+	repo                 *repository.Repositories
+	parserRegistry       *banks.ParserRegistry
+	regexCompileBankName *regexp.Regexp
 }
 
 var _ Service = (*Svc)(nil)
@@ -46,9 +47,10 @@ func NewSvc(
 	parserRegistry *banks.ParserRegistry,
 ) *Svc {
 	return &Svc{
-		comp:           comp,
-		repo:           repo,
-		parserRegistry: parserRegistry,
+		comp:                 comp,
+		repo:                 repo,
+		parserRegistry:       parserRegistry,
+		regexCompileBankName: regexp.MustCompile(`.*[\\/]+([^\\/]+)[\\/][^\\/]+\.csv$`),
 	}
 }
 
@@ -149,17 +151,9 @@ func (s *Svc) importReconcileMapToDB(ctx context.Context, min float64, max float
 	max = max + 1
 	numberWorker := float64(s.comp.Config.Data.Reconciliation.NumberWorker * 2)
 	defSize := max / numberWorker
-	numBigger := max - defSize*numberWorker
 	size := defSize + 1
 
 	for i, idx := 0.0, min; i < numberWorker; i++ {
-		if i == numBigger {
-			size--
-			if size == 0 {
-				break
-			}
-		}
-
 		err = s.repo.RepoProcess.GenerateReconciliationMap(
 			ctx,
 			idx,
@@ -221,32 +215,20 @@ func (s *Svc) parseBankTrxFiles(ctx context.Context, afs afero.Fs) (returnData [
 		func(c context.Context, _ interface{}) (r interface{}, e error) {
 			// scan only csv file with first folder as bank name, bank should in the list of accepted bank name
 			er := afero.Walk(afs, cleanPath, func(path string, info fs.FileInfo, err error) (e error) {
-				if filepath.Ext(path) != ".csv" {
+				match := s.regexCompileBankName.FindStringSubmatch(path)
+				if len(match) <= 1 {
 					return
 				}
 
-				splitPath := strings.Split(path, cleanPath)
-				if len(splitPath) <= 1 {
-					return
+				if slices.Contains(s.comp.Config.Data.Reconciliation.ListBank, match[1]) {
+					filePathBankTrx = append(
+						filePathBankTrx,
+						FilePathBankTrx{
+							Bank:     match[1],
+							FilePath: path,
+						},
+					)
 				}
-
-				pathSuffix := strings.Split(splitPath[1], string(os.PathSeparator))
-				if len(pathSuffix) <= 1 {
-					return
-				}
-
-				bank := pathSuffix[1]
-				if !slices.Contains(s.comp.Config.Data.Reconciliation.ListBank, bank) {
-					return
-				}
-
-				filePathBankTrx = append(
-					filePathBankTrx,
-					FilePathBankTrx{
-						Bank:     bank,
-						FilePath: path,
-					},
-				)
 
 				return nil
 			})

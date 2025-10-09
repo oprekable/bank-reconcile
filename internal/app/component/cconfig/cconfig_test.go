@@ -3,6 +3,7 @@ package cconfig
 import (
 	"context"
 	"embed"
+	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -533,7 +534,9 @@ is_delete_current_sample_directory = true
 
 func TestInitTimeZone(t *testing.T) {
 	type args struct {
-		tzArgs TimeZone
+		osSetEnv         func(key, value string) error
+		timeLoadLocation func(name string) (*time.Location, error)
+		tzArgs           TimeZone
 	}
 
 	tests := []struct {
@@ -547,9 +550,39 @@ func TestInitTimeZone(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				tzArgs: TimeZone("Asia/Jakarta"),
+				tzArgs:           TimeZone("Asia/Jakarta"),
+				osSetEnv:         os.Setenv,
+				timeLoadLocation: time.LoadLocation,
 			},
 			wantTz:     "Asia/Jakarta",
+			wantLoc:    "Asia/Jakarta",
+			wantOffset: 25200,
+			wantErr:    false,
+		},
+		{
+			name: "Error Setenv",
+			args: args{
+				tzArgs: TimeZone("Asia/Jakarta"),
+				osSetEnv: func(key, value string) error {
+					return errors.New("foo")
+				},
+				timeLoadLocation: time.LoadLocation,
+			},
+			wantTz:     "",
+			wantLoc:    "UTC",
+			wantOffset: 0,
+			wantErr:    true,
+		},
+		{
+			name: "Error LoadLocation",
+			args: args{
+				tzArgs:   TimeZone("Asia/Jakarta"),
+				osSetEnv: os.Setenv,
+				timeLoadLocation: func(name string) (*time.Location, error) {
+					return nil, errors.New("foo")
+				},
+			},
+			wantTz:     "WIB",
 			wantLoc:    "Asia/Jakarta",
 			wantOffset: 25200,
 			wantErr:    false,
@@ -558,6 +591,9 @@ func TestInitTimeZone(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			_ = os.Setenv(TZ, "")
+			osSetEnv = tt.args.osSetEnv
+			timeLoadLocation = tt.args.timeLoadLocation
 			gotTz, gotLoc, gotOffset, err := initTimeZone(tt.args.tzArgs)
 
 			if (err != nil) != tt.wantErr {

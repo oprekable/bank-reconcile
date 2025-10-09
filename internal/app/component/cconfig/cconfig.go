@@ -40,10 +40,13 @@ type Config struct {
 	timeOffset   TimeOffset
 }
 
+var osSetEnv = os.Setenv
+var timeLoadLocation = time.LoadLocation
+
 func initTimeZone(tzArgs TimeZone) (tz string, loc *time.Location, offset int, err error) {
 	tz = os.Getenv(TZ)
 	if tz == "" {
-		err = os.Setenv(TZ, string(tzArgs))
+		err = osSetEnv(TZ, string(tzArgs))
 		if err != nil {
 			return
 		}
@@ -52,7 +55,7 @@ func initTimeZone(tzArgs TimeZone) (tz string, loc *time.Location, offset int, e
 	}
 
 	tzString, offset1 := time.Now().Zone()
-	loc, err = time.LoadLocation(os.Getenv(TZ))
+	loc, err = timeLoadLocation(os.Getenv(TZ))
 	if err != nil {
 		return tzString, time.Local, offset1, nil
 	}
