@@ -540,12 +540,13 @@ func TestInitTimeZone(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		args       args
-		wantTz     string
-		wantLoc    string
-		wantOffset int
-		wantErr    bool
+		name        string
+		args        args
+		triggerFunc func()
+		wantTz      string
+		wantLoc     string
+		wantOffset  int
+		wantErr     bool
 	}{
 		{
 			name: "Ok",
@@ -554,9 +555,27 @@ func TestInitTimeZone(t *testing.T) {
 				osSetEnv:         os.Setenv,
 				timeLoadLocation: time.LoadLocation,
 			},
-			wantTz:     "Asia/Jakarta",
-			wantLoc:    "Asia/Jakarta",
-			wantOffset: 25200,
+			triggerFunc: func() {},
+			wantTz:      "Asia/Jakarta",
+			wantLoc:     "Asia/Jakarta",
+			wantOffset:  25200,
+			wantErr:     false,
+		},
+		{
+			name: "Ok - diff offset",
+			args: args{
+				tzArgs:   TimeZone("Asia/Jakarta"),
+				osSetEnv: os.Setenv,
+				timeLoadLocation: func(name string) (*time.Location, error) {
+					return time.LoadLocation("UTC")
+				},
+			},
+			triggerFunc: func() {
+				_ = os.Setenv(TZ, "Asia/Jakarta")
+			},
+			wantTz:     "UTC",
+			wantLoc:    "UTC",
+			wantOffset: 0,
 			wantErr:    false,
 		},
 		{
@@ -567,6 +586,9 @@ func TestInitTimeZone(t *testing.T) {
 					return errors.New("foo")
 				},
 				timeLoadLocation: time.LoadLocation,
+			},
+			triggerFunc: func() {
+				_ = os.Setenv(TZ, "")
 			},
 			wantTz:     "",
 			wantLoc:    "UTC",
@@ -582,16 +604,19 @@ func TestInitTimeZone(t *testing.T) {
 					return nil, errors.New("foo")
 				},
 			},
-			wantTz:     "WIB",
-			wantLoc:    "Asia/Jakarta",
-			wantOffset: 25200,
+			triggerFunc: func() {
+				_ = os.Setenv(TZ, "Asia/Jakarta")
+			},
+			wantTz:     "UTC",
+			wantLoc:    "UTC",
+			wantOffset: 0,
 			wantErr:    false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_ = os.Setenv(TZ, "")
+			tt.triggerFunc()
 			osSetEnv = tt.args.osSetEnv
 			timeLoadLocation = tt.args.timeLoadLocation
 			gotTz, gotLoc, gotOffset, err := initTimeZone(tt.args.tzArgs)

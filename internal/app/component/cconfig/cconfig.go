@@ -60,13 +60,14 @@ func initTimeZone(tzArgs TimeZone) (tz string, loc *time.Location, offset int, e
 		return tzString, time.Local, offset1, nil
 	}
 
-	_, offset2 := time.Now().In(loc).Zone()
+	tz2, offset2 := time.Now().In(loc).Zone()
 
 	offset = offset1
 
 	if offset1 != offset2 {
 		time.Local = loc
 		offset = offset2
+		tz = tz2
 	}
 
 	return tz, loc, offset, err
