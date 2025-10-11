@@ -32,6 +32,20 @@ func NewHandler(writer io.Writer) *Handler {
 	}
 }
 
+func (h *Handler) Name() string {
+	return name
+}
+
+func (h *Handler) SetComponents(c *component.Components) {
+	h.comp = c
+}
+func (h *Handler) SetServices(s *service.Services) {
+	h.svc = s
+}
+func (h *Handler) SetRepositories(r *repository.Repositories) {
+	h.repo = r
+}
+
 func (h *Handler) Exec() error {
 	if h.comp == nil || h.svc == nil || h.repo == nil {
 		return nil
@@ -127,18 +141,4 @@ func (h *Handler) Exec() error {
 	)
 
 	return err
-}
-
-func (h *Handler) Name() string {
-	return name
-}
-
-func (h *Handler) SetComponents(c *component.Components) {
-	h.comp = c
-}
-func (h *Handler) SetServices(s *service.Services) {
-	h.svc = s
-}
-func (h *Handler) SetRepositories(r *repository.Repositories) {
-	h.repo = r
 }
