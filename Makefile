@@ -21,7 +21,7 @@ install-tools: download  ## Install required command line tools
 
 .PHONY: generate
 generate: ## Run go generate google wire dependency injection and mock files
-	@export PATH=${PATH}:`go env GOPATH`/bin; wire github.com/oprekable/bank-reconcile/internal/inject
+	@export PATH=${PATH}:`go env GOPATH`/bin; wire github.com/oprekable/bank-reconcile/internal/_inject
 	@export PATH=${PATH}:`go env GOPATH`/bin; go generate ./...
 
 .PHONY: go-lint

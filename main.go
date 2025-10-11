@@ -11,7 +11,7 @@ import (
 	"github.com/oprekable/bank-reconcile/cmd/root"
 	"github.com/oprekable/bank-reconcile/cmd/sample"
 	"github.com/oprekable/bank-reconcile/cmd/version"
-	"github.com/oprekable/bank-reconcile/internal/inject"
+	"github.com/oprekable/bank-reconcile/internal/_inject"
 	"github.com/oprekable/bank-reconcile/variable"
 )
 
@@ -26,8 +26,8 @@ func main() {
 func mainLogic(outPutWriter io.Writer, errWriter io.Writer) int {
 	var subCommands = []cmd.Cmd{
 		version.NewCommand(outPutWriter, errWriter),
-		sample.NewCommand(variable.AppName, inject.WireAppFn, &embedFS, outPutWriter, errWriter),
-		process.NewCommand(variable.AppName, inject.WireAppFn, &embedFS, outPutWriter, errWriter),
+		sample.NewCommand(variable.AppName, _inject.WireAppFn, &embedFS, outPutWriter, errWriter),
+		process.NewCommand(variable.AppName, _inject.WireAppFn, &embedFS, outPutWriter, errWriter),
 	}
 
 	c := root.NewCommand(outPutWriter, errWriter, subCommands...).

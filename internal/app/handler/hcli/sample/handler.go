@@ -1,10 +1,12 @@
 package sample
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
 
+	"github.com/aaronjan/hunch"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/tw"
 	"github.com/oprekable/bank-reconcile/cmd"
@@ -37,73 +39,83 @@ func (h *Handler) Exec() (err error) {
 		return nil
 	}
 
+	var summary sample.Summary
 	bar := helper.InitProgressBar(h.writer)
-	formatText := "-%s --%s"
-	args := helper.InitCommonArgs(
-		h.comp.Config.Data,
-		[][]string{
-			{
-				fmt.Sprintf(formatText, cmd.FlagTotalDataSampleToGenerateShort, cmd.FlagTotalDataSampleToGenerate),
-				strconv.FormatInt(h.comp.Config.Data.Reconciliation.TotalData, 10),
-			},
-			{
-				fmt.Sprintf(formatText, cmd.FlagPercentageMatchSampleToGenerateShort, cmd.FlagPercentageMatchSampleToGenerate),
-				strconv.Itoa(h.comp.Config.Data.Reconciliation.PercentageMatch),
-			},
-			{
-				fmt.Sprintf(formatText, cmd.FlagIsDeleteCurrentSampleDirectoryShort, cmd.FlagIsDeleteCurrentSampleDirectory),
-				strconv.FormatBool(h.comp.Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory),
-			},
+	_, err = hunch.Waterfall(
+		h.comp.Context,
+		// Display config information
+		func(c context.Context, _ interface{}) (interface{}, error) {
+			formatText := "-%s --%s"
+			args := helper.InitCommonArgs(
+				h.comp.Config.Data,
+				[][]string{
+					{
+						fmt.Sprintf(formatText, cmd.FlagTotalDataSampleToGenerateShort, cmd.FlagTotalDataSampleToGenerate),
+						strconv.FormatInt(h.comp.Config.Data.Reconciliation.TotalData, 10),
+					},
+					{
+						fmt.Sprintf(formatText, cmd.FlagPercentageMatchSampleToGenerateShort, cmd.FlagPercentageMatchSampleToGenerate),
+						strconv.Itoa(h.comp.Config.Data.Reconciliation.PercentageMatch),
+					},
+					{
+						fmt.Sprintf(formatText, cmd.FlagIsDeleteCurrentSampleDirectoryShort, cmd.FlagIsDeleteCurrentSampleDirectory),
+						strconv.FormatBool(h.comp.Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory),
+					},
+				},
+			)
+
+			_, _ = fmt.Fprintln(h.writer, "")
+			tableArgs := tablewriterhelper.InitTableWriter(h.writer)
+			tableArgs.Header([]string{"Config", "Value"})
+			_ = tableArgs.Bulk(args)
+			return nil, tableArgs.Render()
+		},
+		// Do reconcile sample dan return summary data
+		func(c context.Context, _ interface{}) (interface{}, error) {
+			return h.svc.SvcSample.GenerateSample(
+				h.comp.Context,
+				h.comp.Fs.LocalStorageFs,
+				bar,
+				h.comp.Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory,
+			)
+		},
+		// Display summary information
+		func(c context.Context, i interface{}) (interface{}, error) {
+			summary = i.(sample.Summary)
+			data := [][]string{
+				{"System Trx", "-", "Total Trx", strconv.FormatInt(summary.TotalSystemTrx, 10)}, //nolint:gofmt
+				{"System Trx", "-", "File Path", summary.FileSystemTrx},
+			}
+
+			for k, v := range summary.FileBankTrx {
+				data = append(
+					data,
+					[]string{"Bank Trx", k, "Total Trx", strconv.FormatInt(summary.TotalBankTrx[k], 10)},
+					[]string{"Bank Trx", k, "File Path", v},
+				)
+			}
+
+			_, _ = fmt.Fprintln(h.writer, "")
+
+			table := tablewriterhelper.InitTableWriter(h.writer)
+			table.Configure(func(cfg *tablewriter.Config) {
+				cfg.Row.Formatting = tw.CellFormatting{MergeMode: tw.MergeHierarchical}
+			})
+
+			table.Header([]string{"Type Trx", "Bank", "Title", ""})
+			_ = table.Bulk(data)
+			_ = table.Render()
+			return fmt.Fprintln(h.writer, "")
+		},
+		// Display memory information
+		func(c context.Context, i interface{}) (interface{}, error) {
+			bar.Describe("[cyan]Done")
+			memstats.PrintMemoryStats(h.writer)
+			return nil, nil
 		},
 	)
 
-	_, _ = fmt.Fprintln(h.writer, "")
-	tableArgs := tablewriterhelper.InitTableWriter(h.writer)
-	tableArgs.Header([]string{"Config", "Value"})
-	_ = tableArgs.Bulk(args)
-	_ = tableArgs.Render()
-
-	var summary sample.Summary
-	summary, err = h.svc.SvcSample.GenerateSample(
-		h.comp.Context,
-		h.comp.Fs.LocalStorageFs,
-		bar,
-		h.comp.Config.Data.Reconciliation.IsDeleteCurrentSampleDirectory,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	data := [][]string{
-		{"System Trx", "-", "Total Trx", strconv.FormatInt(summary.TotalSystemTrx, 10)}, //nolint:gofmt
-		{"System Trx", "-", "File Path", summary.FileSystemTrx},
-	}
-
-	for k, v := range summary.FileBankTrx {
-		data = append(
-			data,
-			[]string{"Bank Trx", k, "Total Trx", strconv.FormatInt(summary.TotalBankTrx[k], 10)},
-			[]string{"Bank Trx", k, "File Path", v},
-		)
-	}
-
-	_, _ = fmt.Fprintln(h.writer, "")
-
-	table := tablewriterhelper.InitTableWriter(h.writer)
-	table.Configure(func(cfg *tablewriter.Config) {
-		cfg.Row.Formatting = tw.CellFormatting{MergeMode: tw.MergeHierarchical}
-	})
-
-	table.Header([]string{"Type Trx", "Bank", "Title", ""})
-	_ = table.Bulk(data)
-	_ = table.Render()
-	_, _ = fmt.Fprintln(h.writer, "")
-
-	bar.Describe("[cyan]Done")
-	memstats.PrintMemoryStats(h.writer)
-
-	return
+	return err
 }
 
 func (h *Handler) Name() string {

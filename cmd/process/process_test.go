@@ -15,6 +15,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
 
 	"github.com/oprekable/bank-reconcile/cmd"
+	"github.com/oprekable/bank-reconcile/internal/_inject"
 	"github.com/oprekable/bank-reconcile/internal/app/appcontext"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
@@ -28,7 +29,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/handler/hcli/noop"
 	"github.com/oprekable/bank-reconcile/internal/app/server"
 	"github.com/oprekable/bank-reconcile/internal/app/server/cli"
-	"github.com/oprekable/bank-reconcile/internal/inject"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/filepathhelper"
 	"github.com/spf13/cobra"
 )
@@ -49,7 +49,7 @@ func TestCmdProcessInit(t *testing.T) {
 		outPutWriter io.Writer
 		errWriter    io.Writer
 		c            *cobra.Command
-		wireApp      inject.Fn
+		wireApp      _inject.Fn
 		embedFS      *embed.FS
 		appName      string
 	}
@@ -140,7 +140,7 @@ func TestCmdProcessPersistentPreRunner(t *testing.T) {
 		outPutWriter io.Writer
 		errWriter    io.Writer
 		c            *cobra.Command
-		wireApp      inject.Fn
+		wireApp      _inject.Fn
 		embedFS      *embed.FS
 		appName      string
 	}
@@ -221,7 +221,7 @@ func TestCmdProcessRunner(t *testing.T) {
 		outPutWriter io.Writer
 		errWriter    io.Writer
 		c            *cobra.Command
-		wireApp      inject.Fn
+		wireApp      _inject.Fn
 		embedFS      *embed.FS
 		appName      string
 	}
@@ -433,7 +433,7 @@ func TestCmdProcessInitPersistentFlags(t *testing.T) {
 		outPutWriter io.Writer
 		errWriter    io.Writer
 		c            *cobra.Command
-		wireApp      inject.Fn
+		wireApp      _inject.Fn
 		embedFS      *embed.FS
 		appName      string
 	}
@@ -502,7 +502,7 @@ func TestCmdProcessInitPersistentFlags(t *testing.T) {
 
 func TestNewCommand(t *testing.T) {
 	type args struct {
-		wireApp inject.Fn
+		wireApp _inject.Fn
 		embedFS *embed.FS
 		appName string
 	}

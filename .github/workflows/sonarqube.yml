@@ -31,17 +31,17 @@ jobs:
           make development-checks
           go test -gcflags=all=-l -count=1 -p=8 -parallel=8 -race -coverprofile=coverage.out ./... -json | tee report.json
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v6 # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+        uses: sonarsource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6
         with:
           projectBaseDir: ./
           args: >
             -Dsonar.organization=oprekable
             -Dsonar.projectKey=oprekable_bank-reconcile
             -Dsonar.sources=.
-            -Dsonar.exclusions=**/*_test.go,**/vendor/**,**/_mock/**,**/inject/inject.go,**/inject/wire_gen.go
+            -Dsonar.exclusions=**/*_test.go,**/vendor/**,**/_mock/**,**/_inject/inject.go,**/_inject/wire_gen.go
             -Dsonar.tests=.
             -Dsonar.test.inclusions=**/*_test.go
-            -Dsonar.test.exclusions=**/vendor/**,**/_mock/**,**/inject/inject.go,**/inject/wire_gen.go
+            -Dsonar.test.exclusions=**/vendor/**,**/_mock/**,**/_inject/inject.go,**/_inject/wire_gen.go
             -Dsonar.scm.provider=git
             -Dsonar.go.coverage.reportPaths=coverage.out
         env:

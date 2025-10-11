@@ -8,11 +8,11 @@ import (
 
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/cmd/helper"
+	"github.com/oprekable/bank-reconcile/internal/_inject"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cconfig"
 	"github.com/oprekable/bank-reconcile/internal/app/component/clogger"
 	"github.com/oprekable/bank-reconcile/internal/app/component/csqlite"
 	"github.com/oprekable/bank-reconcile/internal/app/err"
-	"github.com/oprekable/bank-reconcile/internal/inject"
 	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
 	"github.com/spf13/cobra"
 )
@@ -21,14 +21,14 @@ type CmdProcess struct {
 	outPutWriter io.Writer
 	errWriter    io.Writer
 	c            *cobra.Command
-	wireApp      inject.Fn
+	wireApp      _inject.Fn
 	embedFS      *embed.FS
 	appName      string
 }
 
 var _ cmd.Cmd = (*CmdProcess)(nil)
 
-func NewCommand(appName string, wireApp inject.Fn, embedFS *embed.FS, outPutWriter io.Writer, errWriter io.Writer) *CmdProcess {
+func NewCommand(appName string, wireApp _inject.Fn, embedFS *embed.FS, outPutWriter io.Writer, errWriter io.Writer) *CmdProcess {
 	return &CmdProcess{
 		appName: appName,
 		c: &cobra.Command{
