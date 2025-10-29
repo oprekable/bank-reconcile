@@ -254,7 +254,6 @@ func TestCmdVersionExample(t *testing.T) {
 		outPutWriter io.Writer
 		errWriter    io.Writer
 		c            *cobra.Command
-		appName      string
 	}
 
 	tests := []struct {
