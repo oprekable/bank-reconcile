@@ -248,3 +248,50 @@ func TestNewCommand(t *testing.T) {
 		})
 	}
 }
+
+func TestCmdVersionExample(t *testing.T) {
+	type fields struct {
+		outPutWriter io.Writer
+		errWriter    io.Writer
+		c            *cobra.Command
+		appName      string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "Ok",
+			fields: fields{
+				c: &cobra.Command{
+					Use:           Usage,
+					Short:         Short,
+					Long:          Long,
+					Aliases:       Aliases,
+					Example:       "example string",
+					SilenceErrors: true,
+					SilenceUsage:  true,
+				},
+				outPutWriter: &bytes.Buffer{},
+				errWriter:    &bytes.Buffer{},
+			},
+			want: "example string",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &CmdVersion{
+				outPutWriter: tt.fields.outPutWriter,
+				errWriter:    tt.fields.errWriter,
+				c:            tt.fields.c,
+			}
+
+			if got := c.Example(); got != tt.want {
+				t.Errorf("Example() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -24,11 +24,12 @@ type CmdProcess struct {
 	wireApp      _inject.Fn
 	embedFS      *embed.FS
 	appName      string
+	subCommands  []cmd.Cmd
 }
 
 var _ cmd.Cmd = (*CmdProcess)(nil)
 
-func NewCommand(appName string, wireApp _inject.Fn, embedFS *embed.FS, outPutWriter io.Writer, errWriter io.Writer) *CmdProcess {
+func NewCommand(appName string, wireApp _inject.Fn, embedFS *embed.FS, outPutWriter io.Writer, errWriter io.Writer, subCommands ...cmd.Cmd) *CmdProcess {
 	return &CmdProcess{
 		appName: appName,
 		c: &cobra.Command{
@@ -50,12 +51,19 @@ func NewCommand(appName string, wireApp _inject.Fn, embedFS *embed.FS, outPutWri
 	}
 }
 
-func (c *CmdProcess) Init(_ *cmd.MetaData) *cobra.Command {
+func (c *CmdProcess) Init(metaData *cmd.MetaData) *cobra.Command {
 	c.c.PersistentPreRunE = c.PersistentPreRunner
 	c.c.RunE = c.Runner
 
 	c.c.SetOut(c.outPutWriter)
 	c.c.SetErr(c.errWriter)
+
+	for i := range c.subCommands {
+		c.c.AddCommand(
+			c.subCommands[i].Init(metaData),
+		)
+	}
+
 	c.initPersistentFlags()
 
 	return c.c
@@ -116,4 +124,8 @@ func (c *CmdProcess) Runner(_ *cobra.Command, _ []string) (er error) {
 
 func (c *CmdProcess) PersistentPreRunner(cCmd *cobra.Command, args []string) (er error) {
 	return helper.CommonPersistentPreRunner(cCmd, args)
+}
+
+func (c *CmdProcess) Example() string {
+	return c.c.Example
 }

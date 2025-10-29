@@ -23,11 +23,12 @@ type CmdSample struct {
 	wireApp      _inject.Fn
 	embedFS      *embed.FS
 	appName      string
+	subCommands  []cmd.Cmd
 }
 
 var _ cmd.Cmd = (*CmdSample)(nil)
 
-func NewCommand(appName string, wireApp _inject.Fn, embedFS *embed.FS, outPutWriter io.Writer, errWriter io.Writer) *CmdSample {
+func NewCommand(appName string, wireApp _inject.Fn, embedFS *embed.FS, outPutWriter io.Writer, errWriter io.Writer, subCommands ...cmd.Cmd) *CmdSample {
 	return &CmdSample{
 		appName: appName,
 		c: &cobra.Command{
@@ -41,7 +42,7 @@ func NewCommand(appName string, wireApp _inject.Fn, embedFS *embed.FS, outPutWri
 	}
 }
 
-func (c *CmdSample) Init(_ *cmd.MetaData) *cobra.Command {
+func (c *CmdSample) Init(metaData *cmd.MetaData) *cobra.Command {
 	c.c.Use = Usage
 	c.c.Short = Short
 	c.c.Long = Long
@@ -56,6 +57,12 @@ func (c *CmdSample) Init(_ *cmd.MetaData) *cobra.Command {
 
 	c.c.SetOut(c.outPutWriter)
 	c.c.SetErr(c.errWriter)
+
+	for i := range c.subCommands {
+		c.c.AddCommand(
+			c.subCommands[i].Init(metaData),
+		)
+	}
 
 	c.initPersistentFlags()
 
@@ -138,4 +145,8 @@ func (c *CmdSample) PersistentPreRunner(cCmd *cobra.Command, args []string) (er 
 	}
 
 	return helper.CommonPersistentPreRunner(cCmd, args)
+}
+
+func (c *CmdSample) Example() string {
+	return c.c.Example
 }

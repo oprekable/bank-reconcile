@@ -14,6 +14,24 @@ type Cmd struct {
 	mock.Mock
 }
 
+// Example provides a mock function with no fields
+func (_m *Cmd) Example() string {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Example")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // Init provides a mock function with given fields: metaData
 func (_m *Cmd) Init(metaData *cmd.MetaData) *cobra.Command {
 	ret := _m.Called(metaData)

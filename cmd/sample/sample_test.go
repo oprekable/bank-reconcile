@@ -12,7 +12,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/oprekable/bank-reconcile/cmd/_mock"
 	"github.com/oprekable/bank-reconcile/internal/app/component/cprofiler"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/internal/_inject"
@@ -52,6 +54,7 @@ func TestCmdSampleInit(t *testing.T) {
 		wireApp      _inject.Fn
 		embedFS      *embed.FS
 		appName      string
+		subCommands  []cmd.Cmd
 	}
 
 	type args struct {
@@ -75,6 +78,23 @@ func TestCmdSampleInit(t *testing.T) {
 				embedFS:      nil,
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
+				subCommands: []cmd.Cmd{
+					func() cmd.Cmd {
+						m := _mock.NewCmd(t)
+						m.On(
+							"Init",
+							mock.Anything,
+						).Return(&cobra.Command{}).
+							Maybe()
+
+						m.On(
+							"Example",
+						).Return("example string").
+							Maybe()
+
+						return m
+					}(),
+				},
 			},
 			args: args{
 				in0: nil,
@@ -108,6 +128,7 @@ func TestCmdSampleInit(t *testing.T) {
 				embedFS:      tt.fields.embedFS,
 				outPutWriter: tt.fields.outPutWriter,
 				errWriter:    tt.fields.errWriter,
+				subCommands:  tt.fields.subCommands,
 			}
 
 			got := c.Init(tt.args.in0)
@@ -546,6 +567,61 @@ func TestNewCommand(t *testing.T) {
 
 			outPutWriter.Reset()
 			errWriter.Reset()
+		})
+	}
+}
+
+func TestCmdSampleExample(t *testing.T) {
+	type fields struct {
+		outPutWriter io.Writer
+		errWriter    io.Writer
+		c            *cobra.Command
+		wireApp      _inject.Fn
+		embedFS      *embed.FS
+		appName      string
+		subCommands  []cmd.Cmd
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "Ok",
+			fields: fields{
+				c: &cobra.Command{
+					Use:           Usage,
+					Short:         Short,
+					Long:          Long,
+					Aliases:       Aliases,
+					Example:       "example string",
+					SilenceErrors: true,
+					SilenceUsage:  true,
+				},
+				wireApp:      wireApp,
+				embedFS:      nil,
+				outPutWriter: &bytes.Buffer{},
+				errWriter:    &bytes.Buffer{},
+			},
+			want: "example string",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &CmdSample{
+				outPutWriter: tt.fields.outPutWriter,
+				errWriter:    tt.fields.errWriter,
+				c:            tt.fields.c,
+				wireApp:      tt.fields.wireApp,
+				embedFS:      tt.fields.embedFS,
+				appName:      tt.fields.appName,
+				subCommands:  tt.fields.subCommands,
+			}
+			if got := c.Example(); got != tt.want {
+				t.Errorf("Example() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

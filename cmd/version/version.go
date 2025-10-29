@@ -76,3 +76,7 @@ func (c *CmdVersion) Runner(_ *cobra.Command, _ []string) (er error) {
 func (c *CmdVersion) PersistentPreRunner(_ *cobra.Command, _ []string) (er error) {
 	return nil
 }
+
+func (c *CmdVersion) Example() string {
+	return c.c.Example
+}

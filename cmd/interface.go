@@ -13,4 +13,5 @@ type Cmd interface {
 	Init(metaData *MetaData) *cobra.Command
 	Runner(cCmd *cobra.Command, args []string) (er error)
 	PersistentPreRunner(cCmd *cobra.Command, args []string) (er error)
+	Example() string
 }

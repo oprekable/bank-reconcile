@@ -2,17 +2,13 @@ package root
 
 import (
 	"bytes"
-	"fmt"
+	"errors"
 	"io"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/cmd/_mock"
-	"github.com/oprekable/bank-reconcile/cmd/process"
-	"github.com/oprekable/bank-reconcile/cmd/sample"
-	"github.com/oprekable/bank-reconcile/internal/pkg/utils/filepathhelper"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/mock"
 )
@@ -52,6 +48,10 @@ func TestCmdRootInit(t *testing.T) {
 						mock.Anything,
 					).Return(&cobra.Command{}).
 						Maybe()
+					m.On(
+						"Example",
+					).Return("example string").
+						Maybe()
 
 					return []cmd.Cmd{
 						m,
@@ -73,11 +73,7 @@ func TestCmdRootInit(t *testing.T) {
 				c.c.Long = "foo foo foo"
 				c.c.RunE = c.Runner
 
-				c.c.Example = fmt.Sprintf(
-					"%s\n%s\n",
-					fmt.Sprintf("Generate sample \n\t%s %s", "foo", sample.Example),
-					fmt.Sprintf("Process data \n\t%s %s", "foo", process.Example),
-				)
+				c.c.Example = "example string"
 
 				c.c.SetOut(&bytes.Buffer{})
 				c.c.SetErr(&bytes.Buffer{})
@@ -162,9 +158,6 @@ func TestCmdRootPersistentPreRunner(t *testing.T) {
 }
 
 func TestCmdRootRunner(t *testing.T) {
-	workDir := filepathhelper.GetWorkDir(filepathhelper.SystemCalls{})
-	dateNow := time.Now().Format("2006-01-02")
-
 	type fields struct {
 		c            *cobra.Command
 		outPutWriter io.Writer
@@ -194,34 +187,39 @@ func TestCmdRootRunner(t *testing.T) {
 				},
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
-				subCommands:  nil,
+				subCommands: []cmd.Cmd{
+					func() cmd.Cmd {
+						m := _mock.NewCmd(t)
+						m.On(
+							"Init",
+							mock.Anything,
+						).Return(&cobra.Command{}).
+							Maybe()
+
+						m.On(
+							"Example",
+						).Return("example string").
+							Maybe()
+
+						return m
+					}(),
+				},
 			},
 			args: args{
 				in0: nil,
 				in1: nil,
 			},
-			want: fmt.Sprintf(`foo foo foo
+			want: `foo foo foo
 
 Usage:
   foo
 
 Examples:
-Generate sample 
-	foo sample --systemtrxpath=%s/sample/system --banktrxpath=%s/sample/bank --listbank=bca,bni,mandiri,bri,danamon --percentagematch=100 --amountdata=10000 --from=%s --to=%s
-Process data 
-	foo process --systemtrxpath=%s/sample/system --banktrxpath=%s/sample/bank --reportpath==%s/report --listbank=bca,bni,mandiri,bri,danamon --from=%s --to=%s
+example string
 
+Additional help topics:
+  foo         
 `,
-				workDir,
-				workDir,
-				dateNow,
-				dateNow,
-				workDir,
-				workDir,
-				workDir,
-				dateNow,
-				dateNow,
-			),
 			wantErr: false,
 		},
 	}
@@ -231,6 +229,7 @@ Process data
 			c := NewCommand(
 				tt.fields.outPutWriter,
 				tt.fields.errWriter,
+				tt.fields.subCommands...,
 			)
 
 			c.Init(
@@ -312,6 +311,85 @@ func TestNewCommand(t *testing.T) {
 
 			outPutWriter.Reset()
 			errWriter.Reset()
+		})
+	}
+}
+
+func TestCmdRootExample(t *testing.T) {
+	type fields struct {
+		outPutWriter io.Writer
+		errWriter    io.Writer
+		c            *cobra.Command
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "Ok",
+			fields: fields{
+				c: &cobra.Command{
+					Example: "example string",
+				},
+				outPutWriter: &bytes.Buffer{},
+				errWriter:    &bytes.Buffer{},
+			},
+			want: "example string",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &CmdRoot{
+				outPutWriter: tt.fields.outPutWriter,
+				errWriter:    tt.fields.errWriter,
+				c:            tt.fields.c,
+			}
+
+			if got := c.Example(); got != tt.want {
+				t.Errorf("Example() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestErrFlagsFunc(t *testing.T) {
+	type fields struct {
+		outPutWriter io.Writer
+		errWriter    io.Writer
+		c            *cobra.Command
+		err          error
+	}
+
+	tests := []struct {
+		name      string
+		fields    fields
+		wantError error
+	}{
+		{
+			name: "Ok",
+			fields: fields{
+				c:            &cobra.Command{},
+				outPutWriter: &bytes.Buffer{},
+				errWriter:    &bytes.Buffer{},
+				err:          errors.New("foo"),
+			},
+			wantError: errors.New("foo"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.fields.c.SetErr(tt.fields.errWriter)
+			tt.fields.c.SetOut(tt.fields.outPutWriter)
+
+			gotErr := errFlagsFunc(tt.fields.c, tt.fields.err)
+
+			if gotErr.Error() != tt.wantError.Error() {
+				t.Errorf("errFlagsFunc() = err = %v, wantError %v", gotErr, tt.wantError)
+			}
 		})
 	}
 }
