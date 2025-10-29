@@ -48,6 +48,7 @@ func NewCommand(appName string, wireApp _inject.Fn, embedFS *embed.FS, outPutWri
 		embedFS:      embedFS,
 		outPutWriter: outPutWriter,
 		errWriter:    errWriter,
+		subCommands:  subCommands,
 	}
 }
 
