@@ -4,7 +4,7 @@ go 1.24.11
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/XSAM/otelsql v0.40.0
+	github.com/XSAM/otelsql v0.41.0
 	github.com/aaronjan/hunch v1.1.3
 	github.com/blockloop/scan/v2 v2.5.0
 	github.com/bygui86/multi-profile/v2 v2.1.0
