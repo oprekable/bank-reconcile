@@ -24,7 +24,7 @@ require (
 	github.com/simukti/sqldb-logger v0.0.0-20230108155151-646c1a075551
 	github.com/simukti/sqldb-logger/logadapter/zerologadapter v0.0.0-20230108155151-646c1a075551
 	github.com/spf13/afero v1.15.0
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
