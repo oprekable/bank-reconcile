@@ -19,7 +19,6 @@ type Foo struct {
 func TestCommitOrRollback(t *testing.T) {
 	type dbTx struct {
 		db *sql.DB
-		tx *sql.Tx
 	}
 
 	type args struct {
@@ -38,11 +37,9 @@ func TestCommitOrRollback(t *testing.T) {
 				dbTx: func() dbTx {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectBegin()
-					r, _ := db.BeginTx(context.Background(), nil)
 					s.ExpectCommit()
 					return dbTx{
 						db: db,
-						tx: r,
 					}
 				}(),
 				er: nil,
@@ -55,11 +52,9 @@ func TestCommitOrRollback(t *testing.T) {
 				dbTx: func() dbTx {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectBegin()
-					r, _ := db.BeginTx(context.Background(), nil)
 					s.ExpectRollback()
 					return dbTx{
 						db: db,
-						tx: r,
 					}
 				}(),
 				er: sql.ErrNoRows,
@@ -72,7 +67,6 @@ func TestCommitOrRollback(t *testing.T) {
 				dbTx: func() dbTx {
 					return dbTx{
 						db: nil,
-						tx: nil,
 					}
 				}(),
 				er: sql.ErrNoRows,
@@ -83,7 +77,12 @@ func TestCommitOrRollback(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := CommitOrRollback(tt.args.dbTx.tx, tt.args.er); (err != nil) != tt.wantErr {
+			var tx *sql.Tx
+			if tt.args.dbTx.db != nil {
+				tx, _ = tt.args.dbTx.db.BeginTx(context.Background(), nil)
+			}
+
+			if err := CommitOrRollback(tx, tt.args.er); (err != nil) != tt.wantErr {
 				t.Errorf("CommitOrRollback() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
@@ -98,8 +97,7 @@ func TestCommitOrRollback(t *testing.T) {
 
 func TestExecTxQueries(t *testing.T) {
 	type args struct {
-		ctx      context.Context
-		tx       *sql.Tx
+		db       *sql.DB
 		stmtMap  map[string]*sql.Stmt
 		stmtData []StmtData
 	}
@@ -112,11 +110,9 @@ func TestExecTxQueries(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				ctx: context.Background(),
-				tx: func() *sql.Tx {
+				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectBegin()
-					r, _ := db.BeginTx(context.Background(), nil)
 					s.ExpectPrepare("INSERT INTO Foo(Bar, Faz) VALUES(?, ?)").
 						ExpectExec().
 						WithArgs(
@@ -126,7 +122,7 @@ func TestExecTxQueries(t *testing.T) {
 						WillReturnResult(sqlmock.NewResult(1, 1))
 					s.ExpectCommit()
 
-					return r
+					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: []StmtData{
@@ -145,17 +141,14 @@ func TestExecTxQueries(t *testing.T) {
 		{
 			name: "Error - PrepareContext",
 			args: args{
-				ctx: context.Background(),
-				tx: func() *sql.Tx {
+				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectBegin()
-
-					r, _ := db.BeginTx(context.Background(), nil)
 					s.ExpectPrepare("INSERT INTO Foo(Bar, Faz) VALUES(?, ?)").
 						WillReturnError(sql.ErrConnDone)
 					s.ExpectRollback()
 
-					return r
+					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: []StmtData{
@@ -174,8 +167,7 @@ func TestExecTxQueries(t *testing.T) {
 		{
 			name: "Error - tx nil",
 			args: args{
-				ctx:      context.Background(),
-				tx:       nil,
+				db:       nil,
 				stmtMap:  make(map[string]*sql.Stmt),
 				stmtData: []StmtData{},
 			},
@@ -185,7 +177,12 @@ func TestExecTxQueries(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := ExecTxQueries(tt.args.ctx, tt.args.tx, tt.args.stmtMap, tt.args.stmtData); (err != nil) != tt.wantErr {
+			var tx *sql.Tx
+			if tt.args.db != nil {
+				tx, _ = tt.args.db.BeginTx(context.Background(), nil)
+			}
+
+			if err := ExecTxQueries(context.Background(), tx, tt.args.stmtMap, tt.args.stmtData); (err != nil) != tt.wantErr {
 				t.Errorf("ExecTxQueries() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -194,7 +191,6 @@ func TestExecTxQueries(t *testing.T) {
 
 func TestQueryContext(t *testing.T) {
 	type args struct {
-		ctx      context.Context
 		db       *sql.DB
 		stmtMap  map[string]*sql.Stmt
 		stmtData StmtData
@@ -211,7 +207,6 @@ func TestQueryContext(t *testing.T) {
 		{
 			name: "Ok - single row",
 			args: args{
-				ctx: context.Background(),
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
@@ -238,7 +233,6 @@ func TestQueryContext(t *testing.T) {
 		{
 			name: "Error sql.ErrNoRows - single row",
 			args: args{
-				ctx: context.Background(),
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
@@ -259,7 +253,6 @@ func TestQueryContext(t *testing.T) {
 		{
 			name: "Error sql.ErrConnDone - single row",
 			args: args{
-				ctx: context.Background(),
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
@@ -280,7 +273,6 @@ func TestQueryContext(t *testing.T) {
 		{
 			name: "Error db nil",
 			args: args{
-				ctx:      context.Background(),
 				db:       nil,
 				stmtMap:  make(map[string]*sql.Stmt),
 				stmtData: StmtData{},
@@ -294,7 +286,6 @@ func TestQueryContext(t *testing.T) {
 		{
 			name: "Ok - multiple rows",
 			args: args{
-				ctx: context.Background(),
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
@@ -327,7 +318,6 @@ func TestQueryContext(t *testing.T) {
 		{
 			name: "Error sql.ErrNoRows - multiple rows",
 			args: args{
-				ctx: context.Background(),
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
@@ -349,7 +339,7 @@ func TestQueryContext(t *testing.T) {
 
 	for _, tt := range testsSingleRow {
 		t.Run(tt.name, func(t *testing.T) {
-			gotReturnData, err := QueryContext[Foo](tt.args.ctx, tt.args.db, tt.args.stmtMap, tt.args.stmtData)
+			gotReturnData, err := QueryContext[Foo](context.Background(), tt.args.db, tt.args.stmtMap, tt.args.stmtData)
 			t.Cleanup(func() {
 				if tt.args.db != nil {
 					_ = tt.args.db.Close()
@@ -368,7 +358,7 @@ func TestQueryContext(t *testing.T) {
 
 	for _, tt := range testsMultipleRow {
 		t.Run(tt.name, func(t *testing.T) {
-			gotReturnData, err := QueryContext[[]Foo](tt.args.ctx, tt.args.db, tt.args.stmtMap, tt.args.stmtData)
+			gotReturnData, err := QueryContext[[]Foo](context.Background(), tt.args.db, tt.args.stmtMap, tt.args.stmtData)
 			t.Cleanup(func() {
 				if tt.args.db != nil {
 					_ = tt.args.db.Close()
@@ -388,7 +378,6 @@ func TestQueryContext(t *testing.T) {
 
 func TestTxWith(t *testing.T) {
 	type args struct {
-		ctx        context.Context
 		logFlag    string
 		methodName string
 		db         *sql.DB
@@ -403,7 +392,6 @@ func TestTxWith(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				ctx:        context.Background(),
 				logFlag:    "Foo.Bar",
 				methodName: "FooBar",
 				db: func() *sql.DB {
@@ -424,7 +412,7 @@ func TestTxWith(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := TxWith(tt.args.ctx, tt.args.logFlag, tt.args.methodName, tt.args.db, tt.args.extraExec...); (err != nil) != tt.wantErr {
+			if err := TxWith(context.Background(), tt.args.logFlag, tt.args.methodName, tt.args.db, tt.args.extraExec...); (err != nil) != tt.wantErr {
 				t.Errorf("TxWith() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
