@@ -5,11 +5,9 @@ import (
 	"fmt"
 
 	"github.com/XSAM/otelsql"
-	"github.com/oprekable/bank-reconcile/internal/pkg/utils/atexit"
 	"github.com/rs/zerolog"
 	sqldblogger "github.com/simukti/sqldb-logger"
 	"github.com/simukti/sqldb-logger/logadapter/zerologadapter"
-	"go.opentelemetry.io/otel/metric"
 	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
 
 	// Initialize DB driver to sqlite
@@ -50,18 +48,11 @@ func NewSqliteDatabase(option DBSqliteOption, logger zerolog.Logger, isDoLogging
 		db = sqldblogger.OpenDriver(dsn, dbOtel.Driver(), loggerAdapter)
 
 		// Register DB stats to meter
-		var reg metric.Registration
-		reg, err = otelsql.RegisterDBStatsMetrics(
+		_, err = otelsql.RegisterDBStatsMetrics(
 			db,
 			otelsql.WithAttributes(
 				semconv.DBSystemSqlite,
 			),
-		)
-
-		atexit.Add(
-			func() {
-				_ = reg.Unregister()
-			},
 		)
 	}
 
