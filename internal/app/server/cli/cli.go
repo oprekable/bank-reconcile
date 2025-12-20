@@ -15,7 +15,6 @@ import (
 const name = "cli"
 
 type Cli struct {
-	ctx      context.Context
 	comp     *component.Components
 	svc      *service.Services
 	repo     *repository.Repositories
@@ -29,7 +28,6 @@ func NewCli(
 	handlers []hcli.Handler,
 ) (*Cli, error) {
 	returnData := &Cli{
-		ctx:      comp.Logger.GetCtx(),
 		comp:     comp,
 		svc:      svc,
 		repo:     repo,
@@ -49,9 +47,17 @@ func (c *Cli) Name() string {
 	return name
 }
 
+func (c *Cli) getCtx() context.Context {
+	ctx := context.Background()
+	if c.comp != nil && c.comp.Logger != nil {
+		ctx = c.comp.Logger.GetCtx()
+	}
+	return ctx
+}
+
 func (c *Cli) Start(eg *errgroup.Group) {
 	eg.Go(func() (err error) {
-		ctx := c.ctx
+		ctx := c.getCtx()
 
 		for k := range c.handlers {
 			if c.handlers[k].Name() == c.comp.Config.Reconciliation.Action {
@@ -71,5 +77,7 @@ func (c *Cli) Start(eg *errgroup.Group) {
 }
 
 func (c *Cli) Shutdown() {
-	log.Msg(c.ctx, "["+name+"] shutdown")
+	ctx := c.getCtx()
+	log.Msg(ctx, "["+name+"] shutdown")
+
 }

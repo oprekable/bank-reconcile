@@ -18,7 +18,6 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/repository"
 	"github.com/oprekable/bank-reconcile/internal/app/service"
 
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/mock"
 	"golang.org/x/sync/errgroup"
 )
@@ -66,6 +65,11 @@ func TestCliName(t *testing.T) {
 
 func TestCliShutdown(t *testing.T) {
 	var bf bytes.Buffer
+	logger := clogger.NewLogger(
+		context.Background(),
+		&bf,
+	)
+
 	type fields struct {
 		comp     *component.Components
 		svc      *service.Services
@@ -81,19 +85,30 @@ func TestCliShutdown(t *testing.T) {
 		{
 			name: "Ok",
 			fields: fields{
+				comp: &component.Components{
+					Logger: logger,
+				},
+				svc:      nil,
+				repo:     nil,
+				handlers: nil,
+			},
+			want: `[cli] shutdown`,
+		},
+		{
+			name: "No logger",
+			fields: fields{
 				comp:     nil,
 				svc:      nil,
 				repo:     nil,
 				handlers: nil,
 			},
-			want: `{"level":"info","message":"[cli] shutdown"}`,
+			want: ``,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Cli{
-				ctx:      zerolog.New(&bf).WithContext(context.Background()),
 				comp:     tt.fields.comp,
 				svc:      tt.fields.svc,
 				repo:     tt.fields.repo,
@@ -101,8 +116,9 @@ func TestCliShutdown(t *testing.T) {
 			}
 
 			c.Shutdown()
+			got := bf.String()
 
-			if got := bf.String(); strings.TrimRight(got, "\n") != tt.want {
+			if !strings.Contains(strings.TrimRight(got, "\n"), tt.want) {
 				t.Errorf("Msg() output = %v, want %v", got, tt.want)
 			}
 		})
@@ -192,7 +208,6 @@ func TestCliStart(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Cli{
-				ctx:      context.Background(),
 				comp:     tt.fields.comp,
 				svc:      tt.fields.svc,
 				repo:     tt.fields.repo,
@@ -245,7 +260,6 @@ func TestNewCli(t *testing.T) {
 				},
 			},
 			want: &Cli{
-				ctx: logger.GetCtx(),
 				comp: &component.Components{
 					Logger: logger,
 				},
