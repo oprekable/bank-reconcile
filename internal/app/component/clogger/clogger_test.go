@@ -18,7 +18,6 @@ import (
 func TestLoggerGetCtx(t *testing.T) {
 	type fields struct {
 		log zerolog.Logger
-		ctx context.Context
 	}
 
 	tests := []struct {
@@ -30,7 +29,6 @@ func TestLoggerGetCtx(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				log: zerolog.Logger{},
-				ctx: context.Background(),
 			},
 			want: context.Background(),
 		},
@@ -40,7 +38,7 @@ func TestLoggerGetCtx(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := &Logger{
 				log: tt.fields.log,
-				ctx: tt.fields.ctx,
+				ctx: context.Background(),
 			}
 
 			got := l.GetCtx()
@@ -54,7 +52,6 @@ func TestLoggerGetCtx(t *testing.T) {
 func TestLoggerGetLogger(t *testing.T) {
 	type fields struct {
 		log zerolog.Logger
-		ctx context.Context
 	}
 
 	tests := []struct {
@@ -66,7 +63,6 @@ func TestLoggerGetLogger(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				log: zerolog.Logger{},
-				ctx: context.Background(),
 			},
 			want: zerolog.Logger{},
 		},
@@ -76,7 +72,7 @@ func TestLoggerGetLogger(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := &Logger{
 				log: tt.fields.log,
-				ctx: tt.fields.ctx,
+				ctx: context.Background(),
 			}
 
 			if got := l.GetLogger(); !reflect.DeepEqual(got, tt.want) {
@@ -87,10 +83,11 @@ func TestLoggerGetLogger(t *testing.T) {
 }
 
 func TestNewLogger(t *testing.T) {
-	timeCtx, _ := testclock.UseTime(context.Background(), time.Unix(1742017753, 0))
+	ctx := context.Background()
+	timeCtx, _ := testclock.UseTime(ctx, time.Unix(1742017753, 0))
 
 	type args struct {
-		ctx context.Context
+		ctxFn func(context.Context) context.Context
 	}
 
 	tests := []struct {
@@ -101,7 +98,10 @@ func TestNewLogger(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				ctx: timeCtx,
+				ctxFn: func(c context.Context) context.Context {
+					timeCtx, _ := testclock.UseTime(c, time.Unix(1742017753, 0))
+					return timeCtx
+				},
 			},
 			want: `"\x1b[90m2025-03-15T00:00:00+07:00\x1b[0m | INFO  | *** foo **** | uptime:"`,
 		},
@@ -110,7 +110,7 @@ func TestNewLogger(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			logWriter := &bytes.Buffer{}
-			l := NewLogger(tt.args.ctx, logWriter)
+			l := NewLogger(tt.args.ctxFn(ctx), logWriter)
 			zerolog.TimeFieldFormat = time.DateOnly
 			zerolog.TimestampFunc = func() time.Time {
 				return clock.Get(timeCtx).Now()

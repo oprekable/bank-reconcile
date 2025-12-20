@@ -16,7 +16,6 @@ func TestToBankTrxData(t *testing.T) {
 	layoutTime := "2006-01-02 15:04:05"
 
 	type args struct {
-		ctx          context.Context
 		originalData banks.BankTrxDataInterface
 		csvReader    *csv.Reader
 		filePath     string
@@ -33,7 +32,6 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Ok with header",
 			args: args{
-				ctx:          context.Background(),
 				filePath:     "/foo/bar.csv",
 				isHaveHeader: true,
 				bank:         "danamon",
@@ -76,7 +74,6 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error decode with header",
 			args: args{
-				ctx:          context.Background(),
 				filePath:     "/foo/bar.csv",
 				isHaveHeader: true,
 				bank:         "danamon",
@@ -94,7 +91,6 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error parse Date",
 			args: args{
-				ctx:          context.Background(),
 				filePath:     "/foo/bar.csv",
 				isHaveHeader: true,
 				bank:         "danamon",
@@ -113,7 +109,6 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Ok without header",
 			args: args{
-				ctx:          context.Background(),
 				filePath:     "/foo/bar.csv",
 				isHaveHeader: false,
 				bank:         "danamon",
@@ -155,7 +150,6 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error nil csvReader without header",
 			args: args{
-				ctx:          context.Background(),
 				filePath:     "/foo/bar.csv",
 				isHaveHeader: false,
 				bank:         "danamon",
@@ -168,7 +162,6 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error nil originalData without header",
 			args: args{
-				ctx:          context.Background(),
 				filePath:     "/foo/bar.csv",
 				isHaveHeader: false,
 				bank:         "danamon",
@@ -186,7 +179,6 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error decode without header",
 			args: args{
-				ctx:          context.Background(),
 				filePath:     "/foo/bar.csv",
 				isHaveHeader: false,
 				bank:         "danamon",
@@ -205,7 +197,7 @@ func TestToBankTrxData(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotReturnData, err := ToBankTrxData(tt.args.ctx, tt.args.filePath, tt.args.isHaveHeader, tt.args.bank, tt.args.csvReader, tt.args.originalData)
+			gotReturnData, err := ToBankTrxData(context.Background(), tt.args.filePath, tt.args.isHaveHeader, tt.args.bank, tt.args.csvReader, tt.args.originalData)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ToBankTrxData() error = %v, wantErr %v", err, tt.wantErr)

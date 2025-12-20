@@ -246,7 +246,6 @@ func TestDBPre(t *testing.T) {
 	type args struct {
 		startDate       time.Time
 		toDate          time.Time
-		ctx             context.Context
 		listBank        []string
 		limitTrxData    int64
 		matchPercentage int
@@ -309,7 +308,6 @@ func TestDBPre(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx: context.Background(),
 				listBank: []string{
 					"foo",
 					"bar",
@@ -336,7 +334,7 @@ func TestDBPre(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.Pre(tt.args.ctx, tt.args.listBank, tt.args.startDate, tt.args.toDate, tt.args.limitTrxData, tt.args.matchPercentage); (err != nil) != tt.wantErr {
+			if err := d.Pre(context.Background(), tt.args.listBank, tt.args.startDate, tt.args.toDate, tt.args.limitTrxData, tt.args.matchPercentage); (err != nil) != tt.wantErr {
 				t.Errorf("Pre() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -352,7 +350,6 @@ func TestDBCreateTables(t *testing.T) {
 	type args struct {
 		startDate       time.Time
 		toDate          time.Time
-		ctx             context.Context
 		listBank        []string
 		limitTrxData    int64
 		matchPercentage int
@@ -403,7 +400,6 @@ func TestDBCreateTables(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx: context.Background(),
 				listBank: []string{
 					"foo",
 					"bar",
@@ -430,8 +426,8 @@ func TestDBCreateTables(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			tx, _ := tt.fields.db.BeginTx(tt.args.ctx, nil)
-			if err := d.createTables(tt.args.ctx, tx, tt.args.listBank, tt.args.startDate, tt.args.toDate, tt.args.limitTrxData, tt.args.matchPercentage); (err != nil) != tt.wantErr {
+			tx, _ := tt.fields.db.BeginTx(context.Background(), nil)
+			if err := d.createTables(context.Background(), tx, tt.args.listBank, tt.args.startDate, tt.args.toDate, tt.args.limitTrxData, tt.args.matchPercentage); (err != nil) != tt.wantErr {
 				t.Errorf("createTables() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -444,13 +440,8 @@ func TestDBDropTables(t *testing.T) {
 		stmtMap map[string]*sql.Stmt
 	}
 
-	type args struct {
-		ctx context.Context
-	}
-
 	tests := []struct {
 		fields  fields
-		args    args
 		name    string
 		wantErr bool
 	}{
@@ -479,9 +470,6 @@ func TestDBDropTables(t *testing.T) {
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 			},
-			args: args{
-				ctx: context.Background(),
-			},
 			wantErr: false,
 		},
 	}
@@ -493,8 +481,8 @@ func TestDBDropTables(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			tx, _ := tt.fields.db.BeginTx(tt.args.ctx, nil)
-			if err := d.dropTables(tt.args.ctx, tx); (err != nil) != tt.wantErr {
+			tx, _ := tt.fields.db.BeginTx(context.Background(), nil)
+			if err := d.dropTables(context.Background(), tx); (err != nil) != tt.wantErr {
 				t.Errorf("dropTables() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -508,7 +496,6 @@ func TestDBPostWith(t *testing.T) {
 	}
 
 	type args struct {
-		ctx        context.Context
 		extraExec  hunch.ExecutableInSequence
 		methodName string
 	}
@@ -545,7 +532,6 @@ func TestDBPostWith(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx:        context.Background(),
 				methodName: "",
 				extraExec: func(c context.Context, i interface{}) (interface{}, error) {
 					return nil, nil
@@ -562,7 +548,7 @@ func TestDBPostWith(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.postWith(tt.args.ctx, tt.args.methodName, tt.args.extraExec); (err != nil) != tt.wantErr {
+			if err := d.postWith(context.Background(), tt.args.methodName, tt.args.extraExec); (err != nil) != tt.wantErr {
 				t.Errorf("postWith() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

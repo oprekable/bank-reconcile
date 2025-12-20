@@ -9,6 +9,8 @@ import (
 	sqldblogger "github.com/simukti/sqldb-logger"
 	"github.com/simukti/sqldb-logger/logadapter/zerologadapter"
 	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
+
+	// Initialize DB driver to sqlite
 	_ "modernc.org/sqlite"
 )
 

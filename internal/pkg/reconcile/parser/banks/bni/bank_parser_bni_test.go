@@ -86,7 +86,6 @@ func TestBankParserToBankTrxData(t *testing.T) {
 	}
 
 	type args struct {
-		ctx      context.Context
 		filePath string
 	}
 
@@ -113,7 +112,6 @@ func TestBankParserToBankTrxData(t *testing.T) {
 				isHaveHeader: true,
 			},
 			args: args{
-				ctx:      context.Background(),
 				filePath: "/foo/bar.csv",
 			},
 			wantReturnData: []*banks.BankTrxData{
@@ -153,7 +151,7 @@ func TestBankParserToBankTrxData(t *testing.T) {
 				isHaveHeader: tt.fields.isHaveHeader,
 			}
 
-			gotReturnData, err := d.ToBankTrxData(tt.args.ctx, tt.args.filePath)
+			gotReturnData, err := d.ToBankTrxData(context.Background(), tt.args.filePath)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ToBankTrxData() error = %v, wantErr %v", err, tt.wantErr)
 				return

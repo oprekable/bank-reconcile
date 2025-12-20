@@ -78,14 +78,13 @@ func TestDBGenerateReconciliationMap(t *testing.T) {
 	}
 
 	type args struct {
-		ctx       context.Context
 		minAmount float64
 		maxAmount float64
 	}
 
 	tests := []struct {
-		name    string
 		fields  fields
+		name    string
 		args    args
 		wantErr bool
 	}{
@@ -109,7 +108,6 @@ func TestDBGenerateReconciliationMap(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx:       context.Background(),
 				minAmount: 0,
 				maxAmount: 1000,
 			},
@@ -124,7 +122,7 @@ func TestDBGenerateReconciliationMap(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.GenerateReconciliationMap(tt.args.ctx, tt.args.minAmount, tt.args.maxAmount); (err != nil) != tt.wantErr {
+			if err := d.GenerateReconciliationMap(context.Background(), tt.args.minAmount, tt.args.maxAmount); (err != nil) != tt.wantErr {
 				t.Errorf("GenerateReconciliationMap() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -137,14 +135,9 @@ func TestDBGetMatchedTrx(t *testing.T) {
 		stmtMap map[string]*sql.Stmt
 	}
 
-	type args struct {
-		ctx context.Context
-	}
-
 	tests := []struct {
 		name           string
 		fields         fields
-		args           args
 		wantReturnData []MatchedTrx
 		wantErr        bool
 	}{
@@ -161,9 +154,6 @@ func TestDBGetMatchedTrx(t *testing.T) {
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
-			},
-			args: args{
-				ctx: context.Background(),
 			},
 			wantReturnData: []MatchedTrx{
 				{
@@ -198,7 +188,7 @@ func TestDBGetMatchedTrx(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			gotReturnData, err := d.GetMatchedTrx(tt.args.ctx)
+			gotReturnData, err := d.GetMatchedTrx(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetMatchedTrx() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -217,14 +207,9 @@ func TestDBGetNotMatchedBankTrx(t *testing.T) {
 		stmtMap map[string]*sql.Stmt
 	}
 
-	type args struct {
-		ctx context.Context
-	}
-
 	tests := []struct {
 		name           string
 		fields         fields
-		args           args
 		wantReturnData []NotMatchedBankTrx
 		wantErr        bool
 	}{
@@ -241,9 +226,6 @@ func TestDBGetNotMatchedBankTrx(t *testing.T) {
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
-			},
-			args: args{
-				ctx: context.Background(),
 			},
 			wantReturnData: []NotMatchedBankTrx{
 				{
@@ -270,7 +252,7 @@ func TestDBGetNotMatchedBankTrx(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			gotReturnData, err := d.GetNotMatchedBankTrx(tt.args.ctx)
+			gotReturnData, err := d.GetNotMatchedBankTrx(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetNotMatchedBankTrx() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -289,14 +271,9 @@ func TestDBGetNotMatchedSystemTrx(t *testing.T) {
 		stmtMap map[string]*sql.Stmt
 	}
 
-	type args struct {
-		ctx context.Context
-	}
-
 	tests := []struct {
 		name           string
 		fields         fields
-		args           args
 		wantReturnData []NotMatchedSystemTrx
 		wantErr        bool
 	}{
@@ -313,9 +290,6 @@ func TestDBGetNotMatchedSystemTrx(t *testing.T) {
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
-			},
-			args: args{
-				ctx: context.Background(),
 			},
 			wantReturnData: []NotMatchedSystemTrx{
 				{
@@ -342,7 +316,7 @@ func TestDBGetNotMatchedSystemTrx(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			gotReturnData, err := d.GetNotMatchedSystemTrx(tt.args.ctx)
+			gotReturnData, err := d.GetNotMatchedSystemTrx(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetNotMatchedSystemTrx() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -361,13 +335,8 @@ func TestDBGetReconciliationSummary(t *testing.T) {
 		stmtMap map[string]*sql.Stmt
 	}
 
-	type args struct {
-		ctx context.Context
-	}
-
 	tests := []struct {
 		fields         fields
-		args           args
 		name           string
 		wantReturnData ReconciliationSummary
 		wantErr        bool
@@ -395,9 +364,6 @@ func TestDBGetReconciliationSummary(t *testing.T) {
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 			},
-			args: args{
-				ctx: context.Background(),
-			},
 			wantReturnData: ReconciliationSummary{
 				TotalSystemTrx:      1,
 				TotalMatchedTrx:     1,
@@ -417,7 +383,7 @@ func TestDBGetReconciliationSummary(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			gotReturnData, err := d.GetReconciliationSummary(tt.args.ctx)
+			gotReturnData, err := d.GetReconciliationSummary(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetReconciliationSummary() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -520,7 +486,6 @@ func TestDBImportSystemTrx(t *testing.T) {
 	}
 
 	type args struct {
-		ctx  context.Context
 		data []*systems.SystemTrxData
 		min  int
 		max  int
@@ -565,7 +530,6 @@ func TestDBImportSystemTrx(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx: context.Background(),
 				data: []*systems.SystemTrxData{
 					{
 						TrxID:           "163af765-0769-467f-8185-8ee7166a0098",
@@ -589,7 +553,7 @@ func TestDBImportSystemTrx(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.ImportSystemTrx(tt.args.ctx, tt.args.data, tt.args.min, tt.args.max); (err != nil) != tt.wantErr {
+			if err := d.ImportSystemTrx(context.Background(), tt.args.data, tt.args.min, tt.args.max); (err != nil) != tt.wantErr {
 				t.Errorf("ImportSystemTrx() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -602,13 +566,8 @@ func TestDBPost(t *testing.T) {
 		stmtMap map[string]*sql.Stmt
 	}
 
-	type args struct {
-		ctx context.Context
-	}
-
 	tests := []struct {
 		fields  fields
-		args    args
 		name    string
 		wantErr bool
 	}{
@@ -645,9 +604,6 @@ func TestDBPost(t *testing.T) {
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 			},
-			args: args{
-				ctx: context.Background(),
-			},
 			wantErr: false,
 		},
 	}
@@ -659,7 +615,7 @@ func TestDBPost(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.Post(tt.args.ctx); (err != nil) != tt.wantErr {
+			if err := d.Post(context.Background()); (err != nil) != tt.wantErr {
 				t.Errorf("Post() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -675,7 +631,6 @@ func TestDBPre(t *testing.T) {
 	type args struct {
 		startDate time.Time
 		toDate    time.Time
-		ctx       context.Context
 		listBank  []string
 	}
 
@@ -746,7 +701,6 @@ func TestDBPre(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx: context.Background(),
 				listBank: []string{
 					"foo",
 					"bar",
@@ -771,7 +725,7 @@ func TestDBPre(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.Pre(tt.args.ctx, tt.args.listBank, tt.args.startDate, tt.args.toDate); (err != nil) != tt.wantErr {
+			if err := d.Pre(context.Background(), tt.args.listBank, tt.args.startDate, tt.args.toDate); (err != nil) != tt.wantErr {
 				t.Errorf("Pre() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -787,7 +741,6 @@ func TestDBCreateTables(t *testing.T) {
 	type args struct {
 		startDate time.Time
 		toDate    time.Time
-		ctx       context.Context
 		listBank  []string
 	}
 
@@ -838,7 +791,6 @@ func TestDBCreateTables(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx: context.Background(),
 				listBank: []string{
 					"foo",
 					"bar",
@@ -863,8 +815,8 @@ func TestDBCreateTables(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			tx, _ := tt.fields.db.BeginTx(tt.args.ctx, nil)
-			if err := d.createTables(tt.args.ctx, tx, tt.args.listBank, tt.args.startDate, tt.args.toDate); (err != nil) != tt.wantErr {
+			tx, _ := tt.fields.db.BeginTx(context.Background(), nil)
+			if err := d.createTables(context.Background(), tx, tt.args.listBank, tt.args.startDate, tt.args.toDate); (err != nil) != tt.wantErr {
 				t.Errorf("createTables() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -878,7 +830,6 @@ func TestDBDropTableWith(t *testing.T) {
 	}
 
 	type args struct {
-		ctx        context.Context
 		extraExec  hunch.ExecutableInSequence
 		methodName string
 	}
@@ -923,7 +874,6 @@ func TestDBDropTableWith(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx:        context.Background(),
 				methodName: "",
 				extraExec: func(c context.Context, i interface{}) (interface{}, error) {
 					return nil, nil
@@ -940,7 +890,7 @@ func TestDBDropTableWith(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.dropTableWith(tt.args.ctx, tt.args.methodName, tt.args.extraExec); (err != nil) != tt.wantErr {
+			if err := d.dropTableWith(context.Background(), tt.args.methodName, tt.args.extraExec); (err != nil) != tt.wantErr {
 				t.Errorf("dropTableWith() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -954,7 +904,6 @@ func TestDBImportInterface(t *testing.T) {
 	}
 
 	type args struct {
-		ctx        context.Context
 		data       interface{}
 		methodName string
 		query      string
@@ -1006,7 +955,6 @@ func TestDBImportInterface(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx:        context.Background(),
 				methodName: "InsertFoo",
 				query: `INSERT INTO Foo(Bar, Faz) 
 						SELECT
@@ -1037,7 +985,7 @@ func TestDBImportInterface(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.importInterface(tt.args.ctx, tt.args.methodName, tt.args.query, tt.args.data); (err != nil) != tt.wantErr {
+			if err := d.importInterface(context.Background(), tt.args.methodName, tt.args.query, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("importInterface() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

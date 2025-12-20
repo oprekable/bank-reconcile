@@ -108,7 +108,7 @@ func TestSvcGenerateSample(t *testing.T) {
 	}
 
 	type args struct {
-		ctx               context.Context
+		ctxFn             func(context.Context) context.Context
 		fs                afero.Fs
 		bar               *progressbar.ProgressBar
 		isDeleteDirectory bool
@@ -205,10 +205,10 @@ func TestSvcGenerateSample(t *testing.T) {
 				),
 			},
 			args: args{
-				ctx: func() context.Context {
-					ctx, _ := testclock.UseTime(context.Background(), time.Unix(1742017753, 0))
+				ctxFn: func(c context.Context) context.Context {
+					ctx, _ := testclock.UseTime(c, time.Unix(1742017753, 0))
 					return ctx
-				}(),
+				},
 				fs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					return f
@@ -251,7 +251,7 @@ func TestSvcGenerateSample(t *testing.T) {
 				},
 			}
 
-			gotReturnSummary, err := s.GenerateSample(tt.args.ctx, tt.args.fs, tt.args.bar, tt.args.isDeleteDirectory)
+			gotReturnSummary, err := s.GenerateSample(tt.args.ctxFn(ctx), tt.args.fs, tt.args.bar, tt.args.isDeleteDirectory)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateSample() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -413,7 +413,7 @@ func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
 	}
 
 	type args struct {
-		ctx               context.Context
+		ctxFn             func(context.Context) context.Context
 		fs                afero.Fs
 		isDeleteDirectory bool
 	}
@@ -451,7 +451,9 @@ func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
 				),
 			},
 			args: args{
-				ctx: context.Background(),
+				ctxFn: func(c context.Context) context.Context {
+					return c
+				},
 				fs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					return f
@@ -478,7 +480,9 @@ func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
 				),
 			},
 			args: args{
-				ctx: context.Background(),
+				ctxFn: func(c context.Context) context.Context {
+					return c
+				},
 				fs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					return f
@@ -496,7 +500,7 @@ func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
 				repo: tt.fields.repo,
 			}
 
-			if err := s.deleteDirectorySystemTrxBankTrx(tt.args.ctx, tt.args.fs, tt.args.isDeleteDirectory); (err != nil) != tt.wantErr {
+			if err := s.deleteDirectorySystemTrxBankTrx(tt.args.ctxFn(ctx), tt.args.fs, tt.args.isDeleteDirectory); (err != nil) != tt.wantErr {
 				t.Errorf("deleteDirectorySystemTrxBankTrx() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

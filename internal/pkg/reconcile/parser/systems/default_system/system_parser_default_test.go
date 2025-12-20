@@ -306,7 +306,6 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 	}
 
 	type args struct {
-		ctx      context.Context
 		filePath string
 	}
 
@@ -333,7 +332,6 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: true,
 			},
 			args: args{
-				ctx:      context.Background(),
 				filePath: "/tmp/foo.csv",
 			},
 			wantReturnData: []*systems.SystemTrxData{
@@ -374,7 +372,6 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: true,
 			},
 			args: args{
-				ctx:      context.Background(),
 				filePath: "/tmp/foo.csv",
 			},
 			wantReturnData: nil,
@@ -394,7 +391,6 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				ctx:      context.Background(),
 				filePath: "/tmp/foo.csv",
 			},
 			wantReturnData: nil,
@@ -415,7 +411,6 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				ctx:      context.Background(),
 				filePath: "/tmp/foo.csv",
 			},
 			wantReturnData: []*systems.SystemTrxData{
@@ -451,7 +446,6 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				ctx:      context.Background(),
 				filePath: "/tmp/foo.csv",
 			},
 			wantReturnData: nil,
@@ -471,7 +465,6 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				ctx:      context.Background(),
 				filePath: "/tmp/foo.csv",
 			},
 			wantReturnData: nil,
@@ -491,7 +484,6 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				ctx:      context.Background(),
 				filePath: "/tmp/foo.csv",
 			},
 			wantReturnData: nil,
@@ -513,7 +505,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				},
 			}
 
-			gotReturnData, err := d.ToSystemTrxData(tt.args.ctx, tt.args.filePath)
+			gotReturnData, err := d.ToSystemTrxData(context.Background(), tt.args.filePath)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ToSystemTrxData() error = %v, wantErr %v", err, tt.wantErr)

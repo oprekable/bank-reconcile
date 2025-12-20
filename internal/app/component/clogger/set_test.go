@@ -18,10 +18,11 @@ import (
 func TestProviderLogger(t *testing.T) {
 	var bfIsShowLogTrue bytes.Buffer
 	var bfIsShowLogFalse bytes.Buffer
-	timeCtx, _ := testclock.UseTime(context.Background(), time.Unix(1742017753, 0))
+	ctx := context.Background()
+	timeCtx, _ := testclock.UseTime(ctx, time.Unix(1742017753, 0))
 
 	type args struct {
-		ctx             context.Context
+		ctxFn           func(context.Context) context.Context
 		logShowWriter   LogShowWriter
 		logNoShowWriter LogNoShowWriter
 		isShowLog       IsShowLog
@@ -36,7 +37,10 @@ func TestProviderLogger(t *testing.T) {
 		{
 			name: "Ok - isShowLog false",
 			args: args{
-				ctx:             timeCtx,
+				ctxFn: func(c context.Context) context.Context {
+					timeCtx, _ := testclock.UseTime(c, time.Unix(1742017753, 0))
+					return timeCtx
+				},
 				isShowLog:       false,
 				logShowWriter:   &bfIsShowLogTrue,
 				logNoShowWriter: &bfIsShowLogFalse,
@@ -47,7 +51,10 @@ func TestProviderLogger(t *testing.T) {
 		{
 			name: "Ok - isShowLog true",
 			args: args{
-				ctx:             timeCtx,
+				ctxFn: func(c context.Context) context.Context {
+					timeCtx, _ := testclock.UseTime(c, time.Unix(1742017753, 0))
+					return timeCtx
+				},
 				isShowLog:       true,
 				logShowWriter:   &bfIsShowLogTrue,
 				logNoShowWriter: &bfIsShowLogFalse,
@@ -59,7 +66,7 @@ func TestProviderLogger(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := ProviderLogger(tt.args.ctx, tt.args.isShowLog, tt.args.logShowWriter, tt.args.logNoShowWriter)
+			l := ProviderLogger(tt.args.ctxFn(ctx), tt.args.isShowLog, tt.args.logShowWriter, tt.args.logNoShowWriter)
 			zerolog.TimeFieldFormat = time.DateOnly
 			zerolog.TimestampFunc = func() time.Time {
 				return clock.Get(timeCtx).Now()
