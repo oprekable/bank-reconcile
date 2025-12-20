@@ -63,7 +63,7 @@ func TestHandlerExec(t *testing.T) {
 					},
 				},
 				svc: func() *service.Services {
-					mockSvc := mocksample.NewService(t)
+					mockSvc := mocksample.NewServiceGenerator(t)
 
 					mockSvc.On(
 						"GenerateSample",
@@ -103,7 +103,7 @@ func TestHandlerExec(t *testing.T) {
 					},
 				},
 				svc: func() *service.Services {
-					mockSvc := mocksample.NewService(t)
+					mockSvc := mocksample.NewServiceGenerator(t)
 
 					mockSvc.On(
 						"GenerateSample",

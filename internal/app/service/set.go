@@ -36,8 +36,8 @@ func ProvideBankParserFactoryMap() map[string]banks.BankParserFactory {
 }
 
 func NewServices(
-	svcSample sample.Service,
-	svcProcess process.Service,
+	svcSample sample.ServiceGenerator,
+	svcProcess process.ServiceGenerator,
 ) *Services {
 	return &Services{
 		SvcSample:  svcSample,

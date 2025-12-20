@@ -39,7 +39,7 @@ type Svc struct {
 	regexCompileBankName *regexp.Regexp
 }
 
-var _ Service = (*Svc)(nil)
+var _ ServiceGenerator = (*Svc)(nil)
 
 func NewSvc(
 	comp *component.Components,
@@ -469,7 +469,7 @@ func (s *Svc) generateReconciliationFiles(ctx context.Context, reconciliationSum
 }
 
 func (s *Svc) GenerateReconciliation(ctx context.Context, afs afero.Fs, bar *progressbar.ProgressBar) (returnData ReconciliationSummary, err error) {
-	ctx = s.comp.Logger.GetLogger().With().Str("component", "Process Service").Ctx(ctx).Logger().WithContext(s.comp.Logger.GetCtx())
+	ctx = s.comp.Logger.GetLogger().With().Str("component", "Process ServiceGenerator").Ctx(ctx).Logger().WithContext(s.comp.Logger.GetCtx())
 
 	defer func() {
 		_ = s.repo.RepoProcess.Close()

@@ -1347,8 +1347,8 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
 		fields  fields
+		name    string
 		args    args
 		wantErr bool
 	}{

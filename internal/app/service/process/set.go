@@ -17,5 +17,5 @@ func ProviderSvc(
 
 var Set = wire.NewSet(
 	ProviderSvc,
-	wire.Bind(new(Service), new(*Svc)),
+	wire.Bind(new(ServiceGenerator), new(*Svc)),
 )

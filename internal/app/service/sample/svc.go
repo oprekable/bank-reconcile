@@ -33,7 +33,7 @@ type Svc struct {
 	poolBankTrxDataInterface   *sync.Pool
 }
 
-var _ Service = (*Svc)(nil)
+var _ ServiceGenerator = (*Svc)(nil)
 
 func NewSvc(
 	comp *component.Components,
@@ -129,7 +129,7 @@ func (s *Svc) parse(data sample.TrxData) (systemTrxData systems.SystemTrxDataInt
 }
 
 func (s *Svc) GenerateSample(ctx context.Context, fs afero.Fs, bar *progressbar.ProgressBar, isDeleteDirectory bool) (returnSummary Summary, err error) {
-	ctx = s.comp.Logger.GetLogger().With().Str("component", "Sample Service").Ctx(ctx).Logger().WithContext(s.comp.Logger.GetCtx())
+	ctx = s.comp.Logger.GetLogger().With().Str("component", "Sample ServiceGenerator").Ctx(ctx).Logger().WithContext(s.comp.Logger.GetCtx())
 
 	trxData := make([]sample.TrxData, 0)
 	defer func() {

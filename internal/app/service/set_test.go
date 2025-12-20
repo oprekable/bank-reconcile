@@ -14,8 +14,8 @@ import (
 
 func TestNewServices(t *testing.T) {
 	type args struct {
-		svcSample  sample.Service
-		svcProcess process.Service
+		svcSample  sample.ServiceGenerator
+		svcProcess process.ServiceGenerator
 	}
 
 	tests := []struct {
@@ -26,12 +26,12 @@ func TestNewServices(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				svcSample:  mocksample.NewService(t),
-				svcProcess: mockprocess.NewService(t),
+				svcSample:  mocksample.NewServiceGenerator(t),
+				svcProcess: mockprocess.NewServiceGenerator(t),
 			},
 			want: &Services{
-				SvcSample:  mocksample.NewService(t),
-				SvcProcess: mockprocess.NewService(t),
+				SvcSample:  mocksample.NewServiceGenerator(t),
+				SvcProcess: mockprocess.NewServiceGenerator(t),
 			},
 		},
 	}

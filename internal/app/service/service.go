@@ -6,6 +6,6 @@ import (
 )
 
 type Services struct {
-	SvcSample  sample.Service
-	SvcProcess process.Service
+	SvcSample  sample.ServiceGenerator
+	SvcProcess process.ServiceGenerator
 }

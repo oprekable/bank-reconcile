@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-//go:generate mockery --name "Service" --output "./_mock" --outpkg "_mock"
-type Service interface {
+//go:generate mockery --name "ServiceGenerator" --output "./_mock" --outpkg "_mock"
+type ServiceGenerator interface {
 	GenerateSample(ctx context.Context, fs afero.Fs, bar *progressbar.ProgressBar, isDeleteDirectory bool) (returnSummary Summary, err error)
 }

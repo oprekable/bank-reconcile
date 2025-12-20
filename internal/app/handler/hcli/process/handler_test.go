@@ -66,7 +66,7 @@ func TestHandlerExec(t *testing.T) {
 					},
 				},
 				svc: func() *service.Services {
-					mockSvc := mockprocess.NewService(t)
+					mockSvc := mockprocess.NewServiceGenerator(t)
 
 					mockSvc.On(
 						"GenerateReconciliation",
@@ -106,7 +106,7 @@ func TestHandlerExec(t *testing.T) {
 					},
 				},
 				svc: func() *service.Services {
-					mockSvc := mockprocess.NewService(t)
+					mockSvc := mockprocess.NewServiceGenerator(t)
 
 					mockSvc.On(
 						"GenerateReconciliation",
