@@ -11,21 +11,34 @@ import (
 )
 
 type Profiler struct {
-	ctx      context.Context
+	ctxFn    func(ctx context.Context) context.Context
 	logger   *clogger.Logger
 	profiler map[string]interface{ Stop() }
 }
 
 func NewProfiler(logger *clogger.Logger) *Profiler {
-	return &Profiler{
-		ctx:      logger.GetLogger().With().Str("component", "Profiler").Ctx(context.Background()).Logger().WithContext(logger.GetCtx()),
+	returnData := &Profiler{
 		logger:   logger,
 		profiler: make(map[string]interface{ Stop() }),
 	}
+
+	returnData.ctxFn = func(ctx context.Context) context.Context {
+		return returnData.
+			logger.
+			GetLogger().
+			With().
+			Str("component", "Profiler").
+			Ctx(ctx).
+			Logger().
+			WithContext(returnData.logger.GetCtx())
+	}
+
+	return returnData
 }
 
 func (p *Profiler) StartProfiler() {
-	log.Msg(p.ctx, "[profiler] starting profiler")
+	ctx := p.ctxFn(context.Background())
+	log.Msg(ctx, "[profiler] starting profiler")
 	p.profiler = make(map[string]interface{ Stop() })
 	dir, _ := os.Getwd()
 
@@ -54,8 +67,9 @@ func (p *Profiler) StartProfiler() {
 }
 
 func (p *Profiler) StopProfiler() {
+	ctx := p.ctxFn(context.Background())
 	for k := range p.profiler {
 		p.profiler[k].Stop()
-		log.Msg(p.ctx, fmt.Sprintf("[profiler] stop profiler - %s", k))
+		log.Msg(ctx, fmt.Sprintf("[profiler] stop profiler - %s", k))
 	}
 }

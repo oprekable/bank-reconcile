@@ -99,7 +99,7 @@ func (h *Handler) Exec() (err error) {
 
 			table := tablewriterhelper.InitTableWriter(h.writer)
 			table.Configure(func(cfg *tablewriter.Config) {
-				cfg.Row.Formatting = tw.CellFormatting{MergeMode: tw.MergeHierarchical}
+				cfg.Row.Merging = tw.CellMerging{Mode: tw.MergeHierarchical}
 			})
 
 			table.Header([]string{"Type Trx", "Bank", "Title", ""})

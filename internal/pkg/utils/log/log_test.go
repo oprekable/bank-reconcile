@@ -149,7 +149,7 @@ func TestMsg(t *testing.T) {
 func TestUptimeHookRun(t *testing.T) {
 	timeCtx, _ := testclock.UseTime(context.Background(), time.Unix(1742017752, 0))
 	type args struct {
-		ctx context.Context
+		ctxFn func(ctx context.Context) context.Context
 	}
 
 	tests := []struct {
@@ -160,14 +160,18 @@ func TestUptimeHookRun(t *testing.T) {
 		{
 			name: "Empty StartTime",
 			args: args{
-				ctx: timeCtx,
+				ctxFn: func(ctx context.Context) context.Context {
+					return ctx
+				},
 			},
 			want: `{"level":"info","uptime":"","message":"Test"}`,
 		},
 		{
 			name: "Non Empty StartTime",
 			args: args{
-				ctx: context.WithValue(timeCtx, StartTime, time.Unix(1742017751, 0)),
+				ctxFn: func(ctx context.Context) context.Context {
+					return context.WithValue(ctx, StartTime, time.Unix(1742017751, 0))
+				},
 			},
 			want: `{"level":"info","uptime":"1s","message":"Test"}`,
 		},
@@ -176,7 +180,7 @@ func TestUptimeHookRun(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var bf bytes.Buffer
-			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(tt.args.ctx)
+			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(tt.args.ctxFn(timeCtx))
 			zerolog.Ctx(loggerCtx).Info().Ctx(loggerCtx).Msg("Test")
 
 			if got := bf.String(); strings.TrimRight(got, "\n") != tt.want {

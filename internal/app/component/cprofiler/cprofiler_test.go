@@ -54,16 +54,14 @@ func TestNewProfiler(t *testing.T) {
 				logger: logger,
 			},
 			want: &Profiler{
-				ctx:      logger.GetLogger().With().Str("component", "Profiler").Ctx(context.Background()).Logger().WithContext(logger.GetCtx()),
 				logger:   logger,
 				profiler: make(map[string]interface{ Stop() }),
 			},
 		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewProfiler(tt.args.logger); !reflect.DeepEqual(got, tt.want) {
+			if got := NewProfiler(tt.args.logger); !reflect.DeepEqual(got.profiler, tt.want.profiler) || !reflect.DeepEqual(got.logger, tt.want.logger) {
 				t.Errorf("NewProfiler() = %v, want %v", got, tt.want)
 			}
 
@@ -75,9 +73,7 @@ func TestNewProfiler(t *testing.T) {
 func TestProfilerStartProfiler(t *testing.T) {
 	var bf bytes.Buffer
 	type fields struct {
-		ctx      context.Context
-		logger   *clogger.Logger
-		profiler map[string]interface{ Stop() }
+		logger *clogger.Logger
 	}
 
 	var logger = clogger.NewLogger(
@@ -93,9 +89,7 @@ func TestProfilerStartProfiler(t *testing.T) {
 		{
 			name: "Ok",
 			fields: fields{
-				ctx:      logger.GetLogger().With().Str("component", "Profiler").Ctx(context.Background()).Logger().WithContext(logger.GetCtx()),
-				logger:   logger,
-				profiler: make(map[string]interface{ Stop() }),
+				logger: logger,
 			},
 			wantLog: `[profiler] starting profiler`,
 		},
@@ -103,11 +97,7 @@ func TestProfilerStartProfiler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &Profiler{
-				ctx:      tt.fields.ctx,
-				logger:   tt.fields.logger,
-				profiler: tt.fields.profiler,
-			}
+			p := NewProfiler(tt.fields.logger)
 
 			p.StartProfiler()
 
@@ -134,7 +124,6 @@ func TestProfilerStartProfiler(t *testing.T) {
 func TestProfilerStopProfiler(t *testing.T) {
 	var bf bytes.Buffer
 	type fields struct {
-		ctx      context.Context
 		logger   *clogger.Logger
 		profiler map[string]interface{ Stop() }
 	}
@@ -152,9 +141,7 @@ func TestProfilerStopProfiler(t *testing.T) {
 		{
 			name: "Ok",
 			fields: fields{
-				ctx:      logger.GetLogger().With().Str("component", "Profiler").Ctx(context.Background()).Logger().WithContext(logger.GetCtx()),
-				logger:   logger,
-				profiler: make(map[string]interface{ Stop() }),
+				logger: logger,
 			},
 			wantLog: `[profiler] stop profiler`,
 		},
@@ -162,12 +149,7 @@ func TestProfilerStopProfiler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &Profiler{
-				ctx:      tt.fields.ctx,
-				logger:   tt.fields.logger,
-				profiler: tt.fields.profiler,
-			}
-
+			p := NewProfiler(tt.fields.logger)
 			p.StartProfiler()
 			bf.Reset()
 			p.StopProfiler()

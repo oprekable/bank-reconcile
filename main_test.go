@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 	os.Exit(exitVal)
 }
 
-func TestMainApp(t *testing.T) {
+func TestMainApp(_ *testing.T) {
 	os.Args = []string{
 		variable.AppName,
 		version.Usage,

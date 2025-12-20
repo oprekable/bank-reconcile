@@ -23,7 +23,7 @@ func main() {
 	exitFunc(mainLogic(os.Stdout, os.Stderr))
 }
 
-func mainLogic(outPutWriter io.Writer, errWriter io.Writer) int {
+func mainLogic(outPutWriter, errWriter io.Writer) int {
 	var subCommands = []cmd.Cmd{
 		version.NewCommand(outPutWriter, errWriter),
 		sample.NewCommand(variable.AppName, _inject.WireAppFn, &embedFS, outPutWriter, errWriter),
