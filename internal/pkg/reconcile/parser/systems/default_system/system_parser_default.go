@@ -60,7 +60,7 @@ type SystemParser struct {
 	isHaveHeader      bool
 }
 
-var _ systems.ReconcileSystemData = (*SystemParser)(nil)
+var _ systems.SystemDataConverter = (*SystemParser)(nil)
 
 func NewSystemParser(
 	dataStruct systems.SystemTrxDataInterface,

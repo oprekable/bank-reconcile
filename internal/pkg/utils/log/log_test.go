@@ -16,8 +16,8 @@ func TestAddErr(t *testing.T) {
 	timeCtx, _ := testclock.UseTime(context.Background(), time.Unix(1742017753, 0))
 
 	type args struct {
-		ctx context.Context
-		err error
+		ctxFn func(ctx context.Context) context.Context
+		err   error
 	}
 
 	tests := []struct {
@@ -28,7 +28,9 @@ func TestAddErr(t *testing.T) {
 		{
 			name: "Err nil",
 			args: args{
-				ctx: context.WithValue(timeCtx, StartTime, time.Unix(1742017751, 0)),
+				ctxFn: func(ctx context.Context) context.Context {
+					return context.WithValue(ctx, StartTime, time.Unix(1742017751, 0))
+				},
 				err: nil,
 			},
 			want: []string{`{"level":"info","uptime":"2s","message":"Test"}`},
@@ -36,7 +38,9 @@ func TestAddErr(t *testing.T) {
 		{
 			name: "Err not nil",
 			args: args{
-				ctx: context.WithValue(timeCtx, StartTime, time.Unix(1742017751, 0)),
+				ctxFn: func(ctx context.Context) context.Context {
+					return context.WithValue(ctx, StartTime, time.Unix(1742017751, 0))
+				},
 				err: errors.New("test error"),
 			},
 			want: []string{
@@ -51,7 +55,8 @@ func TestAddErr(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var bf bytes.Buffer
-			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(tt.args.ctx)
+			ctx := tt.args.ctxFn(timeCtx)
+			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(ctx)
 			AddErr(loggerCtx, tt.args.err)
 			Msg(loggerCtx, "Test")
 			got := bf.String()
@@ -69,8 +74,8 @@ func TestAddErr(t *testing.T) {
 func TestErr(t *testing.T) {
 	timeCtx, _ := testclock.UseTime(context.Background(), time.Unix(1742017752, 0))
 	type args struct {
-		ctx context.Context
-		err error
+		ctxFn func(context.Context) context.Context
+		err   error
 	}
 	tests := []struct {
 		name string
@@ -80,7 +85,9 @@ func TestErr(t *testing.T) {
 		{
 			name: "Err nil",
 			args: args{
-				ctx: context.WithValue(timeCtx, StartTime, time.Unix(1742017751, 0)),
+				ctxFn: func(ctx context.Context) context.Context {
+					return context.WithValue(ctx, StartTime, time.Unix(1742017751, 0))
+				},
 				err: nil,
 			},
 			want: []string{`{"level":"info","uptime":"1s","message":"Test"}`},
@@ -88,7 +95,9 @@ func TestErr(t *testing.T) {
 		{
 			name: "Err not nil",
 			args: args{
-				ctx: context.WithValue(timeCtx, StartTime, time.Unix(1742017751, 0)),
+				ctxFn: func(ctx context.Context) context.Context {
+					return context.WithValue(ctx, StartTime, time.Unix(1742017751, 0))
+				},
 				err: errors.New("test error"),
 			},
 			want: []string{`{"level":"error","error":"test error","caller":"`, `","uptime":"1s","message":"Test"}`},
@@ -97,7 +106,8 @@ func TestErr(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var bf bytes.Buffer
-			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(tt.args.ctx)
+			ctx := tt.args.ctxFn(timeCtx)
+			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(ctx)
 			Err(loggerCtx, "Test", tt.args.err)
 			got := bf.String()
 			for _, want := range tt.want {
@@ -114,7 +124,7 @@ func TestErr(t *testing.T) {
 func TestMsg(t *testing.T) {
 	timeCtx, _ := testclock.UseTime(context.Background(), time.Unix(1742017752, 0))
 	type args struct {
-		ctx context.Context
+		ctxFn func(context.Context) context.Context
 	}
 
 	tests := []struct {
@@ -125,7 +135,9 @@ func TestMsg(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				ctx: context.WithValue(timeCtx, StartTime, time.Unix(1742017751, 0)),
+				ctxFn: func(ctx context.Context) context.Context {
+					return context.WithValue(ctx, StartTime, time.Unix(1742017751, 0))
+				},
 			},
 			want: `{"level":"info","uptime":"1s","message":"Test"}`,
 		},
@@ -134,7 +146,8 @@ func TestMsg(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var bf bytes.Buffer
-			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(tt.args.ctx)
+			ctx := tt.args.ctxFn(timeCtx)
+			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(ctx)
 			Msg(loggerCtx, "Test")
 
 			if got := bf.String(); strings.TrimRight(got, "\n") != tt.want {
@@ -180,7 +193,8 @@ func TestUptimeHookRun(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var bf bytes.Buffer
-			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(tt.args.ctxFn(timeCtx))
+			ctx := tt.args.ctxFn(timeCtx)
+			loggerCtx := zerolog.New(&bf).Hook(UptimeHook{}).WithContext(tt.args.ctxFn(ctx))
 			zerolog.Ctx(loggerCtx).Info().Ctx(loggerCtx).Msg("Test")
 
 			if got := bf.String(); strings.TrimRight(got, "\n") != tt.want {

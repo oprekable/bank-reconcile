@@ -19,7 +19,7 @@ type CmdVersion struct {
 
 var _ cmd.Cmd = (*CmdVersion)(nil)
 
-func NewCommand(outPutWriter io.Writer, errWriter io.Writer) *CmdVersion {
+func NewCommand(outPutWriter, errWriter io.Writer) *CmdVersion {
 	return &CmdVersion{
 		c: &cobra.Command{
 			Args:          cobra.NoArgs,

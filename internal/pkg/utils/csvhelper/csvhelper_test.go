@@ -10,7 +10,6 @@ import (
 
 func TestDeleteDirectory(t *testing.T) {
 	type args struct {
-		ctx      context.Context
 		fs       afero.Fs
 		filePath string
 	}
@@ -23,15 +22,13 @@ func TestDeleteDirectory(t *testing.T) {
 		{
 			name: "Directory does not exist",
 			args: args{
-				ctx: context.Background(),
-				fs:  afero.NewMemMapFs(),
+				fs: afero.NewMemMapFs(),
 			},
 			wantErr: false,
 		},
 		{
 			name: "Directory  exist, success",
 			args: args{
-				ctx: context.Background(),
 				fs: func() afero.Fs {
 					fs := afero.NewMemMapFs()
 					_ = fs.Mkdir("test", os.ModeDir)
@@ -43,7 +40,6 @@ func TestDeleteDirectory(t *testing.T) {
 		{
 			name: "Directory  exist, error",
 			args: args{
-				ctx: context.Background(),
 				fs: func() afero.Fs {
 					fs := afero.NewMemMapFs()
 					_ = fs.Mkdir("test", os.ModeDir)
@@ -56,7 +52,7 @@ func TestDeleteDirectory(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := DeleteDirectory(tt.args.ctx, tt.args.fs, tt.args.filePath); (err != nil) != tt.wantErr {
+			if err := DeleteDirectory(context.Background(), tt.args.fs, tt.args.filePath); (err != nil) != tt.wantErr {
 				t.Errorf("DeleteDirectory() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -69,7 +65,6 @@ func TestStructToCSVFile(t *testing.T) {
 	}
 
 	type args struct {
-		ctx               context.Context
 		fs                afero.Fs
 		structData        interface{}
 		filePath          string
@@ -84,7 +79,6 @@ func TestStructToCSVFile(t *testing.T) {
 		{
 			name: "isDeleteDirectory & structData have value - Success",
 			args: args{
-				ctx:      context.Background(),
 				fs:       afero.NewMemMapFs(),
 				filePath: "/test/test.csv",
 				structData: []T{
@@ -99,7 +93,6 @@ func TestStructToCSVFile(t *testing.T) {
 		{
 			name: "isDeleteDirectory = false & structData have no value - Success",
 			args: args{
-				ctx:               context.Background(),
 				fs:                afero.NewMemMapFs(),
 				filePath:          "/test/test.csv",
 				structData:        []T{},
@@ -111,7 +104,7 @@ func TestStructToCSVFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := StructToCSVFile(tt.args.ctx, tt.args.fs, tt.args.filePath, tt.args.structData, tt.args.isDeleteDirectory); (err != nil) != tt.wantErr {
+			if err := StructToCSVFile(context.Background(), tt.args.fs, tt.args.filePath, tt.args.structData, tt.args.isDeleteDirectory); (err != nil) != tt.wantErr {
 				t.Errorf("StructToCSVFile() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

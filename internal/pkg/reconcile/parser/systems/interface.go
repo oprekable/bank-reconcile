@@ -2,8 +2,8 @@ package systems
 
 import "context"
 
-//go:generate mockery --name "ReconcileSystemData" --output "./_mock" --outpkg "_mock"
-type ReconcileSystemData interface {
+//go:generate mockery --name "SystemDataConverter" --output "./_mock" --outpkg "_mock"
+type SystemDataConverter interface {
 	ToSystemTrxData(ctx context.Context, filePath string) (returnData []*SystemTrxData, err error)
 }
 

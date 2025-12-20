@@ -13,8 +13,8 @@ import (
 
 func TestSignalTrapWait(t *testing.T) {
 	type args struct {
-		ctx context.Context
-		f   func()
+		ctxFn func() context.Context
+		f     func()
 	}
 
 	tests := []struct {
@@ -28,11 +28,11 @@ func TestSignalTrapWait(t *testing.T) {
 			name: "Context canceled",
 			t:    TermSignalTrap(),
 			args: args{
-				ctx: func() context.Context {
+				ctxFn: func() context.Context {
 					ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
 					defer cancel()
 					return ctx
-				}(),
+				},
 				f: func() {
 					log.Println("foo")
 				},
@@ -48,7 +48,9 @@ func TestSignalTrapWait(t *testing.T) {
 				return trap
 			}(),
 			args: args{
-				ctx: context.Background(),
+				ctxFn: func() context.Context {
+					return context.Background()
+				},
 				f: func() {
 					log.Println("bar")
 				},
@@ -67,7 +69,7 @@ func TestSignalTrapWait(t *testing.T) {
 				log.SetOutput(os.Stdout)
 			})
 
-			err := tt.t.Wait(tt.args.ctx, tt.args.f)
+			err := tt.t.Wait(tt.args.ctxFn(), tt.args.f)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Wait() error = %v, wantErr %v", err, tt.wantErr)
 			}
