@@ -79,5 +79,4 @@ func (c *Cli) Start(eg *errgroup.Group) {
 func (c *Cli) Shutdown() {
 	ctx := c.getCtx()
 	log.Msg(ctx, "["+name+"] shutdown")
-
 }
