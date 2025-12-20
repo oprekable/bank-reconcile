@@ -124,8 +124,7 @@ func TestProfilerStartProfiler(t *testing.T) {
 func TestProfilerStopProfiler(t *testing.T) {
 	var bf bytes.Buffer
 	type fields struct {
-		logger   *clogger.Logger
-		profiler map[string]interface{ Stop() }
+		logger *clogger.Logger
 	}
 
 	var logger = clogger.NewLogger(

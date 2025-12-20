@@ -364,9 +364,9 @@ func TestErrFlagsFunc(t *testing.T) {
 	}
 
 	tests := []struct {
-		name      string
 		fields    fields
 		wantError error
+		name      string
 	}{
 		{
 			name: "Ok",

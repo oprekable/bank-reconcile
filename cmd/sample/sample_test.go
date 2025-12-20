@@ -62,10 +62,10 @@ func TestCmdSampleInit(t *testing.T) {
 	}
 
 	tests := []struct {
-		fields fields
 		args   args
 		want   *cobra.Command
 		name   string
+		fields fields
 	}{
 		{
 			name: "Ok",
@@ -584,8 +584,8 @@ func TestCmdSampleExample(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		fields fields
 		want   string
+		fields fields
 	}{
 		{
 			name: "Ok",
