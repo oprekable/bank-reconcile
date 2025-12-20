@@ -68,14 +68,9 @@ func TestDBGetTrx(t *testing.T) {
 		stmtMap map[string]*sql.Stmt
 	}
 
-	type args struct {
-		ctx context.Context
-	}
-
 	tests := []struct {
 		name           string
 		fields         fields
-		args           args
 		wantReturnData []TrxData
 		wantErr        bool
 	}{
@@ -124,9 +119,6 @@ func TestDBGetTrx(t *testing.T) {
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 			},
-			args: args{
-				ctx: context.Background(),
-			},
 			wantReturnData: []TrxData{
 				{
 					TrxID:            "0012d068c53eb0971fc8563343c5d81f",
@@ -162,7 +154,7 @@ func TestDBGetTrx(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			gotReturnData, err := d.GetTrx(tt.args.ctx)
+			gotReturnData, err := d.GetTrx(context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetTrx() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -181,13 +173,8 @@ func TestDBPost(t *testing.T) {
 		stmtMap map[string]*sql.Stmt
 	}
 
-	type args struct {
-		ctx context.Context
-	}
-
 	tests := []struct {
 		fields  fields
-		args    args
 		name    string
 		wantErr bool
 	}{
@@ -216,9 +203,6 @@ func TestDBPost(t *testing.T) {
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 			},
-			args: args{
-				ctx: context.Background(),
-			},
 			wantErr: false,
 		},
 	}
@@ -230,7 +214,7 @@ func TestDBPost(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.Post(tt.args.ctx); (err != nil) != tt.wantErr {
+			if err := d.Post(context.Background()); (err != nil) != tt.wantErr {
 				t.Errorf("Post() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

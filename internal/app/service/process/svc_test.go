@@ -139,9 +139,9 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 	}
 
 	type args struct {
-		ctx context.Context
-		afs afero.Fs
-		bar *progressbar.ProgressBar
+		ctxFn func(context.Context) context.Context
+		afs   afero.Fs
+		bar   *progressbar.ProgressBar
 	}
 
 	tests := []struct {
@@ -298,10 +298,10 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: func() context.Context {
-					ctx, _ := testclock.UseTime(context.Background(), time.Unix(1742017753, 0))
+				ctxFn: func(c context.Context) context.Context {
+					ctx, _ := testclock.UseTime(c, time.Unix(1742017753, 0))
 					return ctx
-				}(),
+				},
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					systemTrxFile, _ := f.Create("/system/foo1.csv")
@@ -498,10 +498,10 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: func() context.Context {
-					ctx, _ := testclock.UseTime(context.Background(), time.Unix(1742017753, 0))
+				ctxFn: func(c context.Context) context.Context {
+					ctx, _ := testclock.UseTime(c, time.Unix(1742017753, 0))
 					return ctx
-				}(),
+				},
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					systemTrxFile, _ := f.Create("/system/foo1.csv")
@@ -561,7 +561,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				tt.fields.parserRegistry,
 			)
 
-			gotReturnData, err := s.GenerateReconciliation(tt.args.ctx, tt.args.afs, tt.args.bar)
+			gotReturnData, err := s.GenerateReconciliation(tt.args.ctxFn(ctx), tt.args.afs, tt.args.bar)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateReconciliation() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -586,7 +586,6 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 	}
 
 	type args struct {
-		ctx                   context.Context
 		reconciliationSummary *ReconciliationSummary
 		fs                    afero.Fs
 		isDeleteDirectory     bool
@@ -656,7 +655,6 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx:                   context.Background(),
 				reconciliationSummary: &ReconciliationSummary{},
 				fs: func() afero.Fs {
 					f := afero.NewMemMapFs()
@@ -724,7 +722,6 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx:                   context.Background(),
 				reconciliationSummary: &ReconciliationSummary{},
 				fs: func() afero.Fs {
 					f := afero.NewMemMapFs()
@@ -807,7 +804,6 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx:                   context.Background(),
 				reconciliationSummary: &ReconciliationSummary{},
 				fs: func() afero.Fs {
 					f := afero.NewMemMapFs()
@@ -897,7 +893,6 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx:                   context.Background(),
 				reconciliationSummary: &ReconciliationSummary{},
 				fs: func() afero.Fs {
 					f := afero.MemMapFs{}
@@ -991,7 +986,6 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx:                   context.Background(),
 				reconciliationSummary: &ReconciliationSummary{},
 				fs: func() afero.Fs {
 					f := afero.NewMemMapFs()
@@ -1011,7 +1005,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 				parserRegistry: tt.fields.parserRegistry,
 			}
 
-			if err := s.generateReconciliationFiles(tt.args.ctx, tt.args.reconciliationSummary, tt.args.fs, tt.args.isDeleteDirectory); (err != nil) != tt.wantErr {
+			if err := s.generateReconciliationFiles(ctx, tt.args.reconciliationSummary, tt.args.fs, tt.args.isDeleteDirectory); (err != nil) != tt.wantErr {
 				t.Errorf("generateReconciliationFiles() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1028,7 +1022,7 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 	}
 
 	type args struct {
-		ctx               context.Context
+		ctxFn             func(context.Context) context.Context
 		fs                afero.Fs
 		isDeleteDirectory bool
 	}
@@ -1128,10 +1122,10 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: func() context.Context {
-					ctx, _ := testclock.UseTime(context.Background(), time.Unix(1742017753, 0))
+				ctxFn: func(c context.Context) context.Context {
+					ctx, _ := testclock.UseTime(c, time.Unix(1742017753, 0))
 					return ctx
-				}(),
+				},
 				fs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					return f
@@ -1161,7 +1155,7 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 				parserRegistry: tt.fields.parserRegistry,
 			}
 
-			gotReturnData, err := s.generateReconciliationSummaryAndFiles(tt.args.ctx, tt.args.fs, tt.args.isDeleteDirectory)
+			gotReturnData, err := s.generateReconciliationSummaryAndFiles(tt.args.ctxFn(ctx), tt.args.fs, tt.args.isDeleteDirectory)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("generateReconciliationSummaryAndFiles() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -1184,7 +1178,6 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 	}
 
 	type args struct {
-		ctx  context.Context
 		data []*banks.BankTrxData
 	}
 
@@ -1231,7 +1224,6 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				data: []*banks.BankTrxData{
 					{
 						UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
@@ -1296,7 +1288,6 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				data: []*banks.BankTrxData{
 					{
 						UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
@@ -1334,7 +1325,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 				parserRegistry: tt.fields.parserRegistry,
 			}
 
-			if err := s.importReconcileBankDataToDB(tt.args.ctx, tt.args.data); (err != nil) != tt.wantErr {
+			if err := s.importReconcileBankDataToDB(ctx, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("importReconcileBankDataToDB() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1351,7 +1342,6 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 	}
 
 	type args struct {
-		ctx context.Context
 		min float64
 		max float64
 	}
@@ -1398,7 +1388,6 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				min: 1,
 				max: 10,
 			},
@@ -1440,7 +1429,6 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				min: 1,
 				max: 10,
 			},
@@ -1456,7 +1444,7 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 				parserRegistry: tt.fields.parserRegistry,
 			}
 
-			if err := s.importReconcileMapToDB(tt.args.ctx, tt.args.min, tt.args.max); (err != nil) != tt.wantErr {
+			if err := s.importReconcileMapToDB(ctx, tt.args.min, tt.args.max); (err != nil) != tt.wantErr {
 				t.Errorf("importReconcileMapToDB() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1473,7 +1461,6 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 	}
 
 	type args struct {
-		ctx  context.Context
 		data []*systems.SystemTrxData
 	}
 
@@ -1520,7 +1507,6 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				data: []*systems.SystemTrxData{
 					{
 						TrxID: "0066a6264a3b04ac25bd93eed2cb3c6c",
@@ -1583,7 +1569,6 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				data: []*systems.SystemTrxData{
 					{
 						TrxID: "0066a6264a3b04ac25bd93eed2cb3c6c",
@@ -1619,7 +1604,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 				parserRegistry: tt.fields.parserRegistry,
 			}
 
-			if err := s.importReconcileSystemDataToDB(tt.args.ctx, tt.args.data); (err != nil) != tt.wantErr {
+			if err := s.importReconcileSystemDataToDB(ctx, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("importReconcileSystemDataToDB() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -1636,7 +1621,6 @@ func TestSvcParse(t *testing.T) {
 	}
 
 	type args struct {
-		ctx context.Context
 		afs afero.Fs
 	}
 
@@ -1684,7 +1668,6 @@ func TestSvcParse(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					systemTrxFile, _ := f.Create("/system/foo1.csv")
@@ -1781,7 +1764,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				tt.fields.parserRegistry,
 			)
 
-			gotTrxData, err := s.parse(tt.args.ctx, tt.args.afs)
+			gotTrxData, err := s.parse(ctx, tt.args.afs)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -1804,7 +1787,6 @@ func TestSvcParseBankTrxFile(t *testing.T) {
 	}
 
 	type args struct {
-		ctx  context.Context
 		afs  afero.Fs
 		item FilePathBankTrx
 	}
@@ -1835,7 +1817,6 @@ func TestSvcParseBankTrxFile(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create("/bca.csv")
@@ -1900,7 +1881,6 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create("/bni.csv")
@@ -1965,7 +1945,6 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create("/foo.csv")
@@ -2030,7 +2009,6 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create("/foo.csv")
@@ -2072,7 +2050,6 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.MemMapFs{}
 					fDenied := MockOpenPermissionDeniedFs{f}
@@ -2098,7 +2075,7 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 				parserRegistry: tt.fields.parserRegistry,
 			}
 
-			gotReturnData, err := s.parseBankTrxFile(tt.args.ctx, tt.args.afs, tt.args.item)
+			gotReturnData, err := s.parseBankTrxFile(ctx, tt.args.afs, tt.args.item)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseBankTrxFile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -2121,7 +2098,6 @@ func TestSvcParseBankTrxFiles(t *testing.T) {
 	}
 
 	type args struct {
-		ctx context.Context
 		afs afero.Fs
 	}
 
@@ -2160,7 +2136,6 @@ func TestSvcParseBankTrxFiles(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create("/random_string/foo/bar/bca/any_string.csv")
@@ -2238,7 +2213,6 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create("/random_string/bca/any_string.csv")
@@ -2265,7 +2239,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 				tt.fields.parserRegistry,
 			)
 
-			gotReturnData, err := s.parseBankTrxFiles(tt.args.ctx, tt.args.afs)
+			gotReturnData, err := s.parseBankTrxFiles(ctx, tt.args.afs)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseBankTrxFiles() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -2296,7 +2270,6 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 	}
 
 	type args struct {
-		ctx      context.Context
 		afs      afero.Fs
 		filePath string
 	}
@@ -2327,7 +2300,6 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create("/foo.csv")
@@ -2387,7 +2359,6 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					return f
@@ -2407,7 +2378,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 				parserRegistry: tt.fields.parserRegistry,
 			}
 
-			gotReturnData, err := s.parseSystemTrxFile(tt.args.ctx, tt.args.afs, tt.args.filePath)
+			gotReturnData, err := s.parseSystemTrxFile(ctx, tt.args.afs, tt.args.filePath)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseSystemTrxFile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -2430,7 +2401,6 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 	}
 
 	type args struct {
-		ctx context.Context
 		afs afero.Fs
 	}
 
@@ -2468,7 +2438,6 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 				parserRegistry: testRegistry,
 			},
 			args: args{
-				ctx: context.Background(),
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create("/foo1.csv")
@@ -2526,7 +2495,7 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 				parserRegistry: tt.fields.parserRegistry,
 			}
 
-			gotReturnData, err := s.parseSystemTrxFiles(tt.args.ctx, tt.args.afs)
+			gotReturnData, err := s.parseSystemTrxFiles(ctx, tt.args.afs)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseSystemTrxFiles() error = %v, wantErr %v", err, tt.wantErr)
 				return

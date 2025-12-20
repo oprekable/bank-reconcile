@@ -403,7 +403,6 @@ func TestDBImportBankTrx(t *testing.T) {
 	}
 
 	type args struct {
-		ctx  context.Context
 		data []*banks.BankTrxData
 		min  int
 		max  int
@@ -448,7 +447,6 @@ func TestDBImportBankTrx(t *testing.T) {
 				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
-				ctx: context.Background(),
 				data: []*banks.BankTrxData{
 					{
 						UniqueIdentifier: "163af765-0769-467f-8185-8ee7166a0098",
@@ -472,7 +470,7 @@ func TestDBImportBankTrx(t *testing.T) {
 				stmtMap: tt.fields.stmtMap,
 			}
 
-			if err := d.ImportBankTrx(tt.args.ctx, tt.args.data, tt.args.min, tt.args.max); (err != nil) != tt.wantErr {
+			if err := d.ImportBankTrx(context.Background(), tt.args.data, tt.args.min, tt.args.max); (err != nil) != tt.wantErr {
 				t.Errorf("ImportBankTrx() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

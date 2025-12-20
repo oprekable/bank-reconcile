@@ -290,7 +290,7 @@ func (s *Svc) importReconcileBankDataToDB(ctx context.Context, data []*banks.Ban
 }
 
 func (s *Svc) parse(ctx context.Context, afs afero.Fs) (trxData parser.TrxData, err error) {
-	isOK := func(t time.Time, minDate time.Time, maxDate time.Time) bool {
+	isOK := func(t, minDate, maxDate time.Time) bool {
 		return (t.Equal(minDate) || t.After(minDate)) && t.Before(maxDate)
 	}
 

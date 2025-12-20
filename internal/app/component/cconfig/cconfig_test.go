@@ -278,7 +278,6 @@ func TestConfigGetWorkDirPath(t *testing.T) {
 
 func TestNewConfig(t *testing.T) {
 	type args struct {
-		ctx         context.Context
 		afs         afero.Fs
 		embedFS     *embed.FS
 		appName     AppName
@@ -295,7 +294,6 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				ctx:     context.Background(),
 				embedFS: &testEmbedFS,
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
@@ -390,7 +388,7 @@ is_delete_current_sample_directory = true
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewConfig(tt.args.ctx, tt.args.embedFS, tt.args.afs, tt.args.configPaths, tt.args.appName, tt.args.tzArgs)
+			got, err := NewConfig(context.Background(), tt.args.embedFS, tt.args.afs, tt.args.configPaths, tt.args.appName, tt.args.tzArgs)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewConfig() error = %v, wantErr %v", err, tt.wantErr)
 				return

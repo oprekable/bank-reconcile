@@ -25,7 +25,6 @@ import (
 
 func TestCliName(t *testing.T) {
 	type fields struct {
-		ctx      context.Context
 		comp     *component.Components
 		svc      *service.Services
 		repo     *repository.Repositories
@@ -40,7 +39,6 @@ func TestCliName(t *testing.T) {
 		{
 			name: "Ok",
 			fields: fields{
-				ctx:      nil,
 				comp:     nil,
 				svc:      nil,
 				repo:     nil,
@@ -53,7 +51,6 @@ func TestCliName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Cli{
-				ctx:      tt.fields.ctx,
 				comp:     tt.fields.comp,
 				svc:      tt.fields.svc,
 				repo:     tt.fields.repo,
@@ -70,7 +67,6 @@ func TestCliName(t *testing.T) {
 func TestCliShutdown(t *testing.T) {
 	var bf bytes.Buffer
 	type fields struct {
-		ctx      context.Context
 		comp     *component.Components
 		svc      *service.Services
 		repo     *repository.Repositories
@@ -85,7 +81,6 @@ func TestCliShutdown(t *testing.T) {
 		{
 			name: "Ok",
 			fields: fields{
-				ctx:      zerolog.New(&bf).WithContext(context.Background()),
 				comp:     nil,
 				svc:      nil,
 				repo:     nil,
@@ -98,7 +93,7 @@ func TestCliShutdown(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Cli{
-				ctx:      tt.fields.ctx,
+				ctx:      zerolog.New(&bf).WithContext(context.Background()),
 				comp:     tt.fields.comp,
 				svc:      tt.fields.svc,
 				repo:     tt.fields.repo,
@@ -117,7 +112,6 @@ func TestCliShutdown(t *testing.T) {
 func TestCliStart(t *testing.T) {
 	var bf bytes.Buffer
 	type fields struct {
-		ctx      context.Context
 		comp     *component.Components
 		svc      *service.Services
 		repo     *repository.Repositories
@@ -136,7 +130,6 @@ func TestCliStart(t *testing.T) {
 		{
 			name: "Ok",
 			fields: fields{
-				ctx: context.Background(),
 				comp: &component.Components{
 					Config: &cconfig.Config{
 						Data: &config.Data{
@@ -167,7 +160,6 @@ func TestCliStart(t *testing.T) {
 		{
 			name: "Error",
 			fields: fields{
-				ctx: context.Background(),
 				comp: &component.Components{
 					Config: &cconfig.Config{
 						Data: &config.Data{
@@ -200,7 +192,7 @@ func TestCliStart(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &Cli{
-				ctx:      tt.fields.ctx,
+				ctx:      context.Background(),
 				comp:     tt.fields.comp,
 				svc:      tt.fields.svc,
 				repo:     tt.fields.repo,
