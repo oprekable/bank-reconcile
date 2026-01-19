@@ -16,7 +16,7 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/joho/godotenv v1.5.1
 	github.com/jszwec/csvutil v1.10.0
-	github.com/olekukonko/tablewriter v1.1.2
+	github.com/olekukonko/tablewriter v1.1.3
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/samber/lo v1.52.0
@@ -74,7 +74,7 @@ require (
 	github.com/chavacava/garif v0.1.0 // indirect
 	github.com/chigopher/pathlib v0.19.1 // indirect
 	github.com/ckaznocha/intrange v0.3.0 // indirect
-	github.com/clipperhouse/displaywidth v0.6.0 // indirect
+	github.com/clipperhouse/displaywidth v0.6.2 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/curioswitch/go-reassign v0.3.0 // indirect
@@ -161,7 +161,7 @@ require (
 	github.com/nunnatsa/ginkgolinter v0.19.1 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect
 	github.com/olekukonko/errors v1.1.0 // indirect
-	github.com/olekukonko/ll v0.1.3 // indirect
+	github.com/olekukonko/ll v0.1.4-0.20260115111900-9e59c2286df0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/polyfloyd/go-errorlint v1.7.1 // indirect
