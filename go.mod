@@ -35,7 +35,7 @@ require (
 	golang.org/x/tools v0.41.0
 	golang.org/x/vuln v1.1.4
 	honnef.co/go/tools v0.6.1
-	modernc.org/sqlite v1.44.3
+	modernc.org/sqlite v1.45.0
 )
 
 require (
