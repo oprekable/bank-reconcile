@@ -17,14 +17,14 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Disabling shallow clones is recommended for improving the relevancy of reporting
           fetch-depth: 0
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.24.13
+          go-version: 1.25.7
           cache: true
       - name: Run tests with coverage
         run: |
