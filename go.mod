@@ -31,7 +31,7 @@ require (
 	github.com/vektra/mockery/v2 v2.53.6
 	go.chromium.org/luci v0.0.0-20251009102255-fcdaf652696d
 	go.opentelemetry.io/otel v1.42.0
-	golang.org/x/sync v0.19.0
+	golang.org/x/sync v0.20.0
 	golang.org/x/tools v0.42.0
 	golang.org/x/vuln v1.1.4
 	honnef.co/go/tools v0.7.0
