@@ -11,7 +11,7 @@ require (
 	github.com/creasty/defaults v1.8.0
 	github.com/driftprogramming/godotenv v1.1.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/goccy/go-json v0.10.5
+	github.com/goccy/go-json v0.10.6
 	github.com/golangci/golangci-lint v1.64.8
 	github.com/google/wire v0.7.0
 	github.com/joho/godotenv v1.5.1
