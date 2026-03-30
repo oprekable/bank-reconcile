@@ -18,7 +18,7 @@ require (
 	github.com/jszwec/csvutil v1.10.0
 	github.com/olekukonko/tablewriter v1.1.4
 	github.com/pkg/errors v0.9.1
-	github.com/rs/zerolog v1.34.0
+	github.com/rs/zerolog v1.35.0
 	github.com/samber/lo v1.53.0
 	github.com/schollz/progressbar/v3 v3.19.0
 	github.com/simukti/sqldb-logger v0.0.0-20230108155151-646c1a075551
