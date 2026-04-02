@@ -131,7 +131,7 @@ func (s *Svc) parse(data sample.TrxData) (systemTrxData systems.SystemTrxDataInt
 func (s *Svc) GenerateSample(ctx context.Context, fs afero.Fs, bar *progressbar.ProgressBar, isDeleteDirectory bool) (returnSummary Summary, err error) {
 	ctx = s.comp.Logger.GetLogger().With().Str("component", "Sample ServiceGenerator").Ctx(ctx).Logger().WithContext(s.comp.Logger.GetCtx())
 
-	trxData := make([]sample.TrxData, 0)
+	trxData := make([]sample.TrxData, 0, s.comp.Config.Data.Reconciliation.TotalData*2)
 	defer func() {
 		_ = s.repo.RepoSample.Close()
 		progressbarhelper.BarClear(bar)
