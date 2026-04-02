@@ -20,10 +20,10 @@ var embedFS embed.FS
 var exitFunc = os.Exit
 
 func main() {
-	exitFunc(mainLogic(os.Stdout, os.Stderr))
+	exitFunc(run(os.Stdout, os.Stderr))
 }
 
-func mainLogic(outPutWriter, errWriter io.Writer) int {
+func run(outPutWriter, errWriter io.Writer) int {
 	var subCommands = []cmd.Cmd{
 		version.NewCommand(outPutWriter, errWriter),
 		sample.NewCommand(variable.AppName, _inject.WireAppFn, &embedFS, outPutWriter, errWriter),

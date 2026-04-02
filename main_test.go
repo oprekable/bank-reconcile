@@ -37,7 +37,7 @@ func TestMainLogic(t *testing.T) {
 		version.Usage,
 	}
 
-	mainLogic(outPutWriter, errWriter)
+	run(outPutWriter, errWriter)
 
 	t.Log("Running app `sample` command")
 	os.Args = []string{
@@ -45,7 +45,7 @@ func TestMainLogic(t *testing.T) {
 		sample.Usage,
 	}
 
-	mainLogic(outPutWriter, errWriter)
+	run(outPutWriter, errWriter)
 
 	t.Log("Running app `process` command")
 	os.Args = []string{
@@ -53,5 +53,5 @@ func TestMainLogic(t *testing.T) {
 		process.Usage,
 	}
 
-	mainLogic(outPutWriter, errWriter)
+	run(outPutWriter, errWriter)
 }
