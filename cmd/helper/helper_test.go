@@ -19,6 +19,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	DateFrom        = "2025-05-01"
+	DateFromInvalid = "2025-05-xx"
+	DateFormat      = "2006-01-02"
+	SystemPath      = "/tmp/sample/system"
+	BankPath        = "/tmp/sample/bank"
+)
+
 func TestCommonPersistentPreRunner(t *testing.T) {
 	type args struct {
 		in0 *cobra.Command
@@ -39,8 +47,8 @@ func TestCommonPersistentPreRunner(t *testing.T) {
 			},
 			trigger: func() {
 				cmd.FlagTZValue = time.UTC.String()
-				cmd.FlagFromDateValue = "2025-05-01"
-				cmd.FlagToDateValue = "2025-05-01"
+				cmd.FlagFromDateValue = DateFrom
+				cmd.FlagToDateValue = DateFrom
 			},
 			wantErr: false,
 		},
@@ -52,7 +60,7 @@ func TestCommonPersistentPreRunner(t *testing.T) {
 			},
 			trigger: func() {
 				cmd.FlagTZValue = time.UTC.String()
-				cmd.FlagFromDateValue = "2025-05-01"
+				cmd.FlagFromDateValue = DateFrom
 				cmd.FlagToDateValue = "2025-04-01"
 			},
 			wantErr: true,
@@ -65,7 +73,7 @@ func TestCommonPersistentPreRunner(t *testing.T) {
 			},
 			trigger: func() {
 				cmd.FlagTZValue = time.UTC.String()
-				cmd.FlagFromDateValue = "2025-05-01"
+				cmd.FlagFromDateValue = DateFrom
 				cmd.FlagToDateValue = "2025-04-xx"
 			},
 			wantErr: true,
@@ -78,7 +86,7 @@ func TestCommonPersistentPreRunner(t *testing.T) {
 			},
 			trigger: func() {
 				cmd.FlagTZValue = time.UTC.String()
-				cmd.FlagFromDateValue = "2025-05-xx"
+				cmd.FlagFromDateValue = DateFromInvalid
 			},
 			wantErr: true,
 		},
@@ -108,7 +116,7 @@ func TestCommonPersistentPreRunner(t *testing.T) {
 
 func TestInitCommonPersistentFlags(t *testing.T) {
 	workDir := filepathhelper.GetWorkDir(filepathhelper.SystemCalls{})
-	dateNow := time.Now().Format("2006-01-02")
+	dateNow := time.Now().Format(DateFormat)
 	bf := &bytes.Buffer{}
 	type args struct {
 		c *cobra.Command
@@ -196,11 +204,11 @@ func TestUpdateCommonConfigFromFlags(t *testing.T) {
 				cmd.FlagIsVerboseValue = true
 				cmd.FlagIsDebugValue = true
 				cmd.FlagIsProfilerActiveValue = true
-				cmd.FlagSystemTRXPathValue = "/tmp/sample/system"
-				cmd.FlagBankTRXPathValue = "/tmp/sample/bank"
+				cmd.FlagSystemTRXPathValue = SystemPath
+				cmd.FlagBankTRXPathValue = BankPath
 				cmd.FlagListBankValue = []string{"foo", "bar"}
-				cmd.FlagFromDateValue = "2025-05-01"
-				cmd.FlagToDateValue = "2025-05-01"
+				cmd.FlagFromDateValue = DateFrom
+				cmd.FlagToDateValue = DateFrom
 			},
 			want: &cconfig.Config{
 				Data: &config.Data{
@@ -211,15 +219,15 @@ func TestUpdateCommonConfigFromFlags(t *testing.T) {
 					},
 					Reconciliation: reconciliation.Reconciliation{
 						FromDate: func() time.Time {
-							t, _ := time.Parse("2006-01-02", "2025-05-01")
+							t, _ := time.Parse(DateFormat, DateFrom)
 							return t
 						}(),
 						ToDate: func() time.Time {
-							t, _ := time.Parse("2006-01-02", "2025-05-01")
+							t, _ := time.Parse(DateFormat, DateFrom)
 							return t
 						}(),
-						SystemTRXPath: "/tmp/sample/system",
-						BankTRXPath:   "/tmp/sample/bank",
+						SystemTRXPath: SystemPath,
+						BankTRXPath:   BankPath,
 						ListBank:      []string{"foo", "bar"},
 					},
 				},
@@ -249,11 +257,11 @@ func TestUpdateCommonConfigFromFlags(t *testing.T) {
 				cmd.FlagIsVerboseValue = true
 				cmd.FlagIsDebugValue = true
 				cmd.FlagIsProfilerActiveValue = true
-				cmd.FlagSystemTRXPathValue = "/tmp/sample/system"
-				cmd.FlagBankTRXPathValue = "/tmp/sample/bank"
+				cmd.FlagSystemTRXPathValue = SystemPath
+				cmd.FlagBankTRXPathValue = BankPath
 				cmd.FlagListBankValue = []string{"foo", "bar"}
-				cmd.FlagFromDateValue = "2025-05-01"
-				cmd.FlagToDateValue = "2025-05-xx"
+				cmd.FlagFromDateValue = DateFrom
+				cmd.FlagToDateValue = DateFromInvalid
 			},
 			want: &cconfig.Config{
 				Data: &config.Data{
@@ -265,8 +273,8 @@ func TestUpdateCommonConfigFromFlags(t *testing.T) {
 					Reconciliation: reconciliation.Reconciliation{
 						FromDate:      time.Time{},
 						ToDate:        time.Time{},
-						SystemTRXPath: "/tmp/sample/system",
-						BankTRXPath:   "/tmp/sample/bank",
+						SystemTRXPath: SystemPath,
+						BankTRXPath:   BankPath,
 						ListBank:      []string{"foo", "bar"},
 					},
 				},
@@ -296,11 +304,11 @@ func TestUpdateCommonConfigFromFlags(t *testing.T) {
 				cmd.FlagIsVerboseValue = true
 				cmd.FlagIsDebugValue = true
 				cmd.FlagIsProfilerActiveValue = true
-				cmd.FlagSystemTRXPathValue = "/tmp/sample/system"
-				cmd.FlagBankTRXPathValue = "/tmp/sample/bank"
+				cmd.FlagSystemTRXPathValue = SystemPath
+				cmd.FlagBankTRXPathValue = BankPath
 				cmd.FlagListBankValue = []string{"foo", "bar"}
-				cmd.FlagFromDateValue = "2025-05-xx"
-				cmd.FlagToDateValue = "2025-05-01"
+				cmd.FlagFromDateValue = DateFromInvalid
+				cmd.FlagToDateValue = DateFrom
 			},
 			want: &cconfig.Config{
 				Data: &config.Data{
@@ -312,11 +320,11 @@ func TestUpdateCommonConfigFromFlags(t *testing.T) {
 					Reconciliation: reconciliation.Reconciliation{
 						FromDate: time.Time{},
 						ToDate: func() time.Time {
-							t, _ := time.Parse("2006-01-02", "2025-05-01")
+							t, _ := time.Parse(DateFormat, DateFrom)
 							return t
 						}(),
-						SystemTRXPath: "/tmp/sample/system",
-						BankTRXPath:   "/tmp/sample/bank",
+						SystemTRXPath: SystemPath,
+						BankTRXPath:   BankPath,
 						ListBank:      []string{"foo", "bar"},
 					},
 				},

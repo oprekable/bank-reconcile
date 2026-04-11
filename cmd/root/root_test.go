@@ -13,7 +13,10 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const EXAMPLE_STRING = "example string"
+const (
+	ExampleString = "example string"
+	FOO           = "foo foo foo"
+)
 
 func TestCmdRootInit(t *testing.T) {
 	type fields struct {
@@ -52,7 +55,7 @@ func TestCmdRootInit(t *testing.T) {
 						Maybe()
 					m.On(
 						"Example",
-					).Return(EXAMPLE_STRING).
+					).Return(ExampleString).
 						Maybe()
 
 					return []cmd.Cmd{
@@ -64,7 +67,7 @@ func TestCmdRootInit(t *testing.T) {
 				metaData: &cmd.MetaData{
 					Usage: "foo",
 					Short: "f",
-					Long:  "foo foo foo",
+					Long:  FOO,
 				},
 			},
 			want: func() *cobra.Command {
@@ -72,10 +75,10 @@ func TestCmdRootInit(t *testing.T) {
 
 				c.c.Use = "foo"
 				c.c.Short = "f"
-				c.c.Long = "foo foo foo"
+				c.c.Long = FOO
 				c.c.RunE = c.Runner
 
-				c.c.Example = EXAMPLE_STRING
+				c.c.Example = ExampleString
 
 				c.c.SetOut(&bytes.Buffer{})
 				c.c.SetErr(&bytes.Buffer{})
@@ -200,7 +203,7 @@ func TestCmdRootRunner(t *testing.T) {
 
 						m.On(
 							"Example",
-						).Return(EXAMPLE_STRING).
+						).Return(ExampleString).
 							Maybe()
 
 						return m
@@ -238,7 +241,7 @@ Additional help topics:
 				&cmd.MetaData{
 					Usage: "foo",
 					Short: "f",
-					Long:  "foo foo foo",
+					Long:  FOO,
 				},
 			)
 
@@ -333,12 +336,12 @@ func TestCmdRootExample(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				c: &cobra.Command{
-					Example: EXAMPLE_STRING,
+					Example: ExampleString,
 				},
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
 			},
-			want: EXAMPLE_STRING,
+			want: ExampleString,
 		},
 	}
 

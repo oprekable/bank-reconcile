@@ -11,6 +11,10 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/app/config/core"
 )
 
+const (
+	DBMemory = ":memory:"
+)
+
 func TestProviderDBSqlite(t *testing.T) {
 	var bf bytes.Buffer
 	type args struct {
@@ -40,11 +44,11 @@ func TestProviderDBSqlite(t *testing.T) {
 					Data: &config.Data{
 						Sqlite: core.Sqlite{
 							Write: core.SqliteParameters{
-								DBPath:    ":memory:",
+								DBPath:    DBMemory,
 								IsEnabled: true,
 							},
 							Read: core.SqliteParameters{
-								DBPath:    ":memory:",
+								DBPath:    DBMemory,
 								IsEnabled: true,
 							},
 							IsEnabled: true,
@@ -56,8 +60,8 @@ func TestProviderDBSqlite(t *testing.T) {
 					&bf,
 				),
 				bBPath: DBPath{
-					ReadDBPath:  ":memory:",
-					WriteDBPath: ":memory:",
+					ReadDBPath:  DBMemory,
+					WriteDBPath: DBMemory,
 				},
 			},
 			wantErr: false,

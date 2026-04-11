@@ -35,7 +35,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const EXAMPLE_STRING = "example string"
+const (
+	ExampleString = "example string"
+	DateFrom      = "2025-05-01"
+)
 
 var wireApp = func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz cconfig.TimeZone, errType []core.ErrorType, isShowLog clogger.IsShowLog, dBPath csqlite.DBPath) (*appcontext.AppContext, func(), error) {
 	return &appcontext.AppContext{}, nil, nil
@@ -99,7 +102,7 @@ func TestCmdProcessInit(t *testing.T) {
 
 						m.On(
 							"Example",
-						).Return(EXAMPLE_STRING).
+						).Return(ExampleString).
 							Maybe()
 
 						return m
@@ -190,8 +193,8 @@ func TestCmdProcessPersistentPreRunner(t *testing.T) {
 				cmd.FlagTotalDataSampleToGenerateValue = 1000
 				cmd.FlagPercentageMatchSampleToGenerateValue = 100
 				cmd.FlagTZValue = time.UTC.String()
-				cmd.FlagFromDateValue = "2025-05-01"
-				cmd.FlagToDateValue = "2025-05-01"
+				cmd.FlagFromDateValue = DateFrom
+				cmd.FlagToDateValue = DateFrom
 			},
 			wantErr: false,
 		},
@@ -206,7 +209,7 @@ func TestCmdProcessPersistentPreRunner(t *testing.T) {
 				cmd.FlagPercentageMatchSampleToGenerateValue = 100
 				cmd.FlagTZValue = time.UTC.String()
 				cmd.FlagFromDateValue = "2025-05-xx"
-				cmd.FlagToDateValue = "2025-05-01"
+				cmd.FlagToDateValue = DateFrom
 			},
 			wantErr: true,
 		},
@@ -325,8 +328,8 @@ func TestCmdProcessRunner(t *testing.T) {
 				cmd.FlagBankTRXPathValue = "/tmp/sample/bank"
 				cmd.FlagReportTRXPathValue = "/tmp/report"
 				cmd.FlagListBankValue = []string{"foo", "bar"}
-				cmd.FlagFromDateValue = "2025-05-01"
-				cmd.FlagToDateValue = "2025-05-01"
+				cmd.FlagFromDateValue = DateFrom
+				cmd.FlagToDateValue = DateFrom
 			},
 			wantErr: false,
 		},
@@ -346,8 +349,10 @@ func TestCmdProcessRunner(t *testing.T) {
 				outPutWriter: nil,
 				errWriter:    nil,
 			},
-			args:    args{},
-			trigger: func() {},
+			args: args{},
+			trigger: func() {
+				// Do nothing
+			},
 			wantErr: true,
 		},
 		{
@@ -414,7 +419,7 @@ func TestCmdProcessRunner(t *testing.T) {
 				cmd.FlagReportTRXPathValue = "/tmp/report"
 				cmd.FlagListBankValue = []string{"foo", "bar"}
 				cmd.FlagFromDateValue = "2025-05-xx"
-				cmd.FlagToDateValue = "2025-05-01"
+				cmd.FlagToDateValue = DateFrom
 			},
 			wantErr: true,
 		},
@@ -609,7 +614,7 @@ func TestCmdProcessExample(t *testing.T) {
 					Short:         Short,
 					Long:          Long,
 					Aliases:       Aliases,
-					Example:       EXAMPLE_STRING,
+					Example:       ExampleString,
 					SilenceErrors: true,
 					SilenceUsage:  true,
 				},
@@ -618,7 +623,7 @@ func TestCmdProcessExample(t *testing.T) {
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
 			},
-			want: EXAMPLE_STRING,
+			want: ExampleString,
 		},
 	}
 
