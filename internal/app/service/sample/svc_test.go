@@ -35,6 +35,13 @@ import (
 	"go.chromium.org/luci/common/clock/testclock"
 )
 
+const (
+	UniqueUUID  = "bca-5585fa85a971917b48ea2729bcf7d9fb"
+	TrxDateTime = "2025-03-06 17:09:21"
+	TrxDate     = "2025-03-06"
+	FileCSVPath = "/foo.csv"
+)
+
 func TestNewSvc(t *testing.T) {
 	ctx := context.Background()
 	type args struct {
@@ -98,7 +105,6 @@ func TestNewSvc(t *testing.T) {
 		})
 	}
 }
-
 func TestSvcGenerateSample(t *testing.T) {
 	ctx := context.Background()
 	var bf bytes.Buffer
@@ -170,11 +176,11 @@ func TestSvcGenerateSample(t *testing.T) {
 							[]sample.TrxData{
 								{
 									TrxID:            "006630c83821fac6bea13b92b480feb2",
-									UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
+									UniqueIdentifier: UniqueUUID,
 									Type:             "DEBIT",
 									Bank:             "bca",
-									TransactionTime:  "2025-03-06 17:09:21",
-									Date:             "2025-03-06",
+									TransactionTime:  TrxDateTime,
+									Date:             TrxDate,
 									IsSystemTrx:      true,
 									IsBankTrx:        true,
 									Amount:           0,
@@ -296,7 +302,7 @@ func TestSvcAppendExecutor(t *testing.T) {
 					f := afero.NewMemMapFs()
 					return f
 				}(),
-				filePath:          "/foo.csv",
+				filePath:          FileCSVPath,
 				trxDataSlice:      nil,
 				isDeleteDirectory: false,
 			},
@@ -313,7 +319,7 @@ func TestSvcAppendExecutor(t *testing.T) {
 					f := afero.NewMemMapFs()
 					return f
 				}(),
-				filePath: "/foo.csv",
+				filePath: FileCSVPath,
 				trxDataSlice: func() []banks.BankTrxDataInterface {
 					return []banks.BankTrxDataInterface{
 						&entitybca.CSVBankTrxData{
@@ -339,7 +345,7 @@ func TestSvcAppendExecutor(t *testing.T) {
 					f := afero.NewMemMapFs()
 					return f
 				}(),
-				filePath: "/foo.csv",
+				filePath: FileCSVPath,
 				trxDataSlice: func() []banks.BankTrxDataInterface {
 					return []banks.BankTrxDataInterface{
 						&entitybni.CSVBankTrxData{
@@ -365,7 +371,7 @@ func TestSvcAppendExecutor(t *testing.T) {
 					f := afero.NewMemMapFs()
 					return f
 				}(),
-				filePath: "/foo.csv",
+				filePath: FileCSVPath,
 				trxDataSlice: func() []banks.BankTrxDataInterface {
 					return []banks.BankTrxDataInterface{
 						&entitydefaultbank.CSVBankTrxData{
@@ -533,11 +539,11 @@ func TestSvcParse(t *testing.T) {
 			args: args{
 				data: sample.TrxData{
 					TrxID:            "006630c83821fac6bea13b92b480feb2",
-					UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
+					UniqueIdentifier: UniqueUUID,
 					Type:             "DEBIT",
 					Bank:             "bca",
-					TransactionTime:  "2025-03-06 17:09:21",
-					Date:             "2025-03-06",
+					TransactionTime:  TrxDateTime,
+					Date:             TrxDate,
 					IsSystemTrx:      true,
 					IsBankTrx:        true,
 					Amount:           41000,
@@ -545,13 +551,13 @@ func TestSvcParse(t *testing.T) {
 			},
 			wantSystemTrxData: &default_system.CSVSystemTrxData{
 				TrxID:           "006630c83821fac6bea13b92b480feb2",
-				TransactionTime: "2025-03-06 17:09:21",
+				TransactionTime: TrxDateTime,
 				Type:            "DEBIT",
 				Amount:          41000,
 			},
 			wantBankTrxData: &entitybca.CSVBankTrxData{
-				BCAUniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
-				BCADate:             "2025-03-06",
+				BCAUniqueIdentifier: UniqueUUID,
+				BCADate:             TrxDate,
 				BCAAmount:           -41000,
 				BCABank:             "bca",
 			},
@@ -568,8 +574,8 @@ func TestSvcParse(t *testing.T) {
 					UniqueIdentifier: "bni-5585fa85a971917b48ea2729bcf7d9fb",
 					Type:             "DEBIT",
 					Bank:             "bni",
-					TransactionTime:  "2025-03-06 17:09:21",
-					Date:             "2025-03-06",
+					TransactionTime:  TrxDateTime,
+					Date:             TrxDate,
 					IsSystemTrx:      true,
 					IsBankTrx:        true,
 					Amount:           41000,
@@ -577,13 +583,13 @@ func TestSvcParse(t *testing.T) {
 			},
 			wantSystemTrxData: &default_system.CSVSystemTrxData{
 				TrxID:           "006630c83821fac6bea13b92b480feb2",
-				TransactionTime: "2025-03-06 17:09:21",
+				TransactionTime: TrxDateTime,
 				Type:            "DEBIT",
 				Amount:          41000,
 			},
 			wantBankTrxData: &entitybni.CSVBankTrxData{
 				BNIUniqueIdentifier: "bni-5585fa85a971917b48ea2729bcf7d9fb",
-				BNIDate:             "2025-03-06",
+				BNIDate:             TrxDate,
 				BNIAmount:           -41000,
 				BNIBank:             "bni",
 			},
@@ -600,8 +606,8 @@ func TestSvcParse(t *testing.T) {
 					UniqueIdentifier: "foo-5585fa85a971917b48ea2729bcf7d9fb",
 					Type:             "DEBIT",
 					Bank:             "foo",
-					TransactionTime:  "2025-03-06 17:09:21",
-					Date:             "2025-03-06",
+					TransactionTime:  TrxDateTime,
+					Date:             TrxDate,
 					IsSystemTrx:      true,
 					IsBankTrx:        true,
 					Amount:           41000,
@@ -609,13 +615,13 @@ func TestSvcParse(t *testing.T) {
 			},
 			wantSystemTrxData: &default_system.CSVSystemTrxData{
 				TrxID:           "006630c83821fac6bea13b92b480feb2",
-				TransactionTime: "2025-03-06 17:09:21",
+				TransactionTime: TrxDateTime,
 				Type:            "DEBIT",
 				Amount:          41000,
 			},
 			wantBankTrxData: &entitydefaultbank.CSVBankTrxData{
 				DefaultUniqueIdentifier: "foo-5585fa85a971917b48ea2729bcf7d9fb",
-				DefaultDate:             "2025-03-06",
+				DefaultDate:             TrxDate,
 				DefaultAmount:           -41000,
 				DefaultBank:             "foo",
 			},

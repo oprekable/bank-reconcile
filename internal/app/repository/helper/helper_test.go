@@ -16,11 +16,26 @@ const (
 	StringRandom         = "random string"
 	TwoBar               = "two Bar"
 	TwoFaz               = "two Faz"
+	QueryInsertFooBarBaz = "INSERT INTO Foo(Bar, Faz) VALUES(?, ?)"
+	OneBar               = "one Bar"
+	OneFaz               = "one Faz"
 )
 
 type Foo struct {
 	Bar string `db:"Bar"`
 	Faz string `db:"Faz"`
+}
+
+type argsQueryContext struct {
+	db       *sql.DB
+	stmtMap  map[string]*sql.Stmt
+	stmtData StmtData
+}
+type testCaseQueryContext[out any] struct {
+	wantReturnData out
+	name           string
+	args           argsQueryContext
+	wantErr        bool
 }
 
 func TestCommitOrRollback(t *testing.T) {
@@ -101,12 +116,6 @@ func TestCommitOrRollback(t *testing.T) {
 		})
 	}
 }
-
-const (
-	QueryInsertFooBarBaz = "INSERT INTO Foo(Bar, Faz) VALUES(?, ?)"
-	OneBar               = "one Bar"
-	OneFaz               = "one Faz"
-)
 
 func TestExecTxQueries(t *testing.T) {
 	type args struct {
@@ -202,24 +211,29 @@ func TestExecTxQueries(t *testing.T) {
 	}
 }
 
+func runQueryContextTest[out any](t *testing.T, tt testCaseQueryContext[out]) {
+	gotReturnData, err := QueryContext[out](context.Background(), tt.args.db, tt.args.stmtMap, tt.args.stmtData)
+	t.Cleanup(func() {
+		if tt.args.db != nil {
+			_ = tt.args.db.Close()
+		}
+	})
+
+	if (err != nil) != tt.wantErr {
+		t.Errorf("QueryContext() error = %v, wantErr %v", err, tt.wantErr)
+		return
+	}
+	if !reflect.DeepEqual(gotReturnData, tt.wantReturnData) {
+		t.Errorf("QueryContext() gotReturnData = %v, want %v", gotReturnData, tt.wantReturnData)
+	}
+}
+
 func TestQueryContext(t *testing.T) {
-	type args struct {
-		db       *sql.DB
-		stmtMap  map[string]*sql.Stmt
-		stmtData StmtData
-	}
 
-	type testCase[out any] struct {
-		wantReturnData out
-		name           string
-		args           args
-		wantErr        bool
-	}
-
-	testsSingleRow := []testCase[Foo]{
+	testsSingleRow := []testCaseQueryContext[Foo]{
 		{
 			name: "Ok - single row",
-			args: args{
+			args: argsQueryContext{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
@@ -245,7 +259,7 @@ func TestQueryContext(t *testing.T) {
 		},
 		{
 			name: "Error sql.ErrNoRows - single row",
-			args: args{
+			args: argsQueryContext{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
@@ -265,7 +279,7 @@ func TestQueryContext(t *testing.T) {
 		},
 		{
 			name: "Error sql.ErrConnDone - single row",
-			args: args{
+			args: argsQueryContext{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
@@ -285,7 +299,7 @@ func TestQueryContext(t *testing.T) {
 		},
 		{
 			name: "Error db nil",
-			args: args{
+			args: argsQueryContext{
 				db:       nil,
 				stmtMap:  make(map[string]*sql.Stmt),
 				stmtData: StmtData{},
@@ -295,10 +309,10 @@ func TestQueryContext(t *testing.T) {
 		},
 	}
 
-	testsMultipleRow := []testCase[[]Foo]{
+	testsMultipleRow := []testCaseQueryContext[[]Foo]{
 		{
 			name: "Ok - multiple rows",
-			args: args{
+			args: argsQueryContext{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
@@ -330,7 +344,7 @@ func TestQueryContext(t *testing.T) {
 		},
 		{
 			name: "Error sql.ErrNoRows - multiple rows",
-			args: args{
+			args: argsQueryContext{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
@@ -352,39 +366,13 @@ func TestQueryContext(t *testing.T) {
 
 	for _, tt := range testsSingleRow {
 		t.Run(tt.name, func(t *testing.T) {
-			gotReturnData, err := QueryContext[Foo](context.Background(), tt.args.db, tt.args.stmtMap, tt.args.stmtData)
-			t.Cleanup(func() {
-				if tt.args.db != nil {
-					_ = tt.args.db.Close()
-				}
-			})
-
-			if (err != nil) != tt.wantErr {
-				t.Errorf("QueryContext() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(gotReturnData, tt.wantReturnData) {
-				t.Errorf("QueryContext() gotReturnData = %v, want %v", gotReturnData, tt.wantReturnData)
-			}
+			runQueryContextTest[Foo](t, tt)
 		})
 	}
 
 	for _, tt := range testsMultipleRow {
 		t.Run(tt.name, func(t *testing.T) {
-			gotReturnData, err := QueryContext[[]Foo](context.Background(), tt.args.db, tt.args.stmtMap, tt.args.stmtData)
-			t.Cleanup(func() {
-				if tt.args.db != nil {
-					_ = tt.args.db.Close()
-				}
-			})
-
-			if (err != nil) != tt.wantErr {
-				t.Errorf("QueryContext() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(gotReturnData, tt.wantReturnData) {
-				t.Errorf("QueryContext() gotReturnData = %v, want %v", gotReturnData, tt.wantReturnData)
-			}
+			runQueryContextTest[[]Foo](t, tt)
 		})
 	}
 }
