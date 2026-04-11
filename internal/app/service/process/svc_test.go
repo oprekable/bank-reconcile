@@ -44,9 +44,15 @@ const (
 	DateTo         = "2025-03-09"
 	DateSample     = "2025-03-04"
 	DateFormat     = "2006-01-02"
+	DateTimeFormat = "2006-01-02 15:04:05"
 	SystemCsvFile  = "/system/foo1.csv"
 	BankBcaCsvFile = "/bank/bca/any_string.csv"
 	BankBniCsvFile = "/bank/bni/any_string.csv"
+	BCAUniqueUUID  = "bca-5585fa85a971917b48ea2729bcf7d9fb"
+	BNIUniqueUUID  = "bni-5f4b1bdf10332ea307813ce402f3d7d4"
+	TrxDateTimeOne = "2025-03-06 17:09:21"
+	TrxDateTimeTwo = "2025-03-07 10:18:29"
+	FileCSVPath    = "/random_string/bca/any_string.csv"
 )
 
 // newTestParserRegistry is a helper function to create a parser registry for testing purposes.
@@ -708,8 +714,8 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 							[]process.MatchedTrx{
 								{
 									SystemTrxTrxID:           "006630c83821fac6bea13b92b480feb2",
-									BankTrxUniqueIdentifier:  "bca-5585fa85a971917b48ea2729bcf7d9fb",
-									SystemTrxTransactionTime: "2025-03-06 17:09:21",
+									BankTrxUniqueIdentifier:  BCAUniqueUUID,
+									SystemTrxTransactionTime: TrxDateTimeOne,
 									BankTrxDate:              DateFrom,
 									SystemTrxType:            "DEBIT",
 									Bank:                     "bca",
@@ -775,8 +781,8 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 							[]process.MatchedTrx{
 								{
 									SystemTrxTrxID:           "006630c83821fac6bea13b92b480feb2",
-									BankTrxUniqueIdentifier:  "bca-5585fa85a971917b48ea2729bcf7d9fb",
-									SystemTrxTransactionTime: "2025-03-06 17:09:21",
+									BankTrxUniqueIdentifier:  BCAUniqueUUID,
+									SystemTrxTransactionTime: TrxDateTimeOne,
 									BankTrxDate:              DateFrom,
 									SystemTrxType:            "DEBIT",
 									Bank:                     "bca",
@@ -794,7 +800,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 							[]process.NotMatchedSystemTrx{
 								{
 									TrxID:           "006630c83821fac6bea13b92b480feb2",
-									TransactionTime: "2025-03-06 17:09:21",
+									TransactionTime: TrxDateTimeOne,
 									Type:            "DEBIT",
 									Amount:          41000,
 								},
@@ -857,8 +863,8 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 							[]process.MatchedTrx{
 								{
 									SystemTrxTrxID:           "006630c83821fac6bea13b92b480feb2",
-									BankTrxUniqueIdentifier:  "bca-5585fa85a971917b48ea2729bcf7d9fb",
-									SystemTrxTransactionTime: "2025-03-06 17:09:21",
+									BankTrxUniqueIdentifier:  BCAUniqueUUID,
+									SystemTrxTransactionTime: TrxDateTimeOne,
 									BankTrxDate:              DateFrom,
 									SystemTrxType:            "DEBIT",
 									Bank:                     "bca",
@@ -876,7 +882,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 							[]process.NotMatchedSystemTrx{
 								{
 									TrxID:           "006630c83821fac6bea13b92b480feb2",
-									TransactionTime: "2025-03-06 17:09:21",
+									TransactionTime: TrxDateTimeOne,
 									Type:            "DEBIT",
 									Amount:          41000,
 								},
@@ -890,7 +896,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						).Return(
 							[]process.NotMatchedBankTrx{
 								{
-									UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
+									UniqueIdentifier: BCAUniqueUUID,
 									Bank:             "bca",
 									Date:             DateFrom,
 									Amount:           41000,
@@ -950,8 +956,8 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 							[]process.MatchedTrx{
 								{
 									SystemTrxTrxID:           "006630c83821fac6bea13b92b480feb2",
-									BankTrxUniqueIdentifier:  "bca-5585fa85a971917b48ea2729bcf7d9fb",
-									SystemTrxTransactionTime: "2025-03-06 17:09:21",
+									BankTrxUniqueIdentifier:  BCAUniqueUUID,
+									SystemTrxTransactionTime: TrxDateTimeOne,
 									BankTrxDate:              DateFrom,
 									SystemTrxType:            "DEBIT",
 									Bank:                     "bca",
@@ -969,7 +975,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 							[]process.NotMatchedSystemTrx{
 								{
 									TrxID:           "006630c83821fac6bea13b92b480feb2",
-									TransactionTime: "2025-03-06 17:09:21",
+									TransactionTime: TrxDateTimeOne,
 									Type:            "DEBIT",
 									Amount:          41000,
 								},
@@ -983,7 +989,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						).Return(
 							[]process.NotMatchedBankTrx{
 								{
-									UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
+									UniqueIdentifier: BCAUniqueUUID,
 									Bank:             "bca",
 									Date:             DateFrom,
 									Amount:           41000,
@@ -1238,18 +1244,18 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 			args: args{
 				data: []*banks.BankTrxData{
 					{
-						UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
+						UniqueIdentifier: BCAUniqueUUID,
 						Date: func() time.Time {
 							t, _ := time.Parse(DateFormat, DateFrom)
 							return t
 						}(),
 						Type:     "CREDIT",
 						Bank:     "BCA",
-						FilePath: "/random_string/bca/any_string.csv",
+						FilePath: FileCSVPath,
 						Amount:   7700,
 					},
 					{
-						UniqueIdentifier: "bni-5f4b1bdf10332ea307813ce402f3d7d4",
+						UniqueIdentifier: BNIUniqueUUID,
 						Date: func() time.Time {
 							t, _ := time.Parse(DateFormat, DateTo)
 							return t
@@ -1302,18 +1308,18 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 			args: args{
 				data: []*banks.BankTrxData{
 					{
-						UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
+						UniqueIdentifier: BCAUniqueUUID,
 						Date: func() time.Time {
 							t, _ := time.Parse(DateFormat, DateFrom)
 							return t
 						}(),
 						Type:     "CREDIT",
 						Bank:     "BCA",
-						FilePath: "/random_string/bca/any_string.csv",
+						FilePath: FileCSVPath,
 						Amount:   7700,
 					},
 					{
-						UniqueIdentifier: "bni-5f4b1bdf10332ea307813ce402f3d7d4",
+						UniqueIdentifier: BNIUniqueUUID,
 						Date: func() time.Time {
 							t, _ := time.Parse(DateFormat, DateTo)
 							return t
@@ -1523,7 +1529,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 					{
 						TrxID: "0066a6264a3b04ac25bd93eed2cb3c6c",
 						TransactionTime: func() time.Time {
-							t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-07 10:18:29")
+							t, _ := time.Parse(DateTimeFormat, TrxDateTimeTwo)
 							return t
 						}(),
 						Type:     "CREDIT",
@@ -1533,7 +1539,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 					{
 						TrxID: "006630c83821fac6bea13b92b480feb2",
 						TransactionTime: func() time.Time {
-							t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-11 17:09:21")
+							t, _ := time.Parse(DateTimeFormat, "2025-03-11 17:09:21")
 							return t
 						}(),
 						Type:     "DEBIT",
@@ -1585,7 +1591,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 					{
 						TrxID: "0066a6264a3b04ac25bd93eed2cb3c6c",
 						TransactionTime: func() time.Time {
-							t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-07 10:18:29")
+							t, _ := time.Parse(DateTimeFormat, TrxDateTimeTwo)
 							return t
 						}(),
 						Type:     "CREDIT",
@@ -1595,7 +1601,7 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 					{
 						TrxID: "006630c83821fac6bea13b92b480feb2",
 						TransactionTime: func() time.Time {
-							t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-11 17:09:21")
+							t, _ := time.Parse(DateTimeFormat, "2025-03-11 17:09:21")
 							return t
 						}(),
 						Type:     "DEBIT",
@@ -1720,7 +1726,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					{
 						TrxID: "006630c83821fac6bea13b92b480feb2",
 						TransactionTime: func() time.Time {
-							t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-06 17:09:21")
+							t, _ := time.Parse(DateTimeFormat, TrxDateTimeOne)
 							return t
 						}(),
 						Type:     "DEBIT",
@@ -1730,7 +1736,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					{
 						TrxID: "0066a6264a3b04ac25bd93eed2cb3c6c",
 						TransactionTime: func() time.Time {
-							t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-07 10:18:29")
+							t, _ := time.Parse(DateTimeFormat, TrxDateTimeTwo)
 							return t
 						}(),
 						Type:     "CREDIT",
@@ -1740,7 +1746,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					{
 						TrxID: "0066a6264a3b04ac25bd93eed2cb3aaa",
 						TransactionTime: func() time.Time {
-							t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-07 10:18:29")
+							t, _ := time.Parse(DateTimeFormat, TrxDateTimeTwo)
 							return t
 						}(),
 						Type:     "CREDIT",
@@ -1750,7 +1756,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				},
 				BankTrx: []*banks.BankTrxData{
 					{
-						UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
+						UniqueIdentifier: BCAUniqueUUID,
 						Date: func() time.Time {
 							t, _ := time.Parse(DateFormat, DateFrom)
 							return t
@@ -1861,7 +1867,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 					Amount:   71700,
 				},
 				{
-					UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
+					UniqueIdentifier: BCAUniqueUUID,
 					Date: func() time.Time {
 						t, _ := time.Parse(DateFormat, DateFrom)
 						return t
@@ -1925,7 +1931,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					Amount:   79500,
 				},
 				{
-					UniqueIdentifier: "bni-5f4b1bdf10332ea307813ce402f3d7d4",
+					UniqueIdentifier: BNIUniqueUUID,
 					Date: func() time.Time {
 						t, _ := time.Parse(DateFormat, DateTo)
 						return t
@@ -2173,7 +2179,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 			},
 			wantReturnData: []*banks.BankTrxData{
 				{
-					UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
+					UniqueIdentifier: BCAUniqueUUID,
 					Date: func() time.Time {
 						t, _ := time.Parse(DateFormat, DateFrom)
 						return t
@@ -2184,7 +2190,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					Amount:   7700,
 				},
 				{
-					UniqueIdentifier: "bni-5f4b1bdf10332ea307813ce402f3d7d4",
+					UniqueIdentifier: BNIUniqueUUID,
 					Date: func() time.Time {
 						t, _ := time.Parse(DateFormat, DateTo)
 						return t
@@ -2227,7 +2233,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 			args: args{
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
-					fooFile, _ := f.Create("/random_string/bca/any_string.csv")
+					fooFile, _ := f.Create(FileCSVPath)
 					_, _ = fooFile.Write([]byte(
 						`BCAUniqueIdentifier,BCADate,BCAAmount
 bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
@@ -2332,7 +2338,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 				{
 					TrxID: "006630c83821fac6bea13b92b480feb2",
 					TransactionTime: func() time.Time {
-						t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-11 17:09:21")
+						t, _ := time.Parse(DateTimeFormat, "2025-03-11 17:09:21")
 						return t
 					}(),
 					Type:     "DEBIT",
@@ -2342,7 +2348,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 				{
 					TrxID: "0066a6264a3b04ac25bd93eed2cb3c6c",
 					TransactionTime: func() time.Time {
-						t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-07 10:18:29")
+						t, _ := time.Parse(DateTimeFormat, TrxDateTimeTwo)
 						return t
 					}(),
 					Type:     "CREDIT",
@@ -2477,7 +2483,7 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 				{
 					TrxID: "0066a6264a3b04ac25bd93eed2cb3c6c",
 					TransactionTime: func() time.Time {
-						t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-07 10:18:29")
+						t, _ := time.Parse(DateTimeFormat, TrxDateTimeTwo)
 						return t
 					}(),
 					Type:     "CREDIT",
@@ -2487,7 +2493,7 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 				{
 					TrxID: "006630c83821fac6bea13b92b480feb2",
 					TransactionTime: func() time.Time {
-						t, _ := time.Parse("2006-01-02 15:04:05", "2025-03-11 17:09:21")
+						t, _ := time.Parse(DateTimeFormat, "2025-03-11 17:09:21")
 						return t
 					}(),
 					Type:     "DEBIT",

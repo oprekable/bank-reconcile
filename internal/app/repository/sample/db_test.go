@@ -11,6 +11,12 @@ import (
 	"github.com/aaronjan/hunch"
 )
 
+const (
+	StartDate  = "2025-02-28"
+	EndDate    = "2025-02-27"
+	DateFormat = "2006-01-02"
+)
+
 func TestDBClose(t *testing.T) {
 	type fields struct {
 		db      *sql.DB
@@ -263,8 +269,8 @@ func TestDBPre(t *testing.T) {
 					s.ExpectPrepare(QueryCreateTableArguments).
 						ExpectExec().
 						WithArgs(
-							"2025-02-28",
-							"2025-02-27",
+							StartDate,
+							EndDate,
 							"1000",
 							"100",
 						).
@@ -297,11 +303,11 @@ func TestDBPre(t *testing.T) {
 					"bar",
 				},
 				startDate: func() time.Time {
-					r, _ := time.Parse("2006-01-02", "2025-02-28")
+					r, _ := time.Parse(DateFormat, StartDate)
 					return r
 				}(),
 				toDate: func() time.Time {
-					r, _ := time.Parse("2006-01-02", "2025-02-27")
+					r, _ := time.Parse(DateFormat, EndDate)
 					return r
 				}(),
 				limitTrxData:    1000,
@@ -355,8 +361,8 @@ func TestDBCreateTables(t *testing.T) {
 					s.ExpectPrepare(QueryCreateTableArguments).
 						ExpectExec().
 						WithArgs(
-							"2025-02-28",
-							"2025-02-27",
+							StartDate,
+							EndDate,
 							"1000",
 							"100",
 						).
@@ -389,11 +395,11 @@ func TestDBCreateTables(t *testing.T) {
 					"bar",
 				},
 				startDate: func() time.Time {
-					r, _ := time.Parse("2006-01-02", "2025-02-28")
+					r, _ := time.Parse(DateFormat, StartDate)
 					return r
 				}(),
 				toDate: func() time.Time {
-					r, _ := time.Parse("2006-01-02", "2025-02-27")
+					r, _ := time.Parse(DateFormat, EndDate)
 					return r
 				}(),
 				limitTrxData:    1000,
