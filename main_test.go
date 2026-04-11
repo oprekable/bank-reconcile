@@ -22,7 +22,9 @@ func TestMainApp(_ *testing.T) {
 		version.Usage,
 	}
 
-	exitFunc = func(c int) {} // disable exit
+	exitFunc = func(c int) {
+		// disable exit
+	}
 
 	main()
 }

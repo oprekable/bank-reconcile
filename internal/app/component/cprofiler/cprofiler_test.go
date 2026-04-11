@@ -12,6 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	MUTEX_PPROF_FILE     = "./mutex.pprof"
+	CPU_PPROF_FILE       = "./cpu.pprof"
+	MEM_PPROF_FILE       = "./mem.pprof"
+	BLOCK_PPROF_FILE     = "./block.pprof"
+	TRACE_PPROF_FILE     = "./trace.pprof"
+	GOROUTINE_PPROF_FILE = "./goroutine.pprof"
+)
+
 // checkPprofFile checks if input pprof files exist
 func checkPprofFiles(t *testing.T, pprofFilesPath []string) {
 	for _, pprof := range pprofFilesPath {
@@ -102,13 +111,13 @@ func TestProfilerStartProfiler(t *testing.T) {
 			p.StartProfiler()
 
 			checkPprofFiles(t, []string{
-				"./cpu.pprof", "./mem.pprof", "./mutex.pprof", "./block.pprof",
-				"./trace.pprof", "./goroutine.pprof",
+				CPU_PPROF_FILE, MEM_PPROF_FILE, MUTEX_PPROF_FILE, BLOCK_PPROF_FILE,
+				TRACE_PPROF_FILE, GOROUTINE_PPROF_FILE,
 			})
 
 			cleanupPprofFiles(t, []string{
-				"./cpu.pprof", "./mem.pprof", "./mutex.pprof", "./block.pprof",
-				"./trace.pprof", "./goroutine.pprof",
+				CPU_PPROF_FILE, MEM_PPROF_FILE, MUTEX_PPROF_FILE, BLOCK_PPROF_FILE,
+				TRACE_PPROF_FILE, GOROUTINE_PPROF_FILE,
 			})
 
 			got := bf.String()
@@ -154,13 +163,13 @@ func TestProfilerStopProfiler(t *testing.T) {
 			p.StopProfiler()
 
 			checkPprofFiles(t, []string{
-				"./cpu.pprof", "./mem.pprof", "./mutex.pprof", "./block.pprof",
-				"./trace.pprof", "./goroutine.pprof",
+				CPU_PPROF_FILE, MEM_PPROF_FILE, MUTEX_PPROF_FILE, BLOCK_PPROF_FILE,
+				TRACE_PPROF_FILE, GOROUTINE_PPROF_FILE,
 			})
 
 			cleanupPprofFiles(t, []string{
-				"./cpu.pprof", "./mem.pprof", "./mutex.pprof", "./block.pprof",
-				"./trace.pprof", "./goroutine.pprof",
+				CPU_PPROF_FILE, MEM_PPROF_FILE, MUTEX_PPROF_FILE, BLOCK_PPROF_FILE,
+				TRACE_PPROF_FILE, GOROUTINE_PPROF_FILE,
 			})
 
 			got := bf.String()

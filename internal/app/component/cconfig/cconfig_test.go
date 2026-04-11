@@ -555,11 +555,13 @@ func TestInitTimeZone(t *testing.T) {
 				osSetEnv:         os.Setenv,
 				timeLoadLocation: time.LoadLocation,
 			},
-			triggerFunc: func() {}, // nothing to do
-			wantTz:      ASIA_JAKARTA,
-			wantLoc:     ASIA_JAKARTA,
-			wantOffset:  25200,
-			wantErr:     false,
+			triggerFunc: func() {
+				// nothing to do
+			},
+			wantTz:     ASIA_JAKARTA,
+			wantLoc:    ASIA_JAKARTA,
+			wantOffset: 25200,
+			wantErr:    false,
 		},
 		{
 			name: "Ok - diff offset",
