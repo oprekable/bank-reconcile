@@ -35,6 +35,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const EXAMPLE_STRING = "example string"
+
 var wireApp = func(ctx context.Context, embedFS *embed.FS, appName cconfig.AppName, tz cconfig.TimeZone, errType []core.ErrorType, isShowLog clogger.IsShowLog, dBPath csqlite.DBPath) (*appcontext.AppContext, func(), error) {
 	return &appcontext.AppContext{}, nil, nil
 }
@@ -97,7 +99,7 @@ func TestCmdProcessInit(t *testing.T) {
 
 						m.On(
 							"Example",
-						).Return("example string").
+						).Return(EXAMPLE_STRING).
 							Maybe()
 
 						return m
@@ -607,7 +609,7 @@ func TestCmdProcessExample(t *testing.T) {
 					Short:         Short,
 					Long:          Long,
 					Aliases:       Aliases,
-					Example:       "example string",
+					Example:       EXAMPLE_STRING,
 					SilenceErrors: true,
 					SilenceUsage:  true,
 				},
@@ -616,7 +618,7 @@ func TestCmdProcessExample(t *testing.T) {
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
 			},
-			want: "example string",
+			want: EXAMPLE_STRING,
 		},
 	}
 

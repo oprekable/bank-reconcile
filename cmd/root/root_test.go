@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const EXAMPLE_STRING = "example string"
+
 func TestCmdRootInit(t *testing.T) {
 	type fields struct {
 		c            *cobra.Command
@@ -50,7 +52,7 @@ func TestCmdRootInit(t *testing.T) {
 						Maybe()
 					m.On(
 						"Example",
-					).Return("example string").
+					).Return(EXAMPLE_STRING).
 						Maybe()
 
 					return []cmd.Cmd{
@@ -73,7 +75,7 @@ func TestCmdRootInit(t *testing.T) {
 				c.c.Long = "foo foo foo"
 				c.c.RunE = c.Runner
 
-				c.c.Example = "example string"
+				c.c.Example = EXAMPLE_STRING
 
 				c.c.SetOut(&bytes.Buffer{})
 				c.c.SetErr(&bytes.Buffer{})
@@ -198,7 +200,7 @@ func TestCmdRootRunner(t *testing.T) {
 
 						m.On(
 							"Example",
-						).Return("example string").
+						).Return(EXAMPLE_STRING).
 							Maybe()
 
 						return m
@@ -331,12 +333,12 @@ func TestCmdRootExample(t *testing.T) {
 			name: "Ok",
 			fields: fields{
 				c: &cobra.Command{
-					Example: "example string",
+					Example: EXAMPLE_STRING,
 				},
 				outPutWriter: &bytes.Buffer{},
 				errWriter:    &bytes.Buffer{},
 			},
-			want: "example string",
+			want: EXAMPLE_STRING,
 		},
 	}
 

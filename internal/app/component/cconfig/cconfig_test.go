@@ -22,6 +22,8 @@ import (
 //go:embed all:embeds
 var testEmbedFS embed.FS
 
+const ASIA_JAKARTA = "Asia/Jakarta"
+
 func TestConfigGetAppName(t *testing.T) {
 	type fields struct {
 		Data         *config.Data
@@ -89,16 +91,16 @@ func TestConfigGetTimeLocation(t *testing.T) {
 			fields: fields{
 				Data: nil,
 				timeLocation: func() *time.Location {
-					_, loc, _, _ := initTimeZone("Asia/Jakarta")
+					_, loc, _, _ := initTimeZone(ASIA_JAKARTA)
 					return loc
 				}(),
 				appName:     "",
 				workDirPath: "",
-				timeZone:    "Asia/Jakarta",
+				timeZone:    ASIA_JAKARTA,
 				timeOffset:  0,
 			},
 			want: func() *time.Location {
-				_, loc, _, _ := initTimeZone("Asia/Jakarta")
+				_, loc, _, _ := initTimeZone(ASIA_JAKARTA)
 				return loc
 			}(),
 		},
@@ -146,12 +148,12 @@ func TestConfigGetTimeOffset(t *testing.T) {
 				workDirPath:  "",
 				timeZone:     "",
 				timeOffset: func() TimeOffset {
-					_, _, to, _ := initTimeZone("Asia/Jakarta")
+					_, _, to, _ := initTimeZone(ASIA_JAKARTA)
 					return TimeOffset(to)
 				}(),
 			},
 			want: func() TimeOffset {
-				_, _, to, _ := initTimeZone("Asia/Jakarta")
+				_, _, to, _ := initTimeZone(ASIA_JAKARTA)
 				return TimeOffset(to)
 			}(),
 		},
@@ -199,13 +201,13 @@ func TestConfigGetTimeZone(t *testing.T) {
 				appName:      "",
 				workDirPath:  "",
 				timeZone: func() TimeZone {
-					tz, _, _, _ := initTimeZone("Asia/Jakarta")
+					tz, _, _, _ := initTimeZone(ASIA_JAKARTA)
 					return TimeZone(tz)
 				}(),
 				timeOffset: 0,
 			},
 			want: func() TimeZone {
-				tz, _, _, _ := initTimeZone("Asia/Jakarta")
+				tz, _, _, _ := initTimeZone(ASIA_JAKARTA)
 				return TimeZone(tz)
 			}(),
 		},
@@ -374,12 +376,12 @@ is_delete_current_sample_directory = true
 					},
 				},
 				timeLocation: func() *time.Location {
-					_, loc, _, _ := initTimeZone("Asia/Jakarta")
+					_, loc, _, _ := initTimeZone(ASIA_JAKARTA)
 					return loc
 				}(),
 				appName:     "foo",
 				workDirPath: initWorkDirPath(),
-				timeZone:    "Asia/Jakarta",
+				timeZone:    ASIA_JAKARTA,
 				timeOffset:  TimeOffset(25200),
 			},
 			wantErr: false,
@@ -549,27 +551,27 @@ func TestInitTimeZone(t *testing.T) {
 		{
 			name: "Ok",
 			args: args{
-				tzArgs:           TimeZone("Asia/Jakarta"),
+				tzArgs:           TimeZone(ASIA_JAKARTA),
 				osSetEnv:         os.Setenv,
 				timeLoadLocation: time.LoadLocation,
 			},
-			triggerFunc: func() {},
-			wantTz:      "Asia/Jakarta",
-			wantLoc:     "Asia/Jakarta",
+			triggerFunc: func() {}, // nothing to do
+			wantTz:      ASIA_JAKARTA,
+			wantLoc:     ASIA_JAKARTA,
 			wantOffset:  25200,
 			wantErr:     false,
 		},
 		{
 			name: "Ok - diff offset",
 			args: args{
-				tzArgs:   TimeZone("Asia/Jakarta"),
+				tzArgs:   TimeZone(ASIA_JAKARTA),
 				osSetEnv: os.Setenv,
 				timeLoadLocation: func(name string) (*time.Location, error) {
 					return time.LoadLocation("UTC")
 				},
 			},
 			triggerFunc: func() {
-				_ = os.Setenv(TZ, "Asia/Jakarta")
+				_ = os.Setenv(TZ, ASIA_JAKARTA)
 			},
 			wantTz:     "UTC",
 			wantLoc:    "UTC",
@@ -579,7 +581,7 @@ func TestInitTimeZone(t *testing.T) {
 		{
 			name: "Error Setenv",
 			args: args{
-				tzArgs: TimeZone("Asia/Jakarta"),
+				tzArgs: TimeZone(ASIA_JAKARTA),
 				osSetEnv: func(key, value string) error {
 					return errors.New("foo")
 				},
@@ -596,14 +598,14 @@ func TestInitTimeZone(t *testing.T) {
 		{
 			name: "Error LoadLocation",
 			args: args{
-				tzArgs:   TimeZone("Asia/Jakarta"),
+				tzArgs:   TimeZone(ASIA_JAKARTA),
 				osSetEnv: os.Setenv,
 				timeLoadLocation: func(name string) (*time.Location, error) {
 					return nil, errors.New("foo")
 				},
 			},
 			triggerFunc: func() {
-				_ = os.Setenv(TZ, "Asia/Jakarta")
+				_ = os.Setenv(TZ, ASIA_JAKARTA)
 			},
 			wantTz:     "UTC",
 			wantLoc:    "UTC",
