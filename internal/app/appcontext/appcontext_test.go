@@ -320,29 +320,21 @@ func TestNewAppContext(t *testing.T) {
 		},
 	}
 
+	compareAppContextField := func(t *testing.T, got, want interface{}, fieldName string) {
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("NewAppContext() got.%s = %v, want.%s %v", fieldName, got, fieldName, want)
+		}
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, _ := NewAppContext(tt.args.ctx, tt.args.embedFS, tt.args.repository, tt.args.services, tt.args.components, tt.args.servers)
 
-			if !reflect.DeepEqual(got.embedFS, tt.want.embedFS) {
-				t.Errorf("NewAppContext() got.embedFS = %v, want.embedFS %v", got.embedFS, tt.want.embedFS)
-			}
-
-			if !reflect.DeepEqual(got.repositories, tt.want.repositories) {
-				t.Errorf("NewAppContext() got.repositories = %v, want.repositories %v", got.repositories, tt.want.repositories)
-			}
-
-			if !reflect.DeepEqual(got.services, tt.want.services) {
-				t.Errorf("NewAppContext() got.services = %v, want.services %v", got.services, tt.want.services)
-			}
-
-			if !reflect.DeepEqual(got.components, tt.want.components) {
-				t.Errorf("NewAppContext() got.components = %v, want.components %v", got.components, tt.want.components)
-			}
-
-			if !reflect.DeepEqual(got.servers, tt.want.servers) {
-				t.Errorf("NewAppContext() got.servers = %v, want.servers %v", got.servers, tt.want.servers)
-			}
+			compareAppContextField(t, got.embedFS, tt.want.embedFS, "embedFS")
+			compareAppContextField(t, got.repositories, tt.want.repositories, "repositories")
+			compareAppContextField(t, got.services, tt.want.services, "services")
+			compareAppContextField(t, got.components, tt.want.components, "components")
+			compareAppContextField(t, got.servers, tt.want.servers, "servers")
 		})
 	}
 }

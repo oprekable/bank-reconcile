@@ -11,6 +11,13 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
+const (
+	QuerySelectFooBarFaz = "SELECT Bar, Faz FROM Foo WHERE id=?"
+	StringRandom         = "random string"
+	TwoBar               = "two Bar"
+	TwoFaz               = "two Faz"
+)
+
 type Foo struct {
 	Bar string `db:"Bar"`
 	Faz string `db:"Faz"`
@@ -95,6 +102,12 @@ func TestCommitOrRollback(t *testing.T) {
 	}
 }
 
+const (
+	QueryInsertFooBarBaz = "INSERT INTO Foo(Bar, Faz) VALUES(?, ?)"
+	OneBar               = "one Bar"
+	OneFaz               = "one Faz"
+)
+
 func TestExecTxQueries(t *testing.T) {
 	type args struct {
 		db       *sql.DB
@@ -113,11 +126,11 @@ func TestExecTxQueries(t *testing.T) {
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectBegin()
-					s.ExpectPrepare("INSERT INTO Foo(Bar, Faz) VALUES(?, ?)").
+					s.ExpectPrepare(QueryInsertFooBarBaz).
 						ExpectExec().
 						WithArgs(
-							"one Bar",
-							"one Faz",
+							OneBar,
+							OneFaz,
 						).
 						WillReturnResult(sqlmock.NewResult(1, 1))
 					s.ExpectCommit()
@@ -128,10 +141,10 @@ func TestExecTxQueries(t *testing.T) {
 				stmtData: []StmtData{
 					{
 						Name:  "InsertFoo",
-						Query: "INSERT INTO Foo(Bar, Faz) VALUES(?, ?)",
+						Query: QueryInsertFooBarBaz,
 						Args: []any{
-							"one Bar",
-							"one Faz",
+							OneBar,
+							OneFaz,
 						},
 					},
 				},
@@ -144,7 +157,7 @@ func TestExecTxQueries(t *testing.T) {
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 					s.ExpectBegin()
-					s.ExpectPrepare("INSERT INTO Foo(Bar, Faz) VALUES(?, ?)").
+					s.ExpectPrepare(QueryInsertFooBarBaz).
 						WillReturnError(sql.ErrConnDone)
 					s.ExpectRollback()
 
@@ -154,10 +167,10 @@ func TestExecTxQueries(t *testing.T) {
 				stmtData: []StmtData{
 					{
 						Name:  "InsertFoo",
-						Query: "INSERT INTO Foo(Bar, Faz) VALUES(?, ?)",
+						Query: QueryInsertFooBarBaz,
 						Args: []any{
-							"one Bar",
-							"one Faz",
+							OneBar,
+							OneFaz,
 						},
 					},
 				},
@@ -209,24 +222,24 @@ func TestQueryContext(t *testing.T) {
 			args: args{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
-						WithArgs("random string").
+					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
+						WithArgs(StringRandom).
 						WillReturnRows(
 							sqlmock.NewRows([]string{"Bar", "Faz"}).
-								AddRow("one Bar", "one Faz").
-								AddRow("two Bar", "two Faz"))
+								AddRow(OneBar, OneFaz).
+								AddRow(TwoBar, TwoFaz))
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
-					Query: "SELECT Bar, Faz FROM Foo WHERE id=?",
-					Args:  []any{"random string"},
+					Query: QuerySelectFooBarFaz,
+					Args:  []any{StringRandom},
 				},
 			},
 			wantReturnData: Foo{
-				Bar: "one Bar",
-				Faz: "one Faz",
+				Bar: OneBar,
+				Faz: OneFaz,
 			},
 			wantErr: false,
 		},
@@ -235,16 +248,16 @@ func TestQueryContext(t *testing.T) {
 			args: args{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
-						WithArgs("random string").
+					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
+						WithArgs(StringRandom).
 						WillReturnError(sql.ErrNoRows)
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
-					Query: "SELECT Bar, Faz FROM Foo WHERE id=?",
-					Args:  []any{"random string"},
+					Query: QuerySelectFooBarFaz,
+					Args:  []any{StringRandom},
 				},
 			},
 			wantReturnData: Foo{},
@@ -255,16 +268,16 @@ func TestQueryContext(t *testing.T) {
 			args: args{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
-						WithArgs("random string").
+					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
+						WithArgs(StringRandom).
 						WillReturnError(sql.ErrConnDone)
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
-					Query: "SELECT Bar, Faz FROM Foo WHERE id=?",
-					Args:  []any{"random string"},
+					Query: QuerySelectFooBarFaz,
+					Args:  []any{StringRandom},
 				},
 			},
 			wantReturnData: Foo{},
@@ -288,29 +301,29 @@ func TestQueryContext(t *testing.T) {
 			args: args{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
-						WithArgs("random string").
+					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
+						WithArgs(StringRandom).
 						WillReturnRows(
 							sqlmock.NewRows([]string{"Bar", "Faz"}).
-								AddRow("one Bar", "one Faz").
-								AddRow("two Bar", "two Faz"))
+								AddRow(OneBar, OneFaz).
+								AddRow(TwoBar, TwoFaz))
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
-					Query: "SELECT Bar, Faz FROM Foo WHERE id=?",
-					Args:  []any{"random string"},
+					Query: QuerySelectFooBarFaz,
+					Args:  []any{StringRandom},
 				},
 			},
 			wantReturnData: []Foo{
 				{
-					Bar: "one Bar",
-					Faz: "one Faz",
+					Bar: OneBar,
+					Faz: OneFaz,
 				},
 				{
-					Bar: "two Bar",
-					Faz: "two Faz",
+					Bar: TwoBar,
+					Faz: TwoFaz,
 				},
 			},
 			wantErr: false,
@@ -320,16 +333,16 @@ func TestQueryContext(t *testing.T) {
 			args: args{
 				db: func() *sql.DB {
 					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-					s.ExpectPrepare("SELECT Bar, Faz FROM Foo WHERE id=?").ExpectQuery().
-						WithArgs("random string").
+					s.ExpectPrepare(QuerySelectFooBarFaz).ExpectQuery().
+						WithArgs(StringRandom).
 						WillReturnError(sql.ErrNoRows)
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
-					Query: "SELECT Bar, Faz FROM Foo WHERE id=?",
-					Args:  []any{"random string"},
+					Query: QuerySelectFooBarFaz,
+					Args:  []any{StringRandom},
 				},
 			},
 			wantReturnData: nil,

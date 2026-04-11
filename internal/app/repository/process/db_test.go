@@ -15,6 +15,18 @@ import (
 	"github.com/goccy/go-json"
 )
 
+const (
+	TrxDateTimeOne  = "2025-03-15 10:51:52"
+	TrxDateOne      = "2025-03-15"
+	TrxDateTimeTwo  = "2025-03-14 18:29:01"
+	TrxDateTwo      = "2025-03-14"
+	UniqueUUID      = "163af765-0769-467f-8185-8ee7166a0098"
+	FilePath        = "/foo/bar"
+	StartDateString = "2025-02-28"
+	EndDateString   = "2025-02-27"
+	DateFormat      = "2006-01-02"
+)
+
 type Foo struct {
 	Bar string `db:"Bar"`
 	Faz string `db:"Faz"`
@@ -149,8 +161,8 @@ func TestDBGetMatchedTrx(t *testing.T) {
 					s.ExpectPrepare(QueryGetMatchedTrx).ExpectQuery().
 						WillReturnRows(
 							sqlmock.NewRows([]string{"SystemTrxTrxID", "BankTrxUniqueIdentifier", "SystemTrxTransactionTime", "BankTrxDate", "SystemTrxType", "Bank", "SystemTrxAmount", "BankTrxAmount"}).
-								AddRow("0012d068c53eb0971fc8563343c5d81f", "foo-0012d068c53eb0971fc8563343c5d81f", "2025-03-15 10:51:52", "2025-03-15", "DEBIT", "foo", 20500, 20500).
-								AddRow("005dcbc9e27365a072be5393ea8d0f37", "foo-005dcbc9e27365a072be5393ea8d0f37", "2025-03-14 18:29:01", "2025-03-14", "CREDIT", "foo", 42100, -42100))
+								AddRow("0012d068c53eb0971fc8563343c5d81f", "foo-0012d068c53eb0971fc8563343c5d81f", TrxDateTimeOne, TrxDateOne, "DEBIT", "foo", 20500, 20500).
+								AddRow("005dcbc9e27365a072be5393ea8d0f37", "foo-005dcbc9e27365a072be5393ea8d0f37", TrxDateTimeTwo, TrxDateTwo, "CREDIT", "foo", 42100, -42100))
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
@@ -159,8 +171,8 @@ func TestDBGetMatchedTrx(t *testing.T) {
 				{
 					SystemTrxTrxID:           "0012d068c53eb0971fc8563343c5d81f",
 					BankTrxUniqueIdentifier:  "foo-0012d068c53eb0971fc8563343c5d81f",
-					SystemTrxTransactionTime: "2025-03-15 10:51:52",
-					BankTrxDate:              "2025-03-15",
+					SystemTrxTransactionTime: TrxDateTimeOne,
+					BankTrxDate:              TrxDateOne,
 					SystemTrxType:            "DEBIT",
 					Bank:                     "foo",
 					SystemTrxAmount:          20500,
@@ -169,8 +181,8 @@ func TestDBGetMatchedTrx(t *testing.T) {
 				{
 					SystemTrxTrxID:           "005dcbc9e27365a072be5393ea8d0f37",
 					BankTrxUniqueIdentifier:  "foo-005dcbc9e27365a072be5393ea8d0f37",
-					SystemTrxTransactionTime: "2025-03-14 18:29:01",
-					BankTrxDate:              "2025-03-14",
+					SystemTrxTransactionTime: TrxDateTimeTwo,
+					BankTrxDate:              TrxDateTwo,
 					SystemTrxType:            "CREDIT",
 					Bank:                     "foo",
 					SystemTrxAmount:          42100,
@@ -221,8 +233,8 @@ func TestDBGetNotMatchedBankTrx(t *testing.T) {
 					s.ExpectPrepare(QueryGetNotMatchedBankTrx).ExpectQuery().
 						WillReturnRows(
 							sqlmock.NewRows([]string{"UniqueIdentifier", "Date", "Bank", "Amount"}).
-								AddRow("0012d068c53eb0971fc8563343c5d81f", "2025-03-15", "foo", 20500).
-								AddRow("005dcbc9e27365a072be5393ea8d0f37", "2025-03-14", "foo", 42100))
+								AddRow("0012d068c53eb0971fc8563343c5d81f", TrxDateOne, "foo", 20500).
+								AddRow("005dcbc9e27365a072be5393ea8d0f37", TrxDateTwo, "foo", 42100))
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
@@ -230,13 +242,13 @@ func TestDBGetNotMatchedBankTrx(t *testing.T) {
 			wantReturnData: []NotMatchedBankTrx{
 				{
 					UniqueIdentifier: "0012d068c53eb0971fc8563343c5d81f",
-					Date:             "2025-03-15",
+					Date:             TrxDateOne,
 					Bank:             "foo",
 					Amount:           20500,
 				},
 				{
 					UniqueIdentifier: "005dcbc9e27365a072be5393ea8d0f37",
-					Date:             "2025-03-14",
+					Date:             TrxDateTwo,
 					Bank:             "foo",
 					Amount:           42100,
 				},
@@ -285,8 +297,8 @@ func TestDBGetNotMatchedSystemTrx(t *testing.T) {
 					s.ExpectPrepare(QueryGetNotMatchedSystemTrx).ExpectQuery().
 						WillReturnRows(
 							sqlmock.NewRows([]string{"TrxID", "TransactionTime", "Type", "Amount"}).
-								AddRow("0012d068c53eb0971fc8563343c5d81f", "2025-03-15 10:51:52", "CREDIT", 20500).
-								AddRow("005dcbc9e27365a072be5393ea8d0f37", "2025-03-14 18:29:01", "CREDIT", 42100))
+								AddRow("0012d068c53eb0971fc8563343c5d81f", TrxDateTimeOne, "CREDIT", 20500).
+								AddRow("005dcbc9e27365a072be5393ea8d0f37", TrxDateTimeTwo, "CREDIT", 42100))
 					return db
 				}(),
 				stmtMap: make(map[string]*sql.Stmt),
@@ -294,13 +306,13 @@ func TestDBGetNotMatchedSystemTrx(t *testing.T) {
 			wantReturnData: []NotMatchedSystemTrx{
 				{
 					TrxID:           "0012d068c53eb0971fc8563343c5d81f",
-					TransactionTime: "2025-03-15 10:51:52",
+					TransactionTime: TrxDateTimeOne,
 					Type:            "CREDIT",
 					Amount:          20500,
 				},
 				{
 					TrxID:           "005dcbc9e27365a072be5393ea8d0f37",
-					TransactionTime: "2025-03-14 18:29:01",
+					TransactionTime: TrxDateTimeTwo,
 					Type:            "CREDIT",
 					Amount:          42100,
 				},
@@ -427,10 +439,10 @@ func TestDBImportBankTrx(t *testing.T) {
 								marshal, _ := json.Marshal(
 									[]*banks.BankTrxData{
 										{
-											UniqueIdentifier: "163af765-0769-467f-8185-8ee7166a0098",
+											UniqueIdentifier: UniqueUUID,
 											Date:             time.Time{},
 											Type:             "DEBIT",
-											FilePath:         "/foo/bar",
+											FilePath:         FilePath,
 											Amount:           1000,
 										},
 									},
@@ -449,10 +461,10 @@ func TestDBImportBankTrx(t *testing.T) {
 			args: args{
 				data: []*banks.BankTrxData{
 					{
-						UniqueIdentifier: "163af765-0769-467f-8185-8ee7166a0098",
+						UniqueIdentifier: UniqueUUID,
 						Date:             time.Time{},
 						Type:             "DEBIT",
-						FilePath:         "/foo/bar",
+						FilePath:         FilePath,
 						Amount:           1000,
 					},
 				},
@@ -508,10 +520,10 @@ func TestDBImportSystemTrx(t *testing.T) {
 								marshal, _ := json.Marshal(
 									[]*systems.SystemTrxData{
 										{
-											TrxID:           "163af765-0769-467f-8185-8ee7166a0098",
+											TrxID:           UniqueUUID,
 											TransactionTime: time.Time{},
 											Type:            "DEBIT",
-											FilePath:        "/foo/bar",
+											FilePath:        FilePath,
 											Amount:          1000,
 										},
 									},
@@ -530,10 +542,10 @@ func TestDBImportSystemTrx(t *testing.T) {
 			args: args{
 				data: []*systems.SystemTrxData{
 					{
-						TrxID:           "163af765-0769-467f-8185-8ee7166a0098",
+						TrxID:           UniqueUUID,
 						TransactionTime: time.Time{},
 						Type:            "DEBIT",
-						FilePath:        "/foo/bar",
+						FilePath:        FilePath,
 						Amount:          1000,
 					},
 				},
@@ -668,8 +680,8 @@ func TestDBPre(t *testing.T) {
 					s.ExpectPrepare(QueryCreateTableArguments).
 						ExpectExec().
 						WithArgs(
-							"2025-02-28",
-							"2025-02-27",
+							StartDateString,
+							EndDateString,
 						).
 						WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -704,11 +716,11 @@ func TestDBPre(t *testing.T) {
 					"bar",
 				},
 				startDate: func() time.Time {
-					r, _ := time.Parse("2006-01-02", "2025-02-28")
+					r, _ := time.Parse(DateFormat, StartDateString)
 					return r
 				}(),
 				toDate: func() time.Time {
-					r, _ := time.Parse("2006-01-02", "2025-02-27")
+					r, _ := time.Parse(DateFormat, EndDateString)
 					return r
 				}(),
 			},
@@ -758,8 +770,8 @@ func TestDBCreateTables(t *testing.T) {
 					s.ExpectPrepare(QueryCreateTableArguments).
 						ExpectExec().
 						WithArgs(
-							"2025-02-28",
-							"2025-02-27",
+							StartDateString,
+							EndDateString,
 						).
 						WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -794,11 +806,11 @@ func TestDBCreateTables(t *testing.T) {
 					"bar",
 				},
 				startDate: func() time.Time {
-					r, _ := time.Parse("2006-01-02", "2025-02-28")
+					r, _ := time.Parse(DateFormat, StartDateString)
 					return r
 				}(),
 				toDate: func() time.Time {
-					r, _ := time.Parse("2006-01-02", "2025-02-27")
+					r, _ := time.Parse(DateFormat, EndDateString)
 					return r
 				}(),
 			},
