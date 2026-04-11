@@ -229,7 +229,6 @@ func runQueryContextTest[out any](t *testing.T, tt testCaseQueryContext[out]) {
 }
 
 func TestQueryContext(t *testing.T) {
-
 	testsSingleRow := []testCaseQueryContext[Foo]{
 		{
 			name: "Ok - single row",
