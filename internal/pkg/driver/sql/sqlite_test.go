@@ -6,6 +6,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
+const DBMemory = ":memory:"
+
 func TestNewSqliteDatabase(t *testing.T) {
 	type args struct {
 		logger      zerolog.Logger
@@ -24,7 +26,7 @@ func TestNewSqliteDatabase(t *testing.T) {
 			args: args{
 				option: DBSqliteOption{
 					LogPrefix:   "SQLite",
-					DBPath:      ":memory:",
+					DBPath:      DBMemory,
 					Cache:       "shared",
 					JournalMode: "WAL",
 				},
@@ -38,7 +40,7 @@ func TestNewSqliteDatabase(t *testing.T) {
 			args: args{
 				option: DBSqliteOption{
 					LogPrefix:   "SQLite",
-					DBPath:      ":memory:",
+					DBPath:      DBMemory,
 					Cache:       "shared",
 					JournalMode: "WAL",
 				},
@@ -52,7 +54,7 @@ func TestNewSqliteDatabase(t *testing.T) {
 			args: args{
 				option: DBSqliteOption{
 					LogPrefix:   "SQLite",
-					DBPath:      ":memory:",
+					DBPath:      DBMemory,
 					Cache:       "shared",
 					JournalMode: "WAL",
 				},

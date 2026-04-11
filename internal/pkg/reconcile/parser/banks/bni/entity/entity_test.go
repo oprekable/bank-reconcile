@@ -213,6 +213,8 @@ func TestCSVBankTrxDataGetUniqueIdentifier(t *testing.T) {
 	}
 }
 
+const UniqueUUID = "610085c5-89d7-470b-8158-b4252a9b429d"
+
 func TestCSVBankTrxDataToBankTrxData(t *testing.T) {
 	type fields struct {
 		BNIUniqueIdentifier string
@@ -230,13 +232,13 @@ func TestCSVBankTrxDataToBankTrxData(t *testing.T) {
 		{
 			name: "Ok",
 			fields: fields{
-				BNIUniqueIdentifier: "610085c5-89d7-470b-8158-b4252a9b429d",
+				BNIUniqueIdentifier: UniqueUUID,
 				BNIDate:             "1999-01-01",
 				BNIBank:             string(banks.BNIBankParser),
 				BNIAmount:           1000,
 			},
 			wantReturnData: &banks.BankTrxData{
-				UniqueIdentifier: "610085c5-89d7-470b-8158-b4252a9b429d",
+				UniqueIdentifier: UniqueUUID,
 				Date: func() time.Time {
 					t, _ := time.Parse("2006-01-02", "1999-01-01")
 					return t
@@ -251,7 +253,7 @@ func TestCSVBankTrxDataToBankTrxData(t *testing.T) {
 		{
 			name: "Error invalid date",
 			fields: fields{
-				BNIUniqueIdentifier: "610085c5-89d7-470b-8158-b4252a9b429d",
+				BNIUniqueIdentifier: UniqueUUID,
 				BNIDate:             "any string",
 				BNIBank:             string(banks.BNIBankParser),
 				BNIAmount:           1000,
