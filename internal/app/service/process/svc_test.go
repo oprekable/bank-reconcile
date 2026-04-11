@@ -37,6 +37,14 @@ import (
 	"go.chromium.org/luci/common/clock/testclock"
 )
 
+const (
+	REPORT_PATH = "/report"
+	SYSTEM_PATH = "/system"
+	DATE_FROM   = "2025-03-06"
+	DATE_TO     = "2025-03-09"
+	DATE_FORMAT = "2006-01-02"
+)
+
 // newTestParserRegistry is a helper function to create a parser registry for testing purposes.
 func newTestParserRegistry() *banks.ParserRegistry {
 	factories := make(map[string]banks.BankParserFactory)
@@ -160,16 +168,16 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									ReportTRXPath: "/report",
-									SystemTRXPath: "/system",
+									ReportTRXPath: REPORT_PATH,
+									SystemTRXPath: SYSTEM_PATH,
 									BankTRXPath:   "/bank",
 									NumberWorker:  10,
 									FromDate: func() (r time.Time) {
-										r, _ = time.Parse("2006-01-02", "2025-03-06")
+										r, _ = time.Parse(DATE_FORMAT, DATE_FROM)
 										return
 									}(),
 									ToDate: func() (r time.Time) {
-										r, _ = time.Parse("2006-01-02", "2025-03-09")
+										r, _ = time.Parse(DATE_FORMAT, DATE_TO)
 										return
 									}(),
 									ListBank: []string{"bca", "bni"},
@@ -360,16 +368,16 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									ReportTRXPath: "/report",
-									SystemTRXPath: "/system",
+									ReportTRXPath: REPORT_PATH,
+									SystemTRXPath: SYSTEM_PATH,
 									BankTRXPath:   "/bank",
 									NumberWorker:  10,
 									FromDate: func() (r time.Time) {
-										r, _ = time.Parse("2006-01-02", "2025-03-06")
+										r, _ = time.Parse(DATE_FORMAT, DATE_FROM)
 										return
 									}(),
 									ToDate: func() (r time.Time) {
-										r, _ = time.Parse("2006-01-02", "2025-03-09")
+										r, _ = time.Parse(DATE_FORMAT, DATE_TO)
 										return
 									}(),
 									ListBank: []string{"bca", "bni"},
@@ -627,7 +635,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									ReportTRXPath: "/report",
+									ReportTRXPath: REPORT_PATH,
 								},
 							},
 						}
@@ -673,7 +681,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									ReportTRXPath: "/report",
+									ReportTRXPath: REPORT_PATH,
 								},
 							},
 						}
@@ -698,7 +706,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 									SystemTrxTrxID:           "006630c83821fac6bea13b92b480feb2",
 									BankTrxUniqueIdentifier:  "bca-5585fa85a971917b48ea2729bcf7d9fb",
 									SystemTrxTransactionTime: "2025-03-06 17:09:21",
-									BankTrxDate:              "2025-03-06",
+									BankTrxDate:              DATE_FROM,
 									SystemTrxType:            "DEBIT",
 									Bank:                     "bca",
 									SystemTrxAmount:          41000,
@@ -740,7 +748,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									ReportTRXPath: "/report",
+									ReportTRXPath: REPORT_PATH,
 								},
 							},
 						}
@@ -765,7 +773,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 									SystemTrxTrxID:           "006630c83821fac6bea13b92b480feb2",
 									BankTrxUniqueIdentifier:  "bca-5585fa85a971917b48ea2729bcf7d9fb",
 									SystemTrxTransactionTime: "2025-03-06 17:09:21",
-									BankTrxDate:              "2025-03-06",
+									BankTrxDate:              DATE_FROM,
 									SystemTrxType:            "DEBIT",
 									Bank:                     "bca",
 									SystemTrxAmount:          41000,
@@ -822,7 +830,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									ReportTRXPath: "/report",
+									ReportTRXPath: REPORT_PATH,
 								},
 							},
 						}
@@ -847,7 +855,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 									SystemTrxTrxID:           "006630c83821fac6bea13b92b480feb2",
 									BankTrxUniqueIdentifier:  "bca-5585fa85a971917b48ea2729bcf7d9fb",
 									SystemTrxTransactionTime: "2025-03-06 17:09:21",
-									BankTrxDate:              "2025-03-06",
+									BankTrxDate:              DATE_FROM,
 									SystemTrxType:            "DEBIT",
 									Bank:                     "bca",
 									SystemTrxAmount:          41000,
@@ -880,7 +888,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 								{
 									UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
 									Bank:             "bca",
-									Date:             "2025-03-06",
+									Date:             DATE_FROM,
 									Amount:           41000,
 								},
 							},
@@ -915,7 +923,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									ReportTRXPath: "/report",
+									ReportTRXPath: REPORT_PATH,
 								},
 							},
 						}
@@ -940,7 +948,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 									SystemTrxTrxID:           "006630c83821fac6bea13b92b480feb2",
 									BankTrxUniqueIdentifier:  "bca-5585fa85a971917b48ea2729bcf7d9fb",
 									SystemTrxTransactionTime: "2025-03-06 17:09:21",
-									BankTrxDate:              "2025-03-06",
+									BankTrxDate:              DATE_FROM,
 									SystemTrxType:            "DEBIT",
 									Bank:                     "bca",
 									SystemTrxAmount:          41000,
@@ -973,7 +981,7 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 								{
 									UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
 									Bank:             "bca",
-									Date:             "2025-03-06",
+									Date:             DATE_FROM,
 									Amount:           41000,
 								},
 							},
@@ -1043,7 +1051,7 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									ReportTRXPath: "/report",
+									ReportTRXPath: REPORT_PATH,
 								},
 							},
 						}
@@ -1228,7 +1236,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 					{
 						UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
 						Date: func() time.Time {
-							t, _ := time.Parse("2006-01-02", "2025-03-06")
+							t, _ := time.Parse(DATE_FORMAT, DATE_FROM)
 							return t
 						}(),
 						Type:     "CREDIT",
@@ -1239,7 +1247,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 					{
 						UniqueIdentifier: "bni-5f4b1bdf10332ea307813ce402f3d7d4",
 						Date: func() time.Time {
-							t, _ := time.Parse("2006-01-02", "2025-03-09")
+							t, _ := time.Parse(DATE_FORMAT, DATE_TO)
 							return t
 						}(),
 						Type:     "DEBIT",
@@ -1292,7 +1300,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 					{
 						UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
 						Date: func() time.Time {
-							t, _ := time.Parse("2006-01-02", "2025-03-06")
+							t, _ := time.Parse(DATE_FORMAT, DATE_FROM)
 							return t
 						}(),
 						Type:     "CREDIT",
@@ -1303,7 +1311,7 @@ func TestSvcImportReconcileBankDataToDB(t *testing.T) {
 					{
 						UniqueIdentifier: "bni-5f4b1bdf10332ea307813ce402f3d7d4",
 						Date: func() time.Time {
-							t, _ := time.Parse("2006-01-02", "2025-03-09")
+							t, _ := time.Parse(DATE_FORMAT, DATE_TO)
 							return t
 						}(),
 						Type:     "DEBIT",
@@ -1641,14 +1649,14 @@ func TestSvcParse(t *testing.T) {
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
 									FromDate: func() time.Time {
-										t, _ := time.Parse("2006-01-02", "2025-03-06")
+										t, _ := time.Parse(DATE_FORMAT, DATE_FROM)
 										return t
 									}(),
 									ToDate: func() time.Time {
-										t, _ := time.Parse("2006-01-02", "2025-03-07")
+										t, _ := time.Parse(DATE_FORMAT, "2025-03-07")
 										return t
 									}(),
-									SystemTRXPath: "/system",
+									SystemTRXPath: SYSTEM_PATH,
 									BankTRXPath:   "/bank",
 									ListBank:      []string{"bca", "bni"},
 								},
@@ -1740,7 +1748,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					{
 						UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
 						Date: func() time.Time {
-							t, _ := time.Parse("2006-01-02", "2025-03-06")
+							t, _ := time.Parse(DATE_FORMAT, DATE_FROM)
 							return t
 						}(),
 						Type:     "CREDIT",
@@ -1840,7 +1848,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 				{
 					UniqueIdentifier: "bca-e6f8fbe1f6f8c72da7caade610b692e8",
 					Date: func() time.Time {
-						t, _ := time.Parse("2006-01-02", "2025-03-04")
+						t, _ := time.Parse(DATE_FORMAT, "2025-03-04")
 						return t
 					}(),
 					Type:     "DEBIT",
@@ -1851,7 +1859,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 				{
 					UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
 					Date: func() time.Time {
-						t, _ := time.Parse("2006-01-02", "2025-03-06")
+						t, _ := time.Parse(DATE_FORMAT, DATE_FROM)
 						return t
 					}(),
 					Type:     "CREDIT",
@@ -1904,7 +1912,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				{
 					UniqueIdentifier: "bni-7b422b9abac7a628125bc1c6bc7adced",
 					Date: func() time.Time {
-						t, _ := time.Parse("2006-01-02", "2025-03-04")
+						t, _ := time.Parse(DATE_FORMAT, "2025-03-04")
 						return t
 					}(),
 					Type:     "CREDIT",
@@ -1915,7 +1923,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				{
 					UniqueIdentifier: "bni-5f4b1bdf10332ea307813ce402f3d7d4",
 					Date: func() time.Time {
-						t, _ := time.Parse("2006-01-02", "2025-03-09")
+						t, _ := time.Parse(DATE_FORMAT, DATE_TO)
 						return t
 					}(),
 					Type:     "DEBIT",
@@ -1968,7 +1976,7 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				{
 					UniqueIdentifier: "foo-7b422b9abac7a628125bc1c6bc7adced",
 					Date: func() time.Time {
-						t, _ := time.Parse("2006-01-02", "2025-03-04")
+						t, _ := time.Parse(DATE_FORMAT, "2025-03-04")
 						return t
 					}(),
 					Type:     "CREDIT",
@@ -1979,7 +1987,7 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				{
 					UniqueIdentifier: "foo-5f4b1bdf10332ea307813ce402f3d7d4",
 					Date: func() time.Time {
-						t, _ := time.Parse("2006-01-02", "2025-03-09")
+						t, _ := time.Parse(DATE_FORMAT, DATE_TO)
 						return t
 					}(),
 					Type:     "DEBIT",
@@ -2163,7 +2171,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				{
 					UniqueIdentifier: "bca-5585fa85a971917b48ea2729bcf7d9fb",
 					Date: func() time.Time {
-						t, _ := time.Parse("2006-01-02", "2025-03-06")
+						t, _ := time.Parse(DATE_FORMAT, DATE_FROM)
 						return t
 					}(),
 					Type:     "CREDIT",
@@ -2174,7 +2182,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				{
 					UniqueIdentifier: "bni-5f4b1bdf10332ea307813ce402f3d7d4",
 					Date: func() time.Time {
-						t, _ := time.Parse("2006-01-02", "2025-03-09")
+						t, _ := time.Parse(DATE_FORMAT, DATE_TO)
 						return t
 					}(),
 					Type:     "DEBIT",
