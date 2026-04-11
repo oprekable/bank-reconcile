@@ -11,6 +11,8 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
 )
 
+const FileCSVPath = "/foo/bar.csv"
+
 func TestBankParserGetBank(t *testing.T) {
 	type fields struct {
 		bank string
@@ -112,7 +114,7 @@ func TestBankParserToBankTrxData(t *testing.T) {
 				isHaveHeader: true,
 			},
 			args: args{
-				filePath: "/foo/bar.csv",
+				filePath: FileCSVPath,
 			},
 			wantReturnData: []*banks.BankTrxData{
 				{
@@ -123,7 +125,7 @@ func TestBankParserToBankTrxData(t *testing.T) {
 					}(),
 					Type:     banks.CREDIT,
 					Bank:     string(banks.DefaultBankParser),
-					FilePath: "/foo/bar.csv",
+					FilePath: FileCSVPath,
 					Amount:   20500,
 				},
 				{
@@ -134,7 +136,7 @@ func TestBankParserToBankTrxData(t *testing.T) {
 					}(),
 					Type:     banks.DEBIT,
 					Bank:     string(banks.DefaultBankParser),
-					FilePath: "/foo/bar.csv",
+					FilePath: FileCSVPath,
 					Amount:   42100,
 				},
 			},

@@ -8,6 +8,8 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
 )
 
+const UniqueUUID = "610085c5-89d7-470b-8158-b4252a9b429d"
+
 func TestCSVBankTrxDataGetAbsAmount(t *testing.T) {
 	type fields struct {
 		DefaultAmount float64
@@ -230,13 +232,13 @@ func TestCSVBankTrxDataToBankTrxData(t *testing.T) {
 		{
 			name: "Ok",
 			fields: fields{
-				DefaultUniqueIdentifier: "610085c5-89d7-470b-8158-b4252a9b429d",
+				DefaultUniqueIdentifier: UniqueUUID,
 				DefaultDate:             "1999-01-01",
 				DefaultBank:             "danamon",
 				DefaultAmount:           1000,
 			},
 			wantReturnData: &banks.BankTrxData{
-				UniqueIdentifier: "610085c5-89d7-470b-8158-b4252a9b429d",
+				UniqueIdentifier: UniqueUUID,
 				Date: func() time.Time {
 					t, _ := time.Parse("2006-01-02", "1999-01-01")
 					return t
@@ -251,7 +253,7 @@ func TestCSVBankTrxDataToBankTrxData(t *testing.T) {
 		{
 			name: "Error invalid date",
 			fields: fields{
-				DefaultUniqueIdentifier: "610085c5-89d7-470b-8158-b4252a9b429d",
+				DefaultUniqueIdentifier: UniqueUUID,
 				DefaultDate:             "any string",
 				DefaultBank:             "danamon",
 				DefaultAmount:           1000,

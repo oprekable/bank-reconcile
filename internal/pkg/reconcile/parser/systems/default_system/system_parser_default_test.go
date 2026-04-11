@@ -12,6 +12,12 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems"
 )
 
+const (
+	TrxTime     = "1999-11-10 22:58:56"
+	TrxID       = "8ce39d84-b932-43d7-add5-1cacf672b763"
+	FileCSVPath = "/tmp/foo.csv"
+)
+
 func TestCSVSystemTrxDataGetAmount(t *testing.T) {
 	type fields struct {
 		Amount float64
@@ -70,9 +76,9 @@ func TestCSVSystemTrxDataGetTransactionTime(t *testing.T) {
 		{
 			name: "Ok - datetime format",
 			fields: fields{
-				TransactionTime: "1999-11-10 22:58:56",
+				TransactionTime: TrxTime,
 			},
-			want: "1999-11-10 22:58:56",
+			want: TrxTime,
 		},
 	}
 
@@ -169,15 +175,15 @@ func TestCSVSystemTrxDataToSystemTrxData(t *testing.T) {
 		{
 			name: "Ok",
 			fields: fields{
-				TrxID:           "8ce39d84-b932-43d7-add5-1cacf672b763",
-				TransactionTime: "1999-11-10 22:58:56",
+				TrxID:           TrxID,
+				TransactionTime: TrxTime,
 				Type:            "DEBIT",
 				Amount:          10000,
 			},
 			wantReturnData: &systems.SystemTrxData{
-				TrxID: "8ce39d84-b932-43d7-add5-1cacf672b763",
+				TrxID: TrxID,
 				TransactionTime: func() time.Time {
-					t, _ := time.Parse("2006-01-02 15:04:05", "1999-11-10 22:58:56")
+					t, _ := time.Parse("2006-01-02 15:04:05", TrxTime)
 					return t
 				}(),
 				Type:     "DEBIT",
@@ -189,7 +195,7 @@ func TestCSVSystemTrxDataToSystemTrxData(t *testing.T) {
 		{
 			name: "Error time parse",
 			fields: fields{
-				TrxID:           "8ce39d84-b932-43d7-add5-1cacf672b763",
+				TrxID:           TrxID,
 				TransactionTime: "adasd",
 				Type:            "DEBIT",
 				Amount:          10000,
@@ -276,11 +282,7 @@ func TestNewSystemParser(t *testing.T) {
 				return
 			}
 
-			if got == nil {
-				if !reflect.DeepEqual(got, tt.want) {
-					t.Errorf("NewSystemParser() got = %v, want %v", got, tt.want)
-				}
-			} else {
+			if got != nil {
 				if !reflect.DeepEqual(got.parser, tt.want.parser) ||
 					!reflect.DeepEqual(got.csvReader, tt.want.csvReader) ||
 					!reflect.DeepEqual(got.dataStruct, tt.want.dataStruct) ||
@@ -290,6 +292,11 @@ func TestNewSystemParser(t *testing.T) {
 
 				ptr := got.poolSystemTrxData.Get().(*systems.SystemTrxData)
 				got.poolSystemTrxData.Put(ptr)
+				return
+			}
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewSystemParser() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -332,7 +339,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: true,
 			},
 			args: args{
-				filePath: "/tmp/foo.csv",
+				filePath: FileCSVPath,
 			},
 			wantReturnData: []*systems.SystemTrxData{
 				{
@@ -342,7 +349,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 						return t
 					}(),
 					Type:     "CREDIT",
-					FilePath: "/tmp/foo.csv",
+					FilePath: FileCSVPath,
 					Amount:   20500,
 				},
 				{
@@ -352,7 +359,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 						return t
 					}(),
 					Type:     "CREDIT",
-					FilePath: "/tmp/foo.csv",
+					FilePath: FileCSVPath,
 					Amount:   42100,
 				},
 			},
@@ -372,7 +379,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: true,
 			},
 			args: args{
-				filePath: "/tmp/foo.csv",
+				filePath: FileCSVPath,
 			},
 			wantReturnData: nil,
 			wantErr:        true,
@@ -391,7 +398,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				filePath: "/tmp/foo.csv",
+				filePath: FileCSVPath,
 			},
 			wantReturnData: nil,
 			wantErr:        false,
@@ -411,7 +418,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				filePath: "/tmp/foo.csv",
+				filePath: FileCSVPath,
 			},
 			wantReturnData: []*systems.SystemTrxData{
 				{
@@ -421,7 +428,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 						return t
 					}(),
 					Type:     "CREDIT",
-					FilePath: "/tmp/foo.csv",
+					FilePath: FileCSVPath,
 					Amount:   20500,
 				},
 				{
@@ -431,7 +438,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 						return t
 					}(),
 					Type:     "CREDIT",
-					FilePath: "/tmp/foo.csv",
+					FilePath: FileCSVPath,
 					Amount:   42100,
 				},
 			},
@@ -446,7 +453,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				filePath: "/tmp/foo.csv",
+				filePath: FileCSVPath,
 			},
 			wantReturnData: nil,
 			wantErr:        false,
@@ -465,7 +472,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				filePath: "/tmp/foo.csv",
+				filePath: FileCSVPath,
 			},
 			wantReturnData: nil,
 			wantErr:        true,
@@ -484,7 +491,7 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				isHaveHeader: false,
 			},
 			args: args{
-				filePath: "/tmp/foo.csv",
+				filePath: FileCSVPath,
 			},
 			wantReturnData: nil,
 			wantErr:        false,

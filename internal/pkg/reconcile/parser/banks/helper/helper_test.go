@@ -12,6 +12,10 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/default_bank/entity"
 )
 
+const (
+	FileCSVPath = "/foo/bar.csv"
+)
+
 func TestToBankTrxData(t *testing.T) {
 	layoutTime := "2006-01-02 15:04:05"
 
@@ -32,7 +36,7 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Ok with header",
 			args: args{
-				filePath:     "/foo/bar.csv",
+				filePath:     FileCSVPath,
 				isHaveHeader: true,
 				bank:         "danamon",
 				csvReader: func() *csv.Reader {
@@ -54,7 +58,7 @@ func TestToBankTrxData(t *testing.T) {
 					}(),
 					Type:     "CREDIT",
 					Bank:     "danamon",
-					FilePath: "/foo/bar.csv",
+					FilePath: FileCSVPath,
 					Amount:   20500,
 				},
 				{
@@ -65,7 +69,7 @@ func TestToBankTrxData(t *testing.T) {
 					}(),
 					Type:     "DEBIT",
 					Bank:     "danamon",
-					FilePath: "/foo/bar.csv",
+					FilePath: FileCSVPath,
 					Amount:   42100,
 				},
 			},
@@ -74,7 +78,7 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error decode with header",
 			args: args{
-				filePath:     "/foo/bar.csv",
+				filePath:     FileCSVPath,
 				isHaveHeader: true,
 				bank:         "danamon",
 				csvReader: func() *csv.Reader {
@@ -91,7 +95,7 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error parse Date",
 			args: args{
-				filePath:     "/foo/bar.csv",
+				filePath:     FileCSVPath,
 				isHaveHeader: true,
 				bank:         "danamon",
 				csvReader: func() *csv.Reader {
@@ -109,7 +113,7 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Ok without header",
 			args: args{
-				filePath:     "/foo/bar.csv",
+				filePath:     FileCSVPath,
 				isHaveHeader: false,
 				bank:         "danamon",
 				csvReader: func() *csv.Reader {
@@ -130,7 +134,7 @@ func TestToBankTrxData(t *testing.T) {
 					}(),
 					Type:     "CREDIT",
 					Bank:     "danamon",
-					FilePath: "/foo/bar.csv",
+					FilePath: FileCSVPath,
 					Amount:   20500,
 				},
 				{
@@ -141,7 +145,7 @@ func TestToBankTrxData(t *testing.T) {
 					}(),
 					Type:     "DEBIT",
 					Bank:     "danamon",
-					FilePath: "/foo/bar.csv",
+					FilePath: FileCSVPath,
 					Amount:   42100,
 				},
 			},
@@ -150,7 +154,7 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error nil csvReader without header",
 			args: args{
-				filePath:     "/foo/bar.csv",
+				filePath:     FileCSVPath,
 				isHaveHeader: false,
 				bank:         "danamon",
 				csvReader:    nil,
@@ -162,7 +166,7 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error nil originalData without header",
 			args: args{
-				filePath:     "/foo/bar.csv",
+				filePath:     FileCSVPath,
 				isHaveHeader: false,
 				bank:         "danamon",
 				csvReader: func() *csv.Reader {
@@ -179,7 +183,7 @@ func TestToBankTrxData(t *testing.T) {
 		{
 			name: "Error decode without header",
 			args: args{
-				filePath:     "/foo/bar.csv",
+				filePath:     FileCSVPath,
 				isHaveHeader: false,
 				bank:         "danamon",
 				csvReader: func() *csv.Reader {
