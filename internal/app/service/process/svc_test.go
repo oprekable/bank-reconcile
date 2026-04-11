@@ -38,21 +38,27 @@ import (
 )
 
 const (
-	ReportPath     = "/report"
-	SystemPath     = "/system"
-	DateFrom       = "2025-03-06"
-	DateTo         = "2025-03-09"
-	DateSample     = "2025-03-04"
-	DateFormat     = "2006-01-02"
-	DateTimeFormat = "2006-01-02 15:04:05"
-	SystemCsvFile  = "/system/foo1.csv"
-	BankBcaCsvFile = "/bank/bca/any_string.csv"
-	BankBniCsvFile = "/bank/bni/any_string.csv"
-	BCAUniqueUUID  = "bca-5585fa85a971917b48ea2729bcf7d9fb"
-	BNIUniqueUUID  = "bni-5f4b1bdf10332ea307813ce402f3d7d4"
-	TrxDateTimeOne = "2025-03-06 17:09:21"
-	TrxDateTimeTwo = "2025-03-07 10:18:29"
-	FileCSVPath    = "/random_string/bca/any_string.csv"
+	ReportPath       = "/report"
+	SystemPath       = "/system"
+	DateFrom         = "2025-03-06"
+	DateTo           = "2025-03-09"
+	DateSample       = "2025-03-04"
+	DateFormat       = "2006-01-02"
+	DateTimeFormat   = "2006-01-02 15:04:05"
+	SystemCsvFile    = "/system/foo1.csv"
+	BankBcaCsvFile   = "/bank/bca/any_string.csv"
+	BankBniCsvFile   = "/bank/bni/any_string.csv"
+	BCAUniqueUUID    = "bca-5585fa85a971917b48ea2729bcf7d9fb"
+	BNIUniqueUUID    = "bni-5f4b1bdf10332ea307813ce402f3d7d4"
+	TrxDateTimeOne   = "2025-03-06 17:09:21"
+	TrxDateTimeTwo   = "2025-03-07 10:18:29"
+	TrxDateTimeThree = "2025-03-11 17:09:21"
+	FileCSVPath      = "/random_string/bca/any_string.csv"
+	FileCSVPathFoo   = "/foo.csv"
+	FileCSVPathOne   = "/foo1.csv"
+	FileCSVPathTwo   = "/foo2.csv"
+	FileCSVPathBCA   = "/bca.csv"
+	FileCSVPathBNI   = "/bni.csv"
 )
 
 // newTestParserRegistry is a helper function to create a parser registry for testing purposes.
@@ -1533,17 +1539,17 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 							return t
 						}(),
 						Type:     "CREDIT",
-						FilePath: "/foo2.csv",
+						FilePath: FileCSVPathTwo,
 						Amount:   41000,
 					},
 					{
 						TrxID: "006630c83821fac6bea13b92b480feb2",
 						TransactionTime: func() time.Time {
-							t, _ := time.Parse(DateTimeFormat, "2025-03-11 17:09:21")
+							t, _ := time.Parse(DateTimeFormat, TrxDateTimeThree)
 							return t
 						}(),
 						Type:     "DEBIT",
-						FilePath: "/foo1.csv",
+						FilePath: FileCSVPathOne,
 						Amount:   89900,
 					},
 				},
@@ -1595,17 +1601,17 @@ func TestSvcImportReconcileSystemDataToDB(t *testing.T) {
 							return t
 						}(),
 						Type:     "CREDIT",
-						FilePath: "/foo2.csv",
+						FilePath: FileCSVPathTwo,
 						Amount:   41000,
 					},
 					{
 						TrxID: "006630c83821fac6bea13b92b480feb2",
 						TransactionTime: func() time.Time {
-							t, _ := time.Parse(DateTimeFormat, "2025-03-11 17:09:21")
+							t, _ := time.Parse(DateTimeFormat, TrxDateTimeThree)
 							return t
 						}(),
 						Type:     "DEBIT",
-						FilePath: "/foo1.csv",
+						FilePath: FileCSVPathOne,
 						Amount:   89900,
 					},
 				},
@@ -1837,7 +1843,7 @@ func TestSvcParseBankTrxFile(t *testing.T) {
 			args: args{
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
-					fooFile, _ := f.Create("/bca.csv")
+					fooFile, _ := f.Create(FileCSVPathBCA)
 
 					_, _ = fooFile.Write([]byte(
 						`BCAUniqueIdentifier,BCADate,BCAAmount
@@ -1851,7 +1857,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 				}(),
 				item: FilePathBankTrx{
 					Bank:     "bca",
-					FilePath: "/bca.csv",
+					FilePath: FileCSVPathBCA,
 				},
 			},
 			wantReturnData: []*banks.BankTrxData{
@@ -1863,7 +1869,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 					}(),
 					Type:     "DEBIT",
 					Bank:     "BCA",
-					FilePath: "/bca.csv",
+					FilePath: FileCSVPathBCA,
 					Amount:   71700,
 				},
 				{
@@ -1874,7 +1880,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 					}(),
 					Type:     "CREDIT",
 					Bank:     "BCA",
-					FilePath: "/bca.csv",
+					FilePath: FileCSVPathBCA,
 					Amount:   7700,
 				},
 			},
@@ -1901,7 +1907,7 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 			args: args{
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
-					fooFile, _ := f.Create("/bni.csv")
+					fooFile, _ := f.Create(FileCSVPathBNI)
 
 					_, _ = fooFile.Write([]byte(
 						`BNIUniqueIdentifier,BNIDate,BNIAmount
@@ -1915,7 +1921,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				}(),
 				item: FilePathBankTrx{
 					Bank:     "bni",
-					FilePath: "/bni.csv",
+					FilePath: FileCSVPathBNI,
 				},
 			},
 			wantReturnData: []*banks.BankTrxData{
@@ -1927,7 +1933,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					}(),
 					Type:     "CREDIT",
 					Bank:     "BNI",
-					FilePath: "/bni.csv",
+					FilePath: FileCSVPathBNI,
 					Amount:   79500,
 				},
 				{
@@ -1938,7 +1944,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					}(),
 					Type:     "DEBIT",
 					Bank:     "BNI",
-					FilePath: "/bni.csv",
+					FilePath: FileCSVPathBNI,
 					Amount:   71200,
 				},
 			},
@@ -1965,7 +1971,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 			args: args{
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
-					fooFile, _ := f.Create("/foo.csv")
+					fooFile, _ := f.Create(FileCSVPathFoo)
 
 					_, _ = fooFile.Write([]byte(
 						`UniqueIdentifier,Date,Amount
@@ -1979,7 +1985,7 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				}(),
 				item: FilePathBankTrx{
 					Bank:     "foo",
-					FilePath: "/foo.csv",
+					FilePath: FileCSVPathFoo,
 				},
 			},
 			wantReturnData: []*banks.BankTrxData{
@@ -1991,7 +1997,7 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					}(),
 					Type:     "CREDIT",
 					Bank:     "FOO",
-					FilePath: "/foo.csv",
+					FilePath: FileCSVPathFoo,
 					Amount:   79500,
 				},
 				{
@@ -2002,7 +2008,7 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					}(),
 					Type:     "DEBIT",
 					Bank:     "FOO",
-					FilePath: "/foo.csv",
+					FilePath: FileCSVPathFoo,
 					Amount:   71200,
 				},
 			},
@@ -2029,8 +2035,8 @@ foo-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 			args: args{
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
-					fooFile, _ := f.Create("/foo.csv")
-					_ = f.Chmod("/foo.csv", 0000)
+					fooFile, _ := f.Create(FileCSVPathFoo)
+					_ = f.Chmod(FileCSVPathFoo, 0000)
 
 					_, _ = fooFile.Write([]byte(
 						`UniqueIdentifier
@@ -2043,7 +2049,7 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 				}(),
 				item: FilePathBankTrx{
 					Bank:     "foo",
-					FilePath: "/foo.csv",
+					FilePath: FileCSVPathFoo,
 				},
 			},
 			wantReturnData: nil,
@@ -2071,13 +2077,13 @@ foo-7b422b9abac7a628125bc1c6bc7adced,string,79500
 				afs: func() afero.Fs {
 					f := afero.MemMapFs{}
 					fDenied := MockOpenPermissionDeniedFs{f}
-					fooFile, _ := fDenied.Create("/foo.csv")
+					fooFile, _ := fDenied.Create(FileCSVPathFoo)
 					_ = fooFile.Close()
 					return &fDenied
 				}(),
 				item: FilePathBankTrx{
 					Bank:     "foo",
-					FilePath: "/foo.csv",
+					FilePath: FileCSVPathFoo,
 				},
 			},
 			wantReturnData: nil,
@@ -2320,7 +2326,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 			args: args{
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
-					fooFile, _ := f.Create("/foo.csv")
+					fooFile, _ := f.Create(FileCSVPathFoo)
 
 					_, _ = fooFile.Write([]byte(
 						`TrxID,TransactionTime,Type,Amount
@@ -2332,17 +2338,17 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 					_ = fooFile.Close()
 					return f
 				}(),
-				filePath: "/foo.csv",
+				filePath: FileCSVPathFoo,
 			},
 			wantReturnData: []*systems.SystemTrxData{
 				{
 					TrxID: "006630c83821fac6bea13b92b480feb2",
 					TransactionTime: func() time.Time {
-						t, _ := time.Parse(DateTimeFormat, "2025-03-11 17:09:21")
+						t, _ := time.Parse(DateTimeFormat, TrxDateTimeThree)
 						return t
 					}(),
 					Type:     "DEBIT",
-					FilePath: "/foo.csv",
+					FilePath: FileCSVPathFoo,
 					Amount:   89900,
 				},
 				{
@@ -2352,7 +2358,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 						return t
 					}(),
 					Type:     "CREDIT",
-					FilePath: "/foo.csv",
+					FilePath: FileCSVPathFoo,
 					Amount:   41000,
 				},
 			},
@@ -2381,7 +2387,7 @@ func TestSvcParseSystemTrxFile(t *testing.T) {
 					f := afero.NewMemMapFs()
 					return f
 				}(),
-				filePath: "/foo.csv",
+				filePath: FileCSVPathFoo,
 			},
 			wantReturnData: nil,
 			wantErr:        true,
@@ -2458,7 +2464,7 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 			args: args{
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
-					fooFile, _ := f.Create("/foo1.csv")
+					fooFile, _ := f.Create(FileCSVPathOne)
 
 					_, _ = fooFile.Write([]byte(
 						`TrxID,TransactionTime,Type,Amount
@@ -2467,7 +2473,7 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 					))
 
 					_ = fooFile.Close()
-					fooFile, _ = f.Create("/foo2.csv")
+					fooFile, _ = f.Create(FileCSVPathTwo)
 
 					_, _ = fooFile.Write([]byte(
 						`TrxID,TransactionTime,Type,Amount
@@ -2487,17 +2493,17 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 						return t
 					}(),
 					Type:     "CREDIT",
-					FilePath: "/foo2.csv",
+					FilePath: FileCSVPathTwo,
 					Amount:   41000,
 				},
 				{
 					TrxID: "006630c83821fac6bea13b92b480feb2",
 					TransactionTime: func() time.Time {
-						t, _ := time.Parse(DateTimeFormat, "2025-03-11 17:09:21")
+						t, _ := time.Parse(DateTimeFormat, TrxDateTimeThree)
 						return t
 					}(),
 					Type:     "DEBIT",
-					FilePath: "/foo1.csv",
+					FilePath: FileCSVPathOne,
 					Amount:   89900,
 				},
 			},
