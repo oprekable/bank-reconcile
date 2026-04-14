@@ -33,7 +33,7 @@ require (
 	go.opentelemetry.io/otel v1.43.0
 	golang.org/x/sync v0.20.0
 	golang.org/x/tools v0.44.0
-	golang.org/x/vuln v1.1.4
+	golang.org/x/vuln v1.2.0
 	honnef.co/go/tools v0.7.0
 	modernc.org/sqlite v1.48.2
 )
@@ -226,7 +226,6 @@ require (
 	golang.org/x/telemetry v0.0.0-20260409153401-be6f6cb8b1fa // indirect
 	golang.org/x/term v0.40.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
-	golang.org/x/tools/go/packages/packagestest v0.1.1-deprecated // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
