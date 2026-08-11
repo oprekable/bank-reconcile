@@ -3,6 +3,7 @@ package process
 import (
 	"context"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io/fs"
 	"path/filepath"
@@ -102,16 +103,32 @@ func (s *Svc) parseSystemTrxFiles(ctx context.Context, afs afero.Fs) (returnData
 		sliceMutex := sync.Mutex{}
 		wg := sync.WaitGroup{}
 
+		var parseErrors []error
+		var errMutex sync.Mutex
+
 		parallel.ForEach(filePathSystemTrx, func(item string, _ int) {
 			wg.Add(1)
 			defer wg.Done()
-			data, _ := s.parseSystemTrxFile(ctx, afs, item)
+
+			data, parseErr := s.parseSystemTrxFile(ctx, afs, item)
+			if parseErr != nil {
+				errMutex.Lock()
+				parseErrors = append(parseErrors, fmt.Errorf("system file %s: %w", item, parseErr))
+				errMutex.Unlock()
+				return
+			}
+
 			sliceMutex.Lock()
 			returnData = append(returnData, data...)
 			sliceMutex.Unlock()
 		})
 
 		wg.Wait()
+
+		if len(parseErrors) > 0 {
+			return nil, fmt.Errorf("failed to parse %d/%d system transaction files: %w",
+				len(parseErrors), len(filePathSystemTrx), errors.Join(parseErrors...))
+		}
 	}
 
 	return
@@ -239,16 +256,33 @@ func (s *Svc) parseBankTrxFiles(ctx context.Context, afs afero.Fs) (returnData [
 			sliceMutex := sync.Mutex{}
 			wg := sync.WaitGroup{}
 
+			var parseErrors []error
+			var errMutex sync.Mutex
+
 			parallel.ForEach(filePathBankTrx, func(item FilePathBankTrx, _ int) {
 				wg.Add(1)
 				defer wg.Done()
-				data, _ := s.parseBankTrxFile(c, afs, item)
+
+				data, parseErr := s.parseBankTrxFile(c, afs, item)
+				if parseErr != nil {
+					errMutex.Lock()
+					parseErrors = append(parseErrors, fmt.Errorf("bank file %s: %w", item.FilePath, parseErr))
+					errMutex.Unlock()
+					return
+				}
+
 				sliceMutex.Lock()
 				returnData = append(returnData, data...)
 				sliceMutex.Unlock()
 			})
 
 			wg.Wait()
+
+			if len(parseErrors) > 0 {
+				return nil, fmt.Errorf("failed to parse %d/%d bank transaction files: %w",
+					len(parseErrors), len(filePathBankTrx), errors.Join(parseErrors...))
+			}
+
 			return nil, nil
 		},
 	)

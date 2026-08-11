@@ -34,8 +34,7 @@ type Foo struct {
 
 func TestDBClose(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -82,8 +81,7 @@ func TestDBClose(t *testing.T) {
 
 func TestDBGenerateReconciliationMap(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {
@@ -138,8 +136,7 @@ func TestDBGenerateReconciliationMap(t *testing.T) {
 
 func TestDBGetMatchedTrx(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -208,8 +205,7 @@ func TestDBGetMatchedTrx(t *testing.T) {
 
 func TestDBGetNotMatchedBankTrx(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -270,8 +266,7 @@ func TestDBGetNotMatchedBankTrx(t *testing.T) {
 
 func TestDBGetNotMatchedSystemTrx(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -332,8 +327,7 @@ func TestDBGetNotMatchedSystemTrx(t *testing.T) {
 
 func TestDBGetReconciliationSummary(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -397,8 +391,7 @@ func TestDBGetReconciliationSummary(t *testing.T) {
 
 func TestDBImportBankTrx(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {
@@ -476,8 +469,7 @@ func TestDBImportBankTrx(t *testing.T) {
 
 func TestDBImportSystemTrx(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {
@@ -555,8 +547,7 @@ func TestDBImportSystemTrx(t *testing.T) {
 
 func TestDBPost(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -615,8 +606,7 @@ func TestDBPost(t *testing.T) {
 
 func TestDBPre(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {
@@ -723,8 +713,7 @@ func TestDBPre(t *testing.T) {
 
 func TestDBCreateTables(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {
@@ -812,8 +801,7 @@ func TestDBCreateTables(t *testing.T) {
 
 func TestDBDropTableWith(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {
@@ -884,8 +872,7 @@ func TestDBDropTableWith(t *testing.T) {
 
 func TestDBImportInterface(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {

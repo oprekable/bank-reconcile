@@ -19,8 +19,7 @@ const (
 
 func TestDBClose(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -67,8 +66,7 @@ func TestDBClose(t *testing.T) {
 
 func TestDBGetTrx(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -170,8 +168,7 @@ func TestDBGetTrx(t *testing.T) {
 
 func TestDBPost(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -222,8 +219,7 @@ func TestDBPost(t *testing.T) {
 
 func TestDBPre(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {
@@ -324,8 +320,7 @@ func TestDBPre(t *testing.T) {
 
 func TestDBCreateTables(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {
@@ -415,8 +410,7 @@ func TestDBCreateTables(t *testing.T) {
 
 func TestDBDropTables(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	tests := []struct {
@@ -468,8 +462,7 @@ func TestDBDropTables(t *testing.T) {
 
 func TestDBPostWith(t *testing.T) {
 	type fields struct {
-		db      *sql.DB
-		stmtMap map[string]*sql.Stmt
+		db *sql.DB
 	}
 
 	type args struct {
