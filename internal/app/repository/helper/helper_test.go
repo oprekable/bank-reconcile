@@ -28,7 +28,6 @@ type Foo struct {
 
 type argsQueryContext struct {
 	db       *sql.DB
-	stmtMap  map[string]*sql.Stmt
 	stmtData StmtData
 }
 type testCaseQueryContext[out any] struct {
@@ -120,7 +119,6 @@ func TestCommitOrRollback(t *testing.T) {
 func TestExecTxQueries(t *testing.T) {
 	type args struct {
 		db       *sql.DB
-		stmtMap  map[string]*sql.Stmt
 		stmtData []StmtData
 	}
 
@@ -146,7 +144,6 @@ func TestExecTxQueries(t *testing.T) {
 
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: []StmtData{
 					{
 						Name:  "InsertFoo",
@@ -172,7 +169,6 @@ func TestExecTxQueries(t *testing.T) {
 
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: []StmtData{
 					{
 						Name:  "InsertFoo",
@@ -190,7 +186,6 @@ func TestExecTxQueries(t *testing.T) {
 			name: "Error - tx nil",
 			args: args{
 				db:       nil,
-				stmtMap:  make(map[string]*sql.Stmt),
 				stmtData: []StmtData{},
 			},
 			wantErr: true,
@@ -204,7 +199,7 @@ func TestExecTxQueries(t *testing.T) {
 				tx, _ = tt.args.db.BeginTx(context.Background(), nil)
 			}
 
-			if err := ExecTxQueries(context.Background(), tx, tt.args.stmtMap, tt.args.stmtData); (err != nil) != tt.wantErr {
+			if err := ExecTxQueries(context.Background(), tx, tt.args.stmtData); (err != nil) != tt.wantErr {
 				t.Errorf("ExecTxQueries() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -212,7 +207,7 @@ func TestExecTxQueries(t *testing.T) {
 }
 
 func runQueryContextTest[out any](t *testing.T, tt testCaseQueryContext[out]) {
-	gotReturnData, err := QueryContext[out](context.Background(), tt.args.db, tt.args.stmtMap, tt.args.stmtData)
+	gotReturnData, err := QueryContext[out](context.Background(), tt.args.db, tt.args.stmtData)
 	t.Cleanup(func() {
 		if tt.args.db != nil {
 			_ = tt.args.db.Close()
@@ -243,7 +238,6 @@ func TestQueryContext(t *testing.T) {
 								AddRow(TwoBar, TwoFaz))
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
 					Query: QuerySelectFooBarFaz,
@@ -266,7 +260,6 @@ func TestQueryContext(t *testing.T) {
 						WillReturnError(sql.ErrNoRows)
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
 					Query: QuerySelectFooBarFaz,
@@ -286,7 +279,6 @@ func TestQueryContext(t *testing.T) {
 						WillReturnError(sql.ErrConnDone)
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
 					Query: QuerySelectFooBarFaz,
@@ -300,7 +292,6 @@ func TestQueryContext(t *testing.T) {
 			name: "Error db nil",
 			args: argsQueryContext{
 				db:       nil,
-				stmtMap:  make(map[string]*sql.Stmt),
 				stmtData: StmtData{},
 			},
 			wantReturnData: Foo{},
@@ -322,7 +313,6 @@ func TestQueryContext(t *testing.T) {
 								AddRow(TwoBar, TwoFaz))
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
 					Query: QuerySelectFooBarFaz,
@@ -351,7 +341,6 @@ func TestQueryContext(t *testing.T) {
 						WillReturnError(sql.ErrNoRows)
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 				stmtData: StmtData{
 					Name:  "SelectFoo",
 					Query: QuerySelectFooBarFaz,

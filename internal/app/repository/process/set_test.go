@@ -30,8 +30,7 @@ func TestProviderDB(t *testing.T) {
 				},
 			},
 			want: &DB{
-				db:      &sql.DB{},
-				stmtMap: make(map[string]*sql.Stmt),
+				db: &sql.DB{},
 			},
 			wantErr: false,
 		},

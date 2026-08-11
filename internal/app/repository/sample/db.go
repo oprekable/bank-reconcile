@@ -18,8 +18,7 @@ const (
 )
 
 type DB struct {
-	db      *sql.DB
-	stmtMap map[string]*sql.Stmt
+	db *sql.DB
 }
 
 var _ Repository = (*DB)(nil)
@@ -28,8 +27,7 @@ func NewDB(
 	db *sql.DB,
 ) (*DB, error) {
 	return &DB{
-		db:      db,
-		stmtMap: make(map[string]*sql.Stmt),
+		db: db,
 	}, nil
 }
 
@@ -49,14 +47,13 @@ func (d *DB) dropTables(ctx context.Context, tx *sql.Tx) (err error) {
 		},
 	}
 
-	return helper.ExecTxQueries(ctx, tx, d.stmtMap, stmtData)
+	return helper.ExecTxQueries(ctx, tx, stmtData)
 }
 
 func (d *DB) createTables(ctx context.Context, tx *sql.Tx, listBank []string, startDate time.Time, toDate time.Time, limitTrxData int64, matchPercentage int) (err error) {
 	return helper.ExecTxQueries(
 		ctx,
 		tx,
-		d.stmtMap,
 		[]helper.StmtData{
 			{
 				Name:  "QueryCreateTableArguments",
@@ -133,7 +130,6 @@ func (d *DB) GetTrx(ctx context.Context) (returnData []TrxData, err error) {
 	returnData, err = helper.QueryContext[[]TrxData](
 		ctx,
 		d.db,
-		d.stmtMap,
 		helper.StmtData{
 			Name:  "QueryGetTrxData",
 			Query: QueryGetTrxData,

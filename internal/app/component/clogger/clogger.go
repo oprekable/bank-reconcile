@@ -21,7 +21,7 @@ type Logger struct {
 func NewLogger(ctx context.Context, logWriter io.Writer) *Logger {
 	re := regexp.MustCompile(`\r?\n`)
 	var writers []io.Writer
-	stdOut := zerolog.ConsoleWriter{Out: logWriter, TimeFormat: time.RFC3339Nano}
+	stdOut := zerolog.ConsoleWriter{Out: zerolog.SyncWriter(logWriter), TimeFormat: time.RFC3339Nano}
 	stdOut.FormatLevel = func(i interface{}) string {
 		return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 	}

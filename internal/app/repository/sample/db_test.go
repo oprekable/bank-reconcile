@@ -36,7 +36,6 @@ func TestDBClose(t *testing.T) {
 					s.ExpectClose().WillReturnError(nil)
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 			},
 			wantErr: false,
 		},
@@ -48,7 +47,6 @@ func TestDBClose(t *testing.T) {
 					s.ExpectClose().WillReturnError(sql.ErrConnDone)
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 			},
 			wantErr: true,
 		},
@@ -57,8 +55,7 @@ func TestDBClose(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &DB{
-				db:      tt.fields.db,
-				stmtMap: tt.fields.stmtMap,
+				db: tt.fields.db,
 			}
 
 			if err := d.Close(); (err != nil) != tt.wantErr {
@@ -123,7 +120,6 @@ func TestDBGetTrx(t *testing.T) {
 						)
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 			},
 			wantReturnData: []TrxData{
 				{
@@ -156,8 +152,7 @@ func TestDBGetTrx(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &DB{
-				db:      tt.fields.db,
-				stmtMap: tt.fields.stmtMap,
+				db: tt.fields.db,
 			}
 
 			gotReturnData, err := d.GetTrx(context.Background())
@@ -207,7 +202,6 @@ func TestDBPost(t *testing.T) {
 
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 			},
 			wantErr: false,
 		},
@@ -216,8 +210,7 @@ func TestDBPost(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &DB{
-				db:      tt.fields.db,
-				stmtMap: tt.fields.stmtMap,
+				db: tt.fields.db,
 			}
 
 			if err := d.Post(context.Background()); (err != nil) != tt.wantErr {
@@ -295,7 +288,6 @@ func TestDBPre(t *testing.T) {
 
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
 				listBank: []string{
@@ -320,8 +312,7 @@ func TestDBPre(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &DB{
-				db:      tt.fields.db,
-				stmtMap: tt.fields.stmtMap,
+				db: tt.fields.db,
 			}
 
 			if err := d.Pre(context.Background(), tt.args.listBank, tt.args.startDate, tt.args.toDate, tt.args.limitTrxData, tt.args.matchPercentage); (err != nil) != tt.wantErr {
@@ -387,7 +378,6 @@ func TestDBCreateTables(t *testing.T) {
 
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
 				listBank: []string{
@@ -412,8 +402,7 @@ func TestDBCreateTables(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &DB{
-				db:      tt.fields.db,
-				stmtMap: tt.fields.stmtMap,
+				db: tt.fields.db,
 			}
 
 			tx, _ := tt.fields.db.BeginTx(context.Background(), nil)
@@ -458,7 +447,6 @@ func TestDBDropTables(t *testing.T) {
 
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 			},
 			wantErr: false,
 		},
@@ -467,8 +455,7 @@ func TestDBDropTables(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &DB{
-				db:      tt.fields.db,
-				stmtMap: tt.fields.stmtMap,
+				db: tt.fields.db,
 			}
 
 			tx, _ := tt.fields.db.BeginTx(context.Background(), nil)
@@ -519,7 +506,6 @@ func TestDBPostWith(t *testing.T) {
 
 					return db
 				}(),
-				stmtMap: make(map[string]*sql.Stmt),
 			},
 			args: args{
 				methodName: "",
@@ -534,8 +520,7 @@ func TestDBPostWith(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &DB{
-				db:      tt.fields.db,
-				stmtMap: tt.fields.stmtMap,
+				db: tt.fields.db,
 			}
 
 			if err := d.postWith(context.Background(), tt.args.methodName, tt.args.extraExec); (err != nil) != tt.wantErr {
@@ -562,8 +547,7 @@ func TestNewDB(t *testing.T) {
 				db: &sql.DB{},
 			},
 			want: &DB{
-				db:      &sql.DB{},
-				stmtMap: make(map[string]*sql.Stmt),
+				db: &sql.DB{},
 			},
 			wantErr: false,
 		},

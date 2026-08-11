@@ -16,7 +16,7 @@ type SignalTrap chan os.Signal
 
 func TermSignalTrap() SignalTrap {
 	trap := SignalTrap(make(chan os.Signal, 1))
-	signal.Notify(trap, syscall.SIGINT, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGSEGV)
+	signal.Notify(trap, syscall.SIGINT, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 
 	return trap
 }

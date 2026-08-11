@@ -445,9 +445,12 @@ func (s *Svc) generateReconciliationFiles(ctx context.Context, reconciliationSum
 				}
 			}
 
+			var mapMu sync.Mutex
 			parallel.ForEach(bankNames, func(item string, _ int) {
 				fileReportBankTrx := fmt.Sprintf("%s/%s/%s/%s_%s.csv", s.comp.Config.Data.Reconciliation.ReportTRXPath, "bank", "not_matched", item, fileNameSuffix)
+				mapMu.Lock()
 				reconciliationSummary.FileMissingBankTrx[item] = fileReportBankTrx
+				mapMu.Unlock()
 				log.Err(
 					c,
 					fmt.Sprintf(logTemplate, fileReportBankTrx),

@@ -18,7 +18,7 @@ type StmtData struct {
 	Args  []any
 }
 
-func QueryContext[out any](ctx context.Context, db *sql.DB, stmtMap map[string]*sql.Stmt, stmtData StmtData) (returnData out, err error) {
+func QueryContext[out any](ctx context.Context, db *sql.DB, stmtData StmtData) (returnData out, err error) {
 	if db == nil {
 		err = errors.New("db is nil")
 		return returnData, err
@@ -26,16 +26,15 @@ func QueryContext[out any](ctx context.Context, db *sql.DB, stmtMap map[string]*
 
 	_, err = hunch.Waterfall(
 		ctx,
-		func(c context.Context, _ interface{}) (_ interface{}, e error) {
-			_, ok := stmtMap[stmtData.Name]
-			if !ok {
-				stmtMap[stmtData.Name], e = db.PrepareContext(c, stmtData.Query) //nolint:sqlclosecheck
-			}
-
-			return
+		func(c context.Context, _ interface{}) (interface{}, error) {
+			return db.PrepareContext(c, stmtData.Query) //nolint:sqlclosecheck
 		},
 		func(c context.Context, i interface{}) (interface{}, error) {
-			return stmtMap[stmtData.Name].QueryContext(
+			stmt := i.(*sql.Stmt)
+			defer func() {
+				_ = stmt.Close() //nolint:sqlclosecheck
+			}()
+			return stmt.QueryContext(
 				c,
 				stmtData.Args...,
 			)
@@ -56,7 +55,7 @@ func QueryContext[out any](ctx context.Context, db *sql.DB, stmtMap map[string]*
 	return returnData, err
 }
 
-func ExecTxQueries(ctx context.Context, tx *sql.Tx, stmtMap map[string]*sql.Stmt, stmtData []StmtData) (err error) {
+func ExecTxQueries(ctx context.Context, tx *sql.Tx, stmtData []StmtData) (err error) {
 	if tx == nil {
 		return errors.New("transaction is nil")
 	}
@@ -66,22 +65,15 @@ func ExecTxQueries(ctx context.Context, tx *sql.Tx, stmtMap map[string]*sql.Stmt
 		executableInSequence = append(
 			executableInSequence,
 			func(c context.Context, _ interface{}) (r interface{}, e error) {
+				stmt, e := tx.PrepareContext(c, stmtData[k].Query) //nolint:sqlclosecheck
+				if e != nil {
+					return nil, e
+				}
 				defer func() {
-					delete(stmtMap, stmtData[k].Name)
+					_ = stmt.Close() //nolint:sqlclosecheck
 				}()
 
-				if _, ok := stmtMap[stmtData[k].Name]; !ok {
-					stmtMap[stmtData[k].Name], e = tx.PrepareContext( //nolint:sqlclosecheck
-						c,
-						stmtData[k].Query,
-					)
-
-					if e != nil {
-						return nil, e
-					}
-				}
-
-				return stmtMap[stmtData[k].Name].ExecContext( //nolint:sqlclosecheck
+				return stmt.ExecContext( //nolint:sqlclosecheck
 					c,
 					stmtData[k].Args...,
 				)

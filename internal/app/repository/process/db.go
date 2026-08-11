@@ -20,8 +20,7 @@ const (
 )
 
 type DB struct {
-	db      *sql.DB
-	stmtMap map[string]*sql.Stmt
+	db *sql.DB
 }
 
 var _ Repository = (*DB)(nil)
@@ -30,8 +29,7 @@ func NewDB(
 	db *sql.DB,
 ) (*DB, error) {
 	return &DB{
-		db:      db,
-		stmtMap: make(map[string]*sql.Stmt),
+		db: db,
 	}, nil
 }
 
@@ -62,7 +60,7 @@ func (d *DB) dropTableWith(ctx context.Context, methodName string, extraExec hun
 				},
 			}
 
-			return tx, helper.ExecTxQueries(ctx, tx, d.stmtMap, stmtData)
+			return tx, helper.ExecTxQueries(ctx, tx, stmtData)
 		},
 		extraExec,
 	}
@@ -80,7 +78,6 @@ func (d *DB) createTables(ctx context.Context, tx *sql.Tx, listBank []string, st
 	return helper.ExecTxQueries(
 		ctx,
 		tx,
-		d.stmtMap,
 		[]helper.StmtData{
 			{
 				Name:  "QueryCreateTableArguments",
@@ -150,7 +147,7 @@ func (d *DB) importInterface(ctx context.Context, methodName string, query strin
 				},
 			}
 
-			return tx, helper.ExecTxQueries(ctx, tx, d.stmtMap, stmtData)
+			return tx, helper.ExecTxQueries(ctx, tx, stmtData)
 		},
 	}
 
@@ -188,7 +185,7 @@ func (d *DB) GenerateReconciliationMap(ctx context.Context, minAmount float64, m
 				},
 			}
 
-			return tx, helper.ExecTxQueries(ctx, tx, d.stmtMap, stmtData)
+			return tx, helper.ExecTxQueries(ctx, tx, stmtData)
 		},
 	}
 
@@ -209,7 +206,6 @@ func (d *DB) GetReconciliationSummary(ctx context.Context) (returnData Reconcili
 	returnData, err = helper.QueryContext[ReconciliationSummary](
 		ctx,
 		d.db,
-		d.stmtMap,
 		helper.StmtData{
 			Name:  "QueryGetReconciliationSummary",
 			Query: QueryGetReconciliationSummary,
@@ -244,7 +240,6 @@ func (d *DB) GetMatchedTrx(ctx context.Context) (returnData []MatchedTrx, err er
 	returnData, err = helper.QueryContext[[]MatchedTrx](
 		ctx,
 		d.db,
-		d.stmtMap,
 		helper.StmtData{
 			Name:  "QueryGetMatchedTrx",
 			Query: QueryGetMatchedTrx,
@@ -263,7 +258,6 @@ func (d *DB) GetNotMatchedSystemTrx(ctx context.Context) (returnData []NotMatche
 	returnData, err = helper.QueryContext[[]NotMatchedSystemTrx](
 		ctx,
 		d.db,
-		d.stmtMap,
 		helper.StmtData{
 			Name:  "QueryGetNotMatchedSystemTrx",
 			Query: QueryGetNotMatchedSystemTrx,
@@ -282,7 +276,6 @@ func (d *DB) GetNotMatchedBankTrx(ctx context.Context) (returnData []NotMatchedB
 	returnData, err = helper.QueryContext[[]NotMatchedBankTrx](
 		ctx,
 		d.db,
-		d.stmtMap,
 		helper.StmtData{
 			Name:  "QueryGetNotMatchedBankTrx",
 			Query: QueryGetNotMatchedBankTrx,
