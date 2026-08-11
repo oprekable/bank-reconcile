@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/aaronjan/hunch"
 	"github.com/oprekable/bank-reconcile/internal/app/component"
@@ -27,10 +26,8 @@ import (
 )
 
 type Svc struct {
-	comp                       *component.Components
-	repo                       *repository.Repositories
-	poolSystemTrxDataInterface *sync.Pool
-	poolBankTrxDataInterface   *sync.Pool
+	comp *component.Components
+	repo *repository.Repositories
 }
 
 var _ ServiceGenerator = (*Svc)(nil)
@@ -42,16 +39,6 @@ func NewSvc(
 	return &Svc{
 		comp: comp,
 		repo: repo,
-		poolSystemTrxDataInterface: &sync.Pool{
-			New: func() interface{} {
-				return new(systems.SystemTrxDataInterface)
-			},
-		},
-		poolBankTrxDataInterface: &sync.Pool{
-			New: func() interface{} {
-				return new(banks.BankTrxDataInterface)
-			},
-		},
 	}
 }
 
@@ -187,21 +174,14 @@ func (s *Svc) GenerateSample(ctx context.Context, fs afero.Fs, bar *progressbar.
 			bankTrxData := make(map[string][]banks.BankTrxDataInterface)
 
 			lo.ForEach(trxData, func(data sample.TrxData, _ int) {
-				pSystemTrxData := s.poolSystemTrxDataInterface.Get().(*systems.SystemTrxDataInterface)
-				pBankTrxData := s.poolBankTrxDataInterface.Get().(*banks.BankTrxDataInterface)
-				*pSystemTrxData, *pBankTrxData = s.parse(data)
+				systemTrxDataInterface, bankTrxDataInterface := s.parse(data)
 
-				s.poolSystemTrxDataInterface.Put(pSystemTrxData)
-				s.poolBankTrxDataInterface.Put(pBankTrxData)
-
-				if *pSystemTrxData != nil {
-					systemTrx := *pSystemTrxData
-					systemTrxData = append(systemTrxData, systemTrx.(*default_system.CSVSystemTrxData))
+				if systemTrxDataInterface != nil {
+					systemTrxData = append(systemTrxData, systemTrxDataInterface.(*default_system.CSVSystemTrxData))
 				}
 
-				if *pBankTrxData != nil {
-					bankTrx := *pBankTrxData
-					bankTrxData[bankTrx.GetBank()] = append(bankTrxData[bankTrx.GetBank()], *pBankTrxData)
+				if bankTrxDataInterface != nil {
+					bankTrxData[bankTrxDataInterface.GetBank()] = append(bankTrxData[bankTrxDataInterface.GetBank()], bankTrxDataInterface)
 				}
 			})
 

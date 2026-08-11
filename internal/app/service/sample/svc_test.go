@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"reflect"
-	"sync"
 	"testing"
 	"time"
 
@@ -96,12 +95,6 @@ func TestNewSvc(t *testing.T) {
 				!reflect.DeepEqual(got.repo, tt.want.repo) {
 				t.Errorf("NewSvc() = %v, want %v", got, tt.want)
 			}
-
-			ptrS := got.poolSystemTrxDataInterface.Get().(*systems.SystemTrxDataInterface)
-			got.poolSystemTrxDataInterface.Put(ptrS)
-
-			ptrB := got.poolBankTrxDataInterface.Get().(*banks.BankTrxDataInterface)
-			got.poolBankTrxDataInterface.Put(ptrB)
 		})
 	}
 }
@@ -245,16 +238,6 @@ func TestSvcGenerateSample(t *testing.T) {
 			s := &Svc{
 				comp: tt.fields.comp,
 				repo: tt.fields.repo,
-				poolSystemTrxDataInterface: &sync.Pool{
-					New: func() interface{} {
-						return new(systems.SystemTrxDataInterface)
-					},
-				},
-				poolBankTrxDataInterface: &sync.Pool{
-					New: func() interface{} {
-						return new(banks.BankTrxDataInterface)
-					},
-				},
 			}
 
 			gotReturnSummary, err := s.GenerateSample(tt.args.ctxFn(ctx), tt.args.fs, tt.args.bar, tt.args.isDeleteDirectory)

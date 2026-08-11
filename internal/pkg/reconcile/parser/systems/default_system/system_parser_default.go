@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"sync"
 	"time"
 
 	"github.com/jszwec/csvutil"
@@ -53,11 +52,10 @@ func (u *CSVSystemTrxData) ToSystemTrxData() (returnData *systems.SystemTrxData,
 }
 
 type SystemParser struct {
-	dataStruct        systems.SystemTrxDataInterface
-	csvReader         *csv.Reader
-	poolSystemTrxData *sync.Pool
-	parser            systems.SystemParserType
-	isHaveHeader      bool
+	dataStruct   systems.SystemTrxDataInterface
+	csvReader    *csv.Reader
+	parser       systems.SystemParserType
+	isHaveHeader bool
 }
 
 var _ systems.SystemDataConverter = (*SystemParser)(nil)
@@ -76,11 +74,6 @@ func NewSystemParser(
 		parser:       systems.DefaultSystemParser,
 		csvReader:    csvReader,
 		isHaveHeader: isHaveHeader,
-		poolSystemTrxData: &sync.Pool{
-			New: func() interface{} {
-				return &systems.SystemTrxData{}
-			},
-		},
 	}, nil
 }
 
@@ -116,11 +109,7 @@ func (d *SystemParser) ToSystemTrxData(ctx context.Context, filePath string) (re
 			break
 		}
 
-		//nolint:all
-		//lint:ignore SA4006 sync.pool pattern just like this
-		ptrSystemTrxData := d.poolSystemTrxData.Get().(*systems.SystemTrxData)
-		ptrSystemTrxData, err = originalData.ToSystemTrxData()
-		d.poolSystemTrxData.Put(ptrSystemTrxData)
+		ptrSystemTrxData, err := originalData.ToSystemTrxData()
 
 		if err != nil {
 			log.AddErr(ctx, err)

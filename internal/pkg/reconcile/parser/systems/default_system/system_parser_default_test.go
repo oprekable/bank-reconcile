@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/csv"
 	"reflect"
-	"sync"
 	"testing"
 	"time"
 
@@ -253,11 +252,6 @@ func TestNewSystemParser(t *testing.T) {
 				csvReader:    csv.NewReader(nil),
 				parser:       systems.DefaultSystemParser,
 				isHaveHeader: true,
-				poolSystemTrxData: &sync.Pool{
-					New: func() interface{} {
-						return &systems.SystemTrxData{}
-					},
-				},
 			},
 			wantErr: false,
 		},
@@ -289,9 +283,6 @@ func TestNewSystemParser(t *testing.T) {
 					!reflect.DeepEqual(got.isHaveHeader, tt.want.isHaveHeader) {
 					t.Errorf("NewSystemParser() got = %v, want %v", got, tt.want)
 				}
-
-				ptr := got.poolSystemTrxData.Get().(*systems.SystemTrxData)
-				got.poolSystemTrxData.Put(ptr)
 				return
 			}
 
@@ -505,11 +496,6 @@ func TestSystemParserToSystemTrxData(t *testing.T) {
 				csvReader:    tt.fields.csvReader,
 				parser:       tt.fields.parser,
 				isHaveHeader: tt.fields.isHaveHeader,
-				poolSystemTrxData: &sync.Pool{
-					New: func() interface{} {
-						return &systems.SystemTrxData{}
-					},
-				},
 			}
 
 			gotReturnData, err := d.ToSystemTrxData(context.Background(), tt.args.filePath)
