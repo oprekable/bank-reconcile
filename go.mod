@@ -1,6 +1,6 @@
 module github.com/oprekable/bank-reconcile
 
-go 1.25.12
+go 1.26.0
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
@@ -34,7 +34,7 @@ require (
 	golang.org/x/sync v0.22.0
 	golang.org/x/tools v0.48.0
 	golang.org/x/vuln v1.6.0
-	honnef.co/go/tools v0.7.0
+	honnef.co/go/tools v0.8.0
 	modernc.org/sqlite v1.56.0
 )
 
