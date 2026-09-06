@@ -2509,6 +2509,47 @@ func TestSvcParseSystemTrxFiles(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "Parse Error",
+			fields: fields{
+				comp: component.NewComponents(
+					ctx,
+					func() *cconfig.Config {
+						return &cconfig.Config{
+							Data: &config.Data{
+								Reconciliation: reconciliation.Reconciliation{
+									SystemTRXPath: "/",
+								},
+							},
+						}
+					}(),
+					&clogger.Logger{},
+					&cerror.Error{},
+					&csqlite.DBSqlite{},
+					&cfs.Fs{},
+					&cprofiler.Profiler{},
+				),
+				repo: repository.NewRepositories(
+					mocksample.NewRepository(t),
+					mockprocess.NewRepository(t),
+				),
+				parserRegistry: testRegistry,
+			},
+			args: args{
+				afs: func() afero.Fs {
+					f := afero.NewMemMapFs()
+					fooFile, _ := f.Create(FileCSVPathOne)
+
+					// Write malformed CSV content
+					_, _ = fooFile.Write([]byte(
+						"Invalid,CSV,Headers\n1,2"))
+					_ = fooFile.Close()
+					return f
+				}(),
+			},
+			wantReturnData: nil,
+			wantErr:        true,
+		},
 	}
 
 	for _, tt := range tests {
