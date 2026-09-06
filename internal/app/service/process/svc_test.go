@@ -76,6 +76,18 @@ func newTestParserRegistry() *banks.ParserRegistry {
 	return banks.NewParserRegistry(factories)
 }
 
+type MockOpenFilesPermissionDeniedFs struct {
+	afero.Fs
+}
+
+func (o *MockOpenFilesPermissionDeniedFs) Open(name string) (afero.File, error) {
+	st, err := o.Fs.Stat(name)
+	if err == nil && !st.IsDir() {
+		return nil, os.ErrPermission
+	}
+	return o.Fs.Open(name)
+}
+
 type MockOpenPermissionDeniedFs struct {
 	afero.MemMapFs
 }
@@ -341,8 +353,7 @@ func TestSvcGenerateReconciliation(t *testing.T) {
 					_ = systemTrxFile.Close()
 
 					bankTrxFile, _ := f.Create(BankBcaCsvFile)
-					_, _ = bankTrxFile.Write([]byte(
-						`BCAUniqueIdentifier,BCADate,BCAAmount
+					_, _ = bankTrxFile.Write([]byte(`BCAUniqueIdentifier,BCADate,BCAAmount
 bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 `,
 					))
@@ -541,8 +552,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 					_ = systemTrxFile.Close()
 
 					bankTrxFile, _ := f.Create(BankBcaCsvFile)
-					_, _ = bankTrxFile.Write([]byte(
-						`BCAUniqueIdentifier,BCADate,BCAAmount
+					_, _ = bankTrxFile.Write([]byte(`BCAUniqueIdentifier,BCADate,BCAAmount
 bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 `,
 					))
@@ -1707,8 +1717,7 @@ func TestSvcParse(t *testing.T) {
 					_ = systemTrxFile.Close()
 
 					bankTrxFile, _ := f.Create(BankBcaCsvFile)
-					_, _ = bankTrxFile.Write([]byte(
-						`BCAUniqueIdentifier,BCADate,BCAAmount
+					_, _ = bankTrxFile.Write([]byte(`BCAUniqueIdentifier,BCADate,BCAAmount
 bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 `,
 					))
@@ -1845,8 +1854,7 @@ func TestSvcParseBankTrxFile(t *testing.T) {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create(FileCSVPathBCA)
 
-					_, _ = fooFile.Write([]byte(
-						`BCAUniqueIdentifier,BCADate,BCAAmount
+					_, _ = fooFile.Write([]byte(`BCAUniqueIdentifier,BCADate,BCAAmount
 bca-e6f8fbe1f6f8c72da7caade610b692e8,2025-03-04,-71700
 bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 `,
@@ -2163,8 +2171,7 @@ func TestSvcParseBankTrxFiles(t *testing.T) {
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create("/random_string/foo/bar/bca/any_string.csv")
-					_, _ = fooFile.Write([]byte(
-						`BCAUniqueIdentifier,BCADate,BCAAmount
+					_, _ = fooFile.Write([]byte(`BCAUniqueIdentifier,BCADate,BCAAmount
 bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 `,
 					))
@@ -2240,8 +2247,7 @@ bni-5f4b1bdf10332ea307813ce402f3d7d4,2025-03-09,-71200
 				afs: func() afero.Fs {
 					f := afero.NewMemMapFs()
 					fooFile, _ := f.Create(FileCSVPath)
-					_, _ = fooFile.Write([]byte(
-						`BCAUniqueIdentifier,BCADate,BCAAmount
+					_, _ = fooFile.Write([]byte(`BCAUniqueIdentifier,BCADate,BCAAmount
 bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 `,
 					))
@@ -2252,6 +2258,46 @@ bca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700
 			},
 			wantReturnData: nil,
 			wantErr:        false,
+		},
+		{
+			name: "Parse error",
+			fields: fields{
+				comp: component.NewComponents(
+					ctx,
+					func() *cconfig.Config {
+						return &cconfig.Config{
+							Data: &config.Data{
+								Reconciliation: reconciliation.Reconciliation{
+									BankTRXPath: "/random_string",
+									ListBank:    []string{"bca"},
+								},
+							},
+						}
+					}(),
+					&clogger.Logger{},
+					&cerror.Error{},
+					&csqlite.DBSqlite{},
+					&cfs.Fs{},
+					&cprofiler.Profiler{},
+				),
+				repo: repository.NewRepositories(
+					mocksample.NewRepository(t),
+					mockprocess.NewRepository(t),
+				),
+				parserRegistry: testRegistry,
+			},
+			args: args{
+				afs: func() afero.Fs {
+					f := afero.NewMemMapFs()
+					fooFile, _ := f.Create("/random_string/foo/bar/bca/any_string.csv")
+					_, _ = fooFile.Write([]byte(`BCAUniqueIdentifier,BCADate,BCAAmount\nbca-5585fa85a971917b48ea2729bcf7d9fb,2025-03-06,7700\n`))
+
+					_ = fooFile.Close()
+					return &MockOpenFilesPermissionDeniedFs{f}
+				}(),
+			},
+			wantReturnData: nil,
+			wantErr:        true,
 		},
 	}
 
