@@ -38,16 +38,16 @@ import (
 )
 
 const (
-	ReportPath       = "/report"
-	SystemPath       = "/system"
+	ReportPath       = "/tmp/data/report"
+	SystemPath       = "/tmp/data/sample/system"
 	DateFrom         = "2025-03-06"
 	DateTo           = "2025-03-09"
 	DateSample       = "2025-03-04"
 	DateFormat       = "2006-01-02"
 	DateTimeFormat   = "2006-01-02 15:04:05"
-	SystemCsvFile    = "/system/foo1.csv"
-	BankBcaCsvFile   = "/bank/bca/any_string.csv"
-	BankBniCsvFile   = "/bank/bni/any_string.csv"
+	SystemCsvFile    = "/tmp/data/sample/system/foo1.csv"
+	BankBcaCsvFile   = "/tmp/data/sample/bank/bca/any_string.csv"
+	BankBniCsvFile   = "/tmp/data/sample/bank/bni/any_string.csv"
 	BCAUniqueUUID    = "bca-5585fa85a971917b48ea2729bcf7d9fb"
 	BNIUniqueUUID    = "bni-5f4b1bdf10332ea307813ce402f3d7d4"
 	TrxDateTimeOne   = "2025-03-06 17:09:21"
@@ -920,8 +920,8 @@ func TestSvcGenerateReconciliationFiles(t *testing.T) {
 				reconciliationSummary: &ReconciliationSummary{},
 				fs: func() afero.Fs {
 					f := afero.MemMapFs{}
-					_ = f.Mkdir("/report/bank/not_matched", os.ModeDir)
-					file, _ := f.Create("/report/bank/not_matched/foo.csv")
+					_ = f.Mkdir("/tmp/data/report/bank/not_matched", os.ModeDir)
+					file, _ := f.Create("/tmp/data/report/bank/not_matched/foo.csv")
 					_ = file.Close()
 					fDenied := MockRemoveAllPermissionDeniedFs{f}
 					return &fDenied
@@ -1158,8 +1158,8 @@ func TestSvcGenerateReconciliationSummaryAndFiles(t *testing.T) {
 			},
 			wantReturnData: ReconciliationSummary{
 				FileMissingBankTrx:              nil,
-				FileMissingSystemTrx:            "/report/system/not_matched/not_matched_1742017753.csv",
-				FileMatchedSystemTrx:            "/report/system/matched/matched_1742017753.csv",
+				FileMissingSystemTrx:            "/tmp/data/report/system/not_matched/not_matched_1742017753.csv",
+				FileMatchedSystemTrx:            "/tmp/data/report/system/matched/matched_1742017753.csv",
 				TotalProcessedSystemTrx:         0,
 				TotalMatchedSystemTrx:           0,
 				TotalNotMatchedSystemTrx:        0,
@@ -1673,7 +1673,7 @@ func TestSvcParse(t *testing.T) {
 										return t
 									}(),
 									SystemTRXPath: SystemPath,
-									BankTRXPath:   "/bank",
+									BankTRXPath:   "/tmp/data/sample/bank",
 									ListBank:      []string{"bca", "bni"},
 								},
 							},

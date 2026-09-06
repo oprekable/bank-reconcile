@@ -80,7 +80,7 @@ func TestStructToCSVFile(t *testing.T) {
 			name: "isDeleteDirectory & structData have value - Success",
 			args: args{
 				fs:       afero.NewMemMapFs(),
-				filePath: "/test/test.csv",
+				filePath: "/tmp/data/test/test.csv",
 				structData: []T{
 					{
 						Name: "test",
@@ -94,7 +94,7 @@ func TestStructToCSVFile(t *testing.T) {
 			name: "isDeleteDirectory = false & structData have no value - Success",
 			args: args{
 				fs:                afero.NewMemMapFs(),
-				filePath:          "/test/test.csv",
+				filePath:          "/tmp/data/test/test.csv",
 				structData:        []T{},
 				isDeleteDirectory: false,
 			},

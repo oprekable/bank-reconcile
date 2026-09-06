@@ -422,8 +422,8 @@ func TestSvcDeleteDirectorySystemTrxBankTrx(t *testing.T) {
 						return &cconfig.Config{
 							Data: &config.Data{
 								Reconciliation: reconciliation.Reconciliation{
-									SystemTRXPath: "/system",
-									BankTRXPath:   "/bank",
+									SystemTRXPath: "/tmp/data/sample/system",
+									BankTRXPath:   "/tmp/data/sample/bank",
 								},
 							},
 						}

@@ -34,7 +34,15 @@ func StructToCSVFile(ctx context.Context, fs afero.Fs, filePath string, structDa
 	return err
 }
 
+// DeleteDirectory safely removes the contents of a directory.
+// It validates the path to prevent accidental deletion of system directories
+// and blocks path traversal attempts and symlink escape attacks.
 func DeleteDirectory(ctx context.Context, fs afero.Fs, filePath string) (err error) {
+	// Validate path BEFORE any deletion to prevent security issues
+	if err := validateDeletionPath(filePath); err != nil {
+		return err
+	}
+
 	_, err = hunch.Waterfall(
 		ctx,
 		func(c context.Context, i interface{}) (interface{}, error) {
