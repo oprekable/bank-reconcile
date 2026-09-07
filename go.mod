@@ -28,7 +28,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.12.1
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
-	github.com/vektra/mockery/v2 v2.53.6
+	github.com/vektra/mockery/v2 v2.53.7
 	go.chromium.org/luci v0.0.0-20260810162037-fdd759838feb
 	go.opentelemetry.io/otel v1.46.0
 	golang.org/x/sync v0.22.0
