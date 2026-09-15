@@ -33,7 +33,7 @@ require (
 	go.opentelemetry.io/otel v1.46.0
 	golang.org/x/sync v0.23.0
 	golang.org/x/tools v0.50.0
-	golang.org/x/vuln v1.7.0
+	golang.org/x/vuln v1.8.0
 	honnef.co/go/tools v0.8.1
 	modernc.org/sqlite v1.58.0
 )
