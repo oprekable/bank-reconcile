@@ -32,7 +32,7 @@ require (
 	go.chromium.org/luci v0.0.0-20260810162037-fdd759838feb
 	go.opentelemetry.io/otel v1.46.0
 	golang.org/x/sync v0.23.0
-	golang.org/x/tools v0.49.0
+	golang.org/x/tools v0.50.0
 	golang.org/x/vuln v1.7.0
 	honnef.co/go/tools v0.8.1
 	modernc.org/sqlite v1.58.0
@@ -220,9 +220,9 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20251009144603-d2f985daa21b // indirect
-	golang.org/x/mod v0.39.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/telemetry v0.0.0-20260811182544-a038080d80e5 // indirect
+	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/telemetry v0.0.0-20260908163034-4bcc4b2ee518 // indirect
 	golang.org/x/term v0.45.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
