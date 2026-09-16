@@ -8,7 +8,7 @@ require (
 	github.com/aaronjan/hunch v1.1.3
 	github.com/blockloop/scan/v2 v2.5.0
 	github.com/bygui86/multi-profile/v2 v2.1.0
-	github.com/creasty/defaults v1.9.0
+	github.com/creasty/defaults v1.10.0
 	github.com/driftprogramming/godotenv v1.1.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/goccy/go-json v0.10.6
