@@ -115,16 +115,18 @@ func TxWith(ctx context.Context, logFlag string, methodName string, db *sql.DB, 
 	return err
 }
 
-func CommitOrRollback(tx *sql.Tx, er error) (err error) {
+func CommitOrRollback(tx *sql.Tx, er error) error {
 	if tx == nil {
 		return errors.New("transaction is nil")
 	}
 
 	if er != nil {
-		err = errors.Wrap(tx.Rollback(), er.Error())
-	} else {
-		err = tx.Commit()
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("rollback failed: %w (original error: %v)", rbErr, er)
+		}
+
+		return er
 	}
 
-	return err
+	return tx.Commit()
 }
