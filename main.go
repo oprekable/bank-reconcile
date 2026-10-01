@@ -4,7 +4,6 @@ import (
 	"embed"
 	"io"
 	"os"
-	"unsafe"
 
 	"github.com/oprekable/bank-reconcile/cmd"
 	"github.com/oprekable/bank-reconcile/cmd/process"
@@ -39,7 +38,9 @@ func run(outPutWriter, errWriter io.Writer) int {
 			},
 		)
 
-	isHaveErr := c.Execute() != nil
-	// Bool to 0 or 1
-	return int(*(*byte)(unsafe.Pointer(&isHaveErr)))
+	if c.Execute() != nil {
+		return 1
+	}
+
+	return 0
 }
