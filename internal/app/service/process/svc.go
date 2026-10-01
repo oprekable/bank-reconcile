@@ -164,27 +164,43 @@ func (s *Svc) importReconcileSystemDataToDB(ctx context.Context, data []*systems
 	return
 }
 
-func (s *Svc) importReconcileMapToDB(ctx context.Context, min float64, max float64) (err error) {
-	max = max + 1
-	numberWorker := float64(s.comp.Config.Data.Reconciliation.NumberWorker * 2)
-	defSize := max / numberWorker
-	size := defSize + 1
-
-	for i, idx := 0.0, min; i < numberWorker; i++ {
-		err = s.repo.RepoProcess.GenerateReconciliationMap(
-			ctx,
-			idx,
-			idx+size,
-		)
-
-		if err != nil {
-			return
-		}
-
-		idx += size
+func (s *Svc) importReconcileMapToDB(ctx context.Context, minAmount float64, maxAmount float64) error {
+	if minAmount > maxAmount {
+		return fmt.Errorf("invalid amount range: min (%.2f) > max (%.2f)", minAmount, maxAmount)
 	}
 
-	return
+	numChunks := s.comp.Config.Data.Reconciliation.NumberWorker * 2
+	if numChunks <= 0 {
+		numChunks = 1
+	}
+
+	// Range delta
+	totalRange := maxAmount - minAmount
+
+	if totalRange == 0 || numChunks == 1 {
+		return s.repo.RepoProcess.GenerateReconciliationMap(ctx, minAmount, maxAmount+0.01)
+	}
+
+	stepSize := totalRange / float64(numChunks)
+
+	currentMin := minAmount
+	for i := 0; i < numChunks; i++ {
+		var currentMax float64
+
+		if i == numChunks-1 {
+			currentMax = maxAmount + 0.01
+		} else {
+			currentMax = currentMin + stepSize
+		}
+
+		if err := s.repo.RepoProcess.GenerateReconciliationMap(ctx, currentMin, currentMax); err != nil {
+			return fmt.Errorf("failed generating reconciliation map for range [%.2f - %.2f]: %w", currentMin, currentMax, err)
+		}
+
+		currentMin = currentMax
+	}
+
+	return nil
 }
 
 func (s *Svc) parseBankTrxFile(ctx context.Context, afs afero.Fs, item FilePathBankTrx) (returnData []*banks.BankTrxData, err error) {
