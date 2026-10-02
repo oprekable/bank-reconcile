@@ -24,6 +24,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
 	entitybca "github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bca/entity"
 	entitybni "github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bni/entity"
+	entitybsi "github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bsi/entity"
 	entitydefaultbank "github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/default_bank/entity"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems/default_system"
@@ -575,6 +576,38 @@ func TestSvcParse(t *testing.T) {
 				BNIDate:             TrxDate,
 				BNIAmount:           -41000,
 				BNIBank:             "bni",
+			},
+		},
+		{
+			name: "Ok - bsi",
+			fields: fields{
+				comp: nil,
+				repo: nil,
+			},
+			args: args{
+				data: sample.TrxData{
+					TrxID:            "006630c83821fac6bea13b92b480feb2",
+					UniqueIdentifier: "bsi-5585fa85a971917b48ea2729bcf7d9fb",
+					Type:             "DEBIT",
+					Bank:             "bsi",
+					TransactionTime:  TrxDateTime,
+					Date:             TrxDate,
+					IsSystemTrx:      true,
+					IsBankTrx:        true,
+					Amount:           41000,
+				},
+			},
+			wantSystemTrxData: &default_system.CSVSystemTrxData{
+				TrxID:           "006630c83821fac6bea13b92b480feb2",
+				TransactionTime: TrxDateTime,
+				Type:            "DEBIT",
+				Amount:          41000,
+			},
+			wantBankTrxData: &entitybsi.CSVBankTrxData{
+				BSIUniqueIdentifier: "bsi-5585fa85a971917b48ea2729bcf7d9fb",
+				BSIDate:             TrxDate,
+				BSIAmount:           -41000,
+				BSIBank:             "bsi",
 			},
 		},
 		{

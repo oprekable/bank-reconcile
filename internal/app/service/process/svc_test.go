@@ -29,6 +29,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bca"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bni"
+	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bsi"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/default_bank"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems"
 	"github.com/schollz/progressbar/v3"
@@ -69,6 +70,9 @@ func newTestParserRegistry() *banks.ParserRegistry {
 	}
 	factories[string(banks.BNIBankParser)] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
 		return bni.NewBankParser(bankName, reader, hasHeader)
+	}
+	factories[string(banks.BSIBankParser)] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
+		return bsi.NewBankParser(bankName, reader, hasHeader)
 	}
 	factories[string(banks.DefaultBankParser)] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
 		return default_bank.NewBankParser(bankName, reader, hasHeader)

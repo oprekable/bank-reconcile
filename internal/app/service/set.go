@@ -9,6 +9,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bca"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bni"
+	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bsi"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/default_bank"
 )
 
@@ -25,6 +26,11 @@ func ProvideBankParserFactoryMap() map[string]banks.BankParserFactory {
 	// Register BNI parser
 	factories[string(banks.BNIBankParser)] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
 		return bni.NewBankParser(bankName, reader, hasHeader)
+	}
+
+	// Register BSI parser
+	factories[string(banks.BSIBankParser)] = func(bankName string, reader *csv.Reader, hasHeader bool) (banks.ReconcileBankData, error) {
+		return bsi.NewBankParser(bankName, reader, hasHeader)
 	}
 
 	// Register Default parser

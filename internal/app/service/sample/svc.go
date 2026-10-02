@@ -13,6 +13,7 @@ import (
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks"
 	entitybca "github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bca/entity"
 	entitybni "github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bni/entity"
+	entitybsi "github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/bsi/entity"
 	entitydefaultbank "github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/banks/default_bank/entity"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems"
 	"github.com/oprekable/bank-reconcile/internal/pkg/reconcile/parser/systems/default_system"
@@ -98,6 +99,15 @@ func (s *Svc) parse(data sample.TrxData) (systemTrxData systems.SystemTrxDataInt
 					BNIDate:             data.Date,
 					BNIAmount:           data.Amount * multiplier,
 					BNIBank:             bank,
+				}
+			}
+		case "BSI":
+			{
+				bankTrxData = &entitybsi.CSVBankTrxData{
+					BSIUniqueIdentifier: data.UniqueIdentifier,
+					BSIDate:             data.Date,
+					BSIAmount:           data.Amount * multiplier,
+					BSIBank:             bank,
 				}
 			}
 		default:

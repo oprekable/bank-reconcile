@@ -8,6 +8,7 @@ const (
 	DefaultBankParser BankParserType = "DEFAULT"
 	BCABankParser     BankParserType = "BCA"
 	BNIBankParser     BankParserType = "BNI"
+	BSIBankParser     BankParserType = "BSI"
 )
 
 type TrxType string

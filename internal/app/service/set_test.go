@@ -70,6 +70,12 @@ func TestProvideBankParserFactoryMap(t *testing.T) {
 			parser:     string(banks.BNIBankParser),
 			wantParser: string(banks.BNIBankParser),
 		},
+		{
+			name:       "BSI ok",
+			bank:       string(banks.BSIBankParser),
+			parser:     string(banks.BSIBankParser),
+			wantParser: string(banks.BSIBankParser),
+		},
 	}
 
 	for _, tt := range tests {
