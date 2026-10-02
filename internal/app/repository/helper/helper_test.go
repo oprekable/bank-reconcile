@@ -68,6 +68,21 @@ func TestCommitOrRollback(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "Commit error",
+			args: args{
+				dbTx: func() dbTx {
+					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+					s.ExpectBegin()
+					s.ExpectCommit().WillReturnError(sql.ErrConnDone)
+					return dbTx{
+						db: db,
+					}
+				}(),
+				er: nil,
+			},
+			wantErr: true,
+		},
+		{
 			name: "Rollback",
 			args: args{
 				dbTx: func() dbTx {
@@ -80,7 +95,22 @@ func TestCommitOrRollback(t *testing.T) {
 				}(),
 				er: sql.ErrNoRows,
 			},
-			wantErr: false,
+			wantErr: true,
+		},
+		{
+			name: "Rollback error",
+			args: args{
+				dbTx: func() dbTx {
+					db, s, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+					s.ExpectBegin()
+					s.ExpectRollback().WillReturnError(sql.ErrConnDone)
+					return dbTx{
+						db: db,
+					}
+				}(),
+				er: sql.ErrNoRows,
+			},
+			wantErr: true,
 		},
 		{
 			name: "Nil tx",
