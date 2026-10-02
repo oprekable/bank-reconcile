@@ -15,14 +15,14 @@ The implementation covers the following aspects:
 - Implementation of unit tests to maximize code coverage across various aspects, including SQL mocks, common interface mocks, file system mocks, time mocks, and IO mocks.
 - Optimization of the codebase to meet [SonarQube](https://sonarcloud.io) standards, focusing on code quality, bug detection, code smells, duplicate lines, and coverage.
 - Utilization of development tools such as:
-  - Code linter ([golangci-lint](https://github.com/golangci/golangci-lint/cmd/golangci-lint))
-  - Dependency injection ([wire](https://github.com/google/wire/cmd/wire))
-  - Code mock ([mockery](https://github.com/vektra/mockery/v2))
-  - Dead code checker ([deadcode](https://golang.org/x/tools/cmd/deadcode))
-  - Go import checker ([goimports](https://golang.org/x/tools/cmd/goimports))
-  - Go struct sorting ([fieldalignment](https://golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment))
-  - Code and dependency vulnerability check ([govulncheck](https://golang.org/x/vuln/cmd/govulncheck))
-  - Static code check ([staticcheck](https://honnef.co/go/tools/cmd/staticcheck)).
+    - Code linter ([golangci-lint](https://github.com/golangci/golangci-lint/cmd/golangci-lint))
+    - Dependency injection ([wire](https://github.com/google/wire/cmd/wire))
+    - Code mock ([mockery](https://github.com/vektra/mockery/v2))
+    - Dead code checker ([deadcode](https://golang.org/x/tools/cmd/deadcode))
+    - Go import checker ([goimports](https://golang.org/x/tools/cmd/goimports))
+    - Go struct sorting ([fieldalignment](https://golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment))
+    - Code and dependency vulnerability check ([govulncheck](https://golang.org/x/vuln/cmd/govulncheck))
+    - Static code check ([staticcheck](https://honnef.co/go/tools/cmd/staticcheck)).
 - SonarQube analysis via github action.
 - Release application binaries using [goreleaser](https://github.com/goreleaser/goreleaser) via github action.
 - Improved and simplified code structures.
@@ -89,17 +89,17 @@ bni-80f73e01ab6ef44742bd56051a16f9f1,2025-04-07,14200
 
 - The generated CSV files are structured based on specific configurations. For more details, please refer to the manual.
 - The application should perform the reconciliation process using CSV files generated from sample commands or real transaction files. The reconciliation rules are as follows:
-  - `TransactionTime` of internal transaction (in `datetime` format) == `Date` or `BCADate` or `BNIDate` of bank statement (in `date` format)
-  - And `Amount` + `Type` in internal transaction == `Amount` or `BCAAmount` or `BNIAmount` of bank statement (`Type` DEBIT in internal transaction == negative value of `Amount` in bank statement)
+    - `TransactionTime` of internal transaction (in `datetime` format) == `Date` or `BCADate` or `BNIDate` of bank statement (in `date` format)
+    - And `Amount` + `Type` in internal transaction == `Amount` or `BCAAmount` or `BNIAmount` of bank statement (`Type` DEBIT in internal transaction == negative value of `Amount` in bank statement)
 - The results of the reconciliation process will display the following information:
-  - Total number of transactions processed
-  - Total number of matched transactions
-  - Total number of unmatched transactions
-    - Details of unmatched transactions:
-      - System transaction details if missing in bank statement(s)
-      - Bank statement details if missing in system transactions (grouped by bank)
-    - Total discrepancies (sum of absolute differences in amount between matched transactions)
-  - Generate CSV files for matched and unmatched transactions, structured as follows:
+    - Total number of transactions processed
+    - Total number of matched transactions
+    - Total number of unmatched transactions
+        - Details of unmatched transactions:
+            - System transaction details if missing in bank statement(s)
+            - Bank statement details if missing in system transactions (grouped by bank)
+        - Total discrepancies (sum of absolute differences in amount between matched transactions)
+    - Generate CSV files for matched and unmatched transactions, structured as follows:
 
 ```shell
 .
@@ -142,9 +142,9 @@ Usage:
   bank-reconcile [command]
 
 Examples:
-Generate sample 
+Generate sample
 	bank-reconcile sample --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --listbank=bca,bni,mandiri,bri,danamon --percentagematch=100 --amountdata=10000 --from=2025-04-14 --to=2025-04-14
-Process data 
+Process data
 	bank-reconcile process --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --reportpath==/tmp/data/report --listbank=bca,bni,mandiri,bri,danamon --from=2025-04-14 --to=2025-04-14
 
 
@@ -173,7 +173,7 @@ Aliases:
   sample, sa, s
 
 Examples:
-Generate sample 
+Generate sample
 	bank-reconcile sample --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --listbank=bca,bni,mandiri,bri,danamon --percentagematch=100 --amountdata=10000 --from=2025-04-14 --to=2025-04-14
 
 
@@ -205,7 +205,7 @@ Aliases:
   process, pr, p
 
 Examples:
-Process data 
+Process data
 	bank-reconcile process --systemtrxpath=/tmp/data/sample/system --banktrxpath=/tmp/data/sample/bank --reportpath==/tmp/data/report --listbank=bca,bni,mandiri,bri,danamon --from=2025-04-14 --to=2025-04-14
 
 
@@ -226,61 +226,64 @@ Flags:
 
 Here details of subcommand and arguments:
 
-| Sub Command | Available Flags       | Default Value                                                         | Description                                                                                                                                                       |
-|-------------|-----------------------|-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|             |                       |                                                                       | will display help information, instructions how to run the application                                                                                            |
-|             | --help                |                                                                       | will display help information, instructions how to run the application                                                                                            |
-| sample      | --help                |                                                                       | will display help information with list available arguments of `sample` subcommand                                                                                |
-| sample      | -f, --from            | current date with format YYYY-MM-DD (2025-04-08)                      | start date to generate sample data                                                                                                                                |
-| sample      | -t, --to              | current date with format YYYY-MM-DD (2025-04-08)                      | end date to generate sample data (if equals with start date means data for one day)                                                                               |
-| sample      | -l, --listbank        | bca,bni,mandiri,bri,danamon                                           | list of bank in sample data)                                                                                                                                      |
-| sample      | -p, --percentagematch | 100                                                                   | at least of percentage matched transaction (internal transaction vs bank statement), if sets 10 matched transactions will be 10% or more                          |
-| sample      | -a, --amountdata      | 1000                                                                  | total internal transaction generated                                                                                                                              |
-| sample      | -b, --banktrxpath     | Current working directory + `sample/bank` (/tmp/data/sample/bank)     | root directory path of generated sample of bank statements data files located                                                                                     |
-| sample      | -s, --systemtrxpath   | Current working directory + `sample/system` (/tmp/data/sample/system) | root directory path of generated sample of internal transaction data files located                                                                                |
-| sample      | -d, --deleteoldfile   | true                                                                  | when value == true, delete previous any directory or files in `--banktrxpath` or `--systemtrxpath`                                                                |
+| Sub Command | Available Flags       | Default Value                                                         | Description                                                                                                                                                           |
+| ----------- | --------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|             |                       |                                                                       | will display help information, instructions how to run the application                                                                                                |
+|             | --help                |                                                                       | will display help information, instructions how to run the application                                                                                                |
+| sample      | --help                |                                                                       | will display help information with list available arguments of `sample` subcommand                                                                                    |
+| sample      | -f, --from            | current date with format YYYY-MM-DD (2025-04-08)                      | start date to generate sample data                                                                                                                                    |
+| sample      | -t, --to              | current date with format YYYY-MM-DD (2025-04-08)                      | end date to generate sample data (if equals with start date means data for one day)                                                                                   |
+| sample      | -l, --listbank        | bca,bni,mandiri,bri,danamon                                           | list of bank in sample data)                                                                                                                                          |
+| sample      | -p, --percentagematch | 100                                                                   | at least of percentage matched transaction (internal transaction vs bank statement), if sets 10 matched transactions will be 10% or more                              |
+| sample      | -a, --amountdata      | 1000                                                                  | total internal transaction generated                                                                                                                                  |
+| sample      | -b, --banktrxpath     | Current working directory + `sample/bank` (/tmp/data/sample/bank)     | root directory path of generated sample of bank statements data files located                                                                                         |
+| sample      | -s, --systemtrxpath   | Current working directory + `sample/system` (/tmp/data/sample/system) | root directory path of generated sample of internal transaction data files located                                                                                    |
+| sample      | -d, --deleteoldfile   | true                                                                  | when value == true, delete previous any directory or files in `--banktrxpath` or `--systemtrxpath`                                                                    |
 | sample      | -i, --profiler        | false                                                                 | when value == true, turn on profiler, will generate files `mem.pprof, mutex.pprof, cpu.pprof  trace.pprof, block.pprof, goroutine.pprof` in current working directory |
-| sample      | -o, --showlog         | false                                                                 | when value == true, turn on verbose logs                                                                                                                          |
-| sample      | -g, --debug           | false                                                                 | when value == true, generate SQLite file `sample.db`                                                                                                              |
-| process     | --help                |                                                                       | will display help information with list available arguments of `process` subcommand                                                                               |
-| process     | -f, --from            | current date with format YYYY-MM-DD (2025-04-08)                      | start date to process reconciliation data                                                                                                                         |
-| process     | -t, --to              | current date with format YYYY-MM-DD (2025-04-08)                      | end date to process reconciliation data (if equals with start date means data for one day)                                                                        |
-| process     | -l, --listbank        | bca,bni,mandiri,bri,danamon                                           | list of bank in process reconciliation)                                                                                                                           |
-| process     | -s, --systemtrxpath   | Current working directory + `sample/system` (/tmp/data/sample/system) | root directory path of internal transaction source data files located                                                                                             |
-| process     | -b, --banktrxpath     | Current working directory + `sample/bank` (/tmp/data/sample/bank)     | root directory path of bank statements source data files located                                                                                                  |
-| process     | -r, --reportpath      | Current working directory + `report` (/tmp/data/report)               | root directory path of reconciliation result data files located                                                                                                   |
-| process     | -d, --deleteoldfile   | true                                                                  | when value == true, delete previous any directory or files in `--reportpath`                                                                                      |
+| sample      | -o, --showlog         | false                                                                 | when value == true, turn on verbose logs                                                                                                                              |
+| sample      | -g, --debug           | false                                                                 | when value == true, generate SQLite file `sample.db`                                                                                                                  |
+| process     | --help                |                                                                       | will display help information with list available arguments of `process` subcommand                                                                                   |
+| process     | -f, --from            | current date with format YYYY-MM-DD (2025-04-08)                      | start date to process reconciliation data                                                                                                                             |
+| process     | -t, --to              | current date with format YYYY-MM-DD (2025-04-08)                      | end date to process reconciliation data (if equals with start date means data for one day)                                                                            |
+| process     | -l, --listbank        | bca,bni,mandiri,bri,danamon                                           | list of bank in process reconciliation)                                                                                                                               |
+| process     | -s, --systemtrxpath   | Current working directory + `sample/system` (/tmp/data/sample/system) | root directory path of internal transaction source data files located                                                                                                 |
+| process     | -b, --banktrxpath     | Current working directory + `sample/bank` (/tmp/data/sample/bank)     | root directory path of bank statements source data files located                                                                                                      |
+| process     | -r, --reportpath      | Current working directory + `report` (/tmp/data/report)               | root directory path of reconciliation result data files located                                                                                                       |
+| process     | -d, --deleteoldfile   | true                                                                  | when value == true, delete previous any directory or files in `--reportpath`                                                                                          |
 | process     | -i, --profiler        | false                                                                 | when value == true, turn on profiler, will generate files `mem.pprof, mutex.pprof, cpu.pprof  trace.pprof, block.pprof, goroutine.pprof` in current working directory |
-| process     | -o, --showlog         | false                                                                 | when value == true, turn on verbose logs                                                                                                                          |
-| process     | -g, --debug           | false                                                                 | when value == true, generate SQLite file `reconciliation.db`                                                                                                      |
-| version     |                       |                                                                       | will display application version                                                                                                                                  |
+| process     | -o, --showlog         | false                                                                 | when value == true, turn on verbose logs                                                                                                                              |
+| process     | -g, --debug           | false                                                                 | when value == true, generate SQLite file `reconciliation.db`                                                                                                          |
+| version     |                       |                                                                       | will display application version                                                                                                                                      |
 
 ### Example syntax of `sample` sub command :
+
 ```shell
 mkdir -p /tmp/data
 cd /tmp/data
 bank-reconcile sample --from=2025-03-29 --to=2025-04-08 --deleteoldfile=true --showlog=true --listbank=bca,bni,mandiri,bri,danamon --profiler=true --debug=true --percentagematch=10 --amountdata=10 -s=/tmp/data/sample/system -b=/tmp/data/sample/bank
 ```
+
 Application will generate sample of internal transaction and bank statement data from `2025-03-29` to `2025-04-08` for banks `bca,bni,mandiri,bri,danamon` with at least 10% reconciliation matched, CSV files of internal transactions will located at path `/tmp/data/sample/system` and bank statements will located at path `/tmp/data/sample/bank` any old directories and files under both paths will wiped, go profiler files `mem.pprof, mutex.pprof, cpu.pprof  trace.pprof, block.pprof, goroutine.pprof` will generated at `/tmp/data`, SQLite file `sample.db` will generated at `/tmp/data/sample.db` and verbose logs will displayed in terminal.
 
 Expected application output will be:
+
 ```shell
 2025-04-08T02:46:40.721952+07:00 | INFO  | *** sqlite connection loaded **** | component:NEWDBSQLITE | uptime:"85.125ΜS"
 
 2025-04-08T02:46:40.722008+07:00 | INFO  | *** [start] application **** | uptime:"140.875ΜS"
-         CONFIG        |            VALUE             
+         CONFIG        |            VALUE
 -----------------------+------------------------------
-  -f --from            | 2025-03-29                   
-  -t --to              | 2025-04-08                   
-  -s --systemtrxpath   | /tmp/data/sample/system      
-  -b --banktrxpath     | /tmp/data/sample/bank        
-  -l --listbank        | bca,bni,mandiri,bri,danamon  
-  -o --showlog         | true                         
-  -g --debug           | true                         
-  -i --profiler        | true                         
-  -a --amountdata      | 10                           
-  -p --percentagematch | 10                           
-  -d --deleteoldfile   | true                         
+  -f --from            | 2025-03-29
+  -t --to              | 2025-04-08
+  -s --systemtrxpath   | /tmp/data/sample/system
+  -b --banktrxpath     | /tmp/data/sample/bank
+  -l --listbank        | bca,bni,mandiri,bri,danamon
+  -o --showlog         | true
+  -g --debug           | true
+  -i --profiler        | true
+  -a --amountdata      | 10
+  -p --percentagematch | 10
+  -d --deleteoldfile   | true
 2025-04-08T02:46:40.723269+07:00 | INFO  | *** [sample.NewSvc] DeleteDirectory SystemTRXPath **** | component:"SAMPLE SERVICE" | uptime:1.400792MS
 2025-04-08T02:46:40.723326+07:00 | INFO  | *** [sample.NewSvc] DeleteDirectory BankTRXPath **** | component:"SAMPLE SERVICE" | uptime:1.457875MS
 ■ [1/5] Pre Process Generate Sample...  [0s] 2025-04-08T02:46:40.727494+07:00 | INFO  | *** [sample.NewDB] Exec Pre method in db **** | component:"SAMPLE SERVICE" | uptime:5.626542MS
@@ -295,7 +298,7 @@ Expected application output will be:
 2025-04-08T02:46:40.728976+07:00 | INFO  | *** [sample.NewSvc] save csv file /tmp/data/sample/bank/danamon/danamon_1744055200.csv executed **** | component:"SAMPLE SERVICE" | uptime:7.108875MS
 2025-04-08T02:46:40.728976+07:00 | INFO  | *** [sample.NewSvc] save csv file /tmp/data/sample/bank/bri/bri_1744055200.csv executed **** | component:"SAMPLE SERVICE" | uptime:7.107917MS
 2025-04-08T02:46:40.728995+07:00 | INFO  | *** [sample.NewSvc] save csv file /tmp/data/sample/bank/mandiri/mandiri_1744055200.csv executed **** | component:"SAMPLE SERVICE" | uptime:7.127292MS
-                                                 
+
 +------------+---------+-----------+------------------------------------------------------+
 |  TYPE TRX  |  BANK   |   TITLE   |                                                      |
 +------------+---------+-----------+------------------------------------------------------+
@@ -324,57 +327,59 @@ Expected application output will be:
 |            |         | File Path | /tmp/data/sample/bank/mandiri/mandiri_1744055200.csv |
 +------------+---------+-----------+------------------------------------------------------+
 
-■ Done  [0s]                                     
+■ Done  [0s]
 
 -------- Memory Dump --------
 
-     DESCRIPTION     | VALUE   
+     DESCRIPTION     | VALUE
 ---------------------+---------
-  Allocated          | 2.8 MB  
-  Total Allocated    | 5.1 MB  
-  Memory Allocations | 54 kB   
-  Memory Frees       | 30 kB   
-  Heap Allocated     | 2.8 MB  
-  Heap System        | 7.6 MB  
-  Heap In Use        | 5.5 MB  
-  Heap Idle          | 2.1 MB  
-  Heap OS Related    | 1.3 MB  
-  Heap Objects       | 24 kB   
-  Stack In Use       | 754 kB  
-  Stack System       | 754 kB  
-  Stack Span In Use  | 126 kB  
-  Stack Cache In Use | 9.7 kB  
-  Next GC cycle      | 5ms     
-  Last GC cycle      | now     
+  Allocated          | 2.8 MB
+  Total Allocated    | 5.1 MB
+  Memory Allocations | 54 kB
+  Memory Frees       | 30 kB
+  Heap Allocated     | 2.8 MB
+  Heap System        | 7.6 MB
+  Heap In Use        | 5.5 MB
+  Heap Idle          | 2.1 MB
+  Heap OS Related    | 1.3 MB
+  Heap Objects       | 24 kB
+  Stack In Use       | 754 kB
+  Stack System       | 754 kB
+  Stack Span In Use  | 126 kB
+  Stack Cache In Use | 9.7 kB
+  Next GC cycle      | 5ms
+  Last GC cycle      | now
 
 2025-04-08T02:46:40.730998+07:00 | INFO  | *** [shutdown] application **** | uptime:9.129625MS
 2025-04-08T02:46:40.731013+07:00 | INFO  | *** [shutdown] cli **** | uptime:9.144292MS
 □ Done  [0s]
 ```
 
-
 ### Example syntax of `process` sub command :
+
 ```shell
 cd /tmp/data
 bank-reconcile process --from=2025-03-29 --to=2025-04-08 --deleteoldfile=true  --showlog=true --listbank=bca,bni,mandiri,bri,danamon --profiler=true --debug=true -s=/tmp/data/sample/system -b=/tmp/data/sample/bank -r=/tmp/data/report
 ```
+
 Application will process transaction reconciliation matching of internal transaction and bank statement data from `2025-03-29` to `2025-04-08` for banks `bca,bni,mandiri,bri,danamon`, source of CSV files of internal transactions will loaded from path `/tmp/data/sample/system` and bank statements will loaded from path `/tmp/data/sample/bank`, go profiler files `mem.pprof, mutex.pprof, cpu.pprof  trace.pprof, block.pprof, goroutine.pprof` will generated report of matched and not matched transaction at `/tmp/data/report`, any old directories and files under `/tmp/data/report` will wiped, SQLite file `reconciliation.db` will generated at `/tmp/data/reconciliation.db` and verbose logs will displayed in terminal.
 
 Expected application output will be:
+
 ```shell
 2025-04-08T02:48:45.865412+07:00 | INFO  | *** sqlite connection loaded **** | component:NEWDBSQLITE | uptime:"130ΜS"
 2025-04-08T02:48:45.865512+07:00 | INFO  | *** [start] application **** | uptime:"230.292ΜS"
-        CONFIG       |            VALUE             
+        CONFIG       |            VALUE
 ---------------------+------------------------------
-  -f --from          | 2025-03-29                   
-  -t --to            | 2025-04-08                   
-  -s --systemtrxpath | /tmp/data/sample/system      
-  -b --banktrxpath   | /tmp/data/sample/bank        
-  -l --listbank      | bca,bni,mandiri,bri,danamon  
-  -o --showlog       | true                         
-  -g --debug         | true                         
-  -i --profiler      | true                         
-  -r --reportpath    | /tmp/data/report             
+  -f --from          | 2025-03-29
+  -t --to            | 2025-04-08
+  -s --systemtrxpath | /tmp/data/sample/system
+  -b --banktrxpath   | /tmp/data/sample/bank
+  -l --listbank      | bca,bni,mandiri,bri,danamon
+  -o --showlog       | true
+  -g --debug         | true
+  -i --profiler      | true
+  -r --reportpath    | /tmp/data/report
 
 ■ [1/7] Pre Process Generate Reconciliation...  [0s] 2025-04-08T02:48:45.869125+07:00 | INFO  | *** [process.NewDB] Exec Pre method in db **** | component:"PROCESS SERVICE" | uptime:3.843167MS
 2025-04-08T02:48:45.869154+07:00 | INFO  | *** [process.NewSvc] GenerateReconciliation RepoProcess.Pre executed **** | component:"PROCESS SERVICE" | uptime:3.870959MS
@@ -449,49 +454,49 @@ Expected application output will be:
 2025-04-08T02:48:45.881486+07:00 | INFO  | *** [process.NewSvc] save csv file /tmp/data/report/bank/not_matched/mandiri_1744055325.csv executed **** | component:"PROCESS SERVICE" | uptime:16.203584MS
 2025-04-08T02:48:45.88153+07:00 | INFO  | *** [process.NewSvc] GenerateReconciliation RepoProcess.GetReconciliationSummary executed **** | component:"PROCESS SERVICE" | uptime:16.247375MS
 2025-04-08T02:48:45.881543+07:00 | INFO  | *** [process.NewSvc] GenerateReconciliation generateReconciliationSummaryAndFiles executed **** | component:"PROCESS SERVICE" | uptime:16.25975MS
-                                                      
-                DESCRIPTION                |   VALUE     
+
+                DESCRIPTION                |   VALUE
 -------------------------------------------+-------------
-  Total number of transactions processed   | 10          
-  Total number of matched transactions     | 1           
-  Total number of not matched transactions | 9           
-  Sum amount all transactions              | 530.400,00  
-  Sum amount matched transactions          | 96.500,00   
-  Total discrepancies                      | 433.900,00  
+  Total number of transactions processed   | 10
+  Total number of matched transactions     | 1
+  Total number of not matched transactions | 9
+  Sum amount all transactions              | 530.400,00
+  Sum amount matched transactions          | 96.500,00
+  Total discrepancies                      | 433.900,00
 
 
-               DESCRIPTION              |                           FILE PATH                             
+               DESCRIPTION              |                           FILE PATH
 ----------------------------------------+-----------------------------------------------------------------
-  Matched system transaction data       | /tmp/data/report/system/matched/matched_1744055325.csv          
-  Missing system transaction data       | /tmp/data/report/system/not_matched/not_matched_1744055325.csv  
-  Missing bank statement data - bca     | /tmp/data/report/bank/not_matched/bca_1744055325.csv            
-  Missing bank statement data - bni     | /tmp/data/report/bank/not_matched/bni_1744055325.csv            
-  Missing bank statement data - danamon | /tmp/data/report/bank/not_matched/danamon_1744055325.csv        
-  Missing bank statement data - bri     | /tmp/data/report/bank/not_matched/bri_1744055325.csv            
-  Missing bank statement data - mandiri | /tmp/data/report/bank/not_matched/mandiri_1744055325.csv        
+  Matched system transaction data       | /tmp/data/report/system/matched/matched_1744055325.csv
+  Missing system transaction data       | /tmp/data/report/system/not_matched/not_matched_1744055325.csv
+  Missing bank statement data - bca     | /tmp/data/report/bank/not_matched/bca_1744055325.csv
+  Missing bank statement data - bni     | /tmp/data/report/bank/not_matched/bni_1744055325.csv
+  Missing bank statement data - danamon | /tmp/data/report/bank/not_matched/danamon_1744055325.csv
+  Missing bank statement data - bri     | /tmp/data/report/bank/not_matched/bri_1744055325.csv
+  Missing bank statement data - mandiri | /tmp/data/report/bank/not_matched/mandiri_1744055325.csv
 
-■ Done  [0s]                                          
+■ Done  [0s]
 
 -------- Memory Dump --------
 
-     DESCRIPTION     | VALUE   
+     DESCRIPTION     | VALUE
 ---------------------+---------
-  Allocated          | 3.8 MB  
-  Total Allocated    | 6.0 MB  
-  Memory Allocations | 66 kB   
-  Memory Frees       | 30 kB   
-  Heap Allocated     | 3.8 MB  
-  Heap System        | 12 MB   
-  Heap In Use        | 5.8 MB  
-  Heap Idle          | 5.9 MB  
-  Heap OS Related    | 5.7 MB  
-  Heap Objects       | 36 kB   
-  Stack In Use       | 918 kB  
-  Stack System       | 918 kB  
-  Stack Span In Use  | 136 kB  
-  Stack Cache In Use | 9.7 kB  
-  Next GC cycle      | 5ms     
-  Last GC cycle      | now     
+  Allocated          | 3.8 MB
+  Total Allocated    | 6.0 MB
+  Memory Allocations | 66 kB
+  Memory Frees       | 30 kB
+  Heap Allocated     | 3.8 MB
+  Heap System        | 12 MB
+  Heap In Use        | 5.8 MB
+  Heap Idle          | 5.9 MB
+  Heap OS Related    | 5.7 MB
+  Heap Objects       | 36 kB
+  Stack In Use       | 918 kB
+  Stack System       | 918 kB
+  Stack Span In Use  | 136 kB
+  Stack Cache In Use | 9.7 kB
+  Next GC cycle      | 5ms
+  Last GC cycle      | now
 
 2025-04-08T02:48:45.884036+07:00 | INFO  | *** [shutdown] application **** | uptime:18.754292MS
 2025-04-08T02:48:45.884083+07:00 | INFO  | *** [shutdown] cli **** | uptime:18.800375MS
@@ -499,7 +504,9 @@ Expected application output will be:
 ```
 
 # What are the make commands that this code uses?
+
 - Run `make` to display all available commands
+
 ```shell
 help                           Show this help
 download                       Download go.mod dependencies
@@ -525,10 +532,11 @@ check-profiler-memory          To open pprof data of memory profile
 check-profiler-mutex           To open pprof data of mutex profile
 check-profiler-trace           To open pprof data of trace profile
 ```
+
 - Run `make development-checks` will help us in developments
 - Any make command to chek go profiler are alias of:
-  - `make check-profiler-block` = `go tool pprof -http=:8080 block.pprof`
-  - `make check-profiler-cpu` = `go tool pprof -http=:8080 cpu.pprof`
-  - `make check-profiler-memory` = `go tool pprof -http=:8080 mem.pprof`
-  - `make check-profiler-mutex` = `go tool pprof -http=:8080 mutex.pprof`
-  - `make check-profiler-trace` = `go tool trace -http=:8080 trace.pprof`
+    - `make check-profiler-block` = `go tool pprof -http=:8080 block.pprof`
+    - `make check-profiler-cpu` = `go tool pprof -http=:8080 cpu.pprof`
+    - `make check-profiler-memory` = `go tool pprof -http=:8080 mem.pprof`
+    - `make check-profiler-mutex` = `go tool pprof -http=:8080 mutex.pprof`
+    - `make check-profiler-trace` = `go tool trace -http=:8080 trace.pprof`
