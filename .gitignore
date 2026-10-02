@@ -45,3 +45,4 @@ go.work.sum
 .DS_Store
 
 .npm-cache/
+.gocache/
