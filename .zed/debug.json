@@ -1,0 +1,35 @@
+[
+    {
+        "label": "Go (Delve)",
+        "adapter": "Delve",
+        "program": "$ZED_FILE",
+        "request": "launch",
+        "mode": "debug",
+    },
+    {
+        "label": "Run process",
+        "adapter": "Delve",
+        "request": "launch",
+        "mode": "debug",
+        // For Delve, the program can be a package name
+        "program": "./",
+        "args": ["process", "-s=/tmp/sample/system", "-b=/tmp/sample/bank", "-r=/tmp/report"],
+        // "buildFlags": [],
+    },
+    {
+        "label": "Run sample",
+        "adapter": "Delve",
+        "request": "launch",
+        "mode": "debug",
+        // For Delve, the program can be a package name
+        "program": "./",
+        "args": [
+            "sample",
+            "--percentagematch=100",
+            "--amountdata=1000000",
+            "-s=/tmp/sample/system",
+            "-b=/tmp/sample/bank",
+        ],
+        // "buildFlags": [],
+    },
+]
