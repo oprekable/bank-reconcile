@@ -1468,6 +1468,120 @@ func TestSvcImportReconcileMapToDB(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "Error_-_min_greater_than_max",
+			fields: fields{
+				comp: component.NewComponents(
+					ctx,
+					func() *cconfig.Config {
+						return &cconfig.Config{
+							Data: &config.Data{
+								Reconciliation: reconciliation.Reconciliation{
+									NumberWorker: 2,
+								},
+							},
+						}
+					}(),
+					&clogger.Logger{},
+					&cerror.Error{},
+					&csqlite.DBSqlite{},
+					&cfs.Fs{},
+					&cprofiler.Profiler{},
+				),
+				repo: repository.NewRepositories(
+					mocksample.NewRepository(t),
+					mockprocess.NewRepository(t),
+				),
+				parserRegistry: testRegistry,
+			},
+			args: args{
+				min: 100,
+				max: 10,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Ok_-_min_equals_max",
+			fields: fields{
+				comp: component.NewComponents(
+					ctx,
+					func() *cconfig.Config {
+						return &cconfig.Config{
+							Data: &config.Data{
+								Reconciliation: reconciliation.Reconciliation{
+									NumberWorker: 2,
+								},
+							},
+						}
+					}(),
+					&clogger.Logger{},
+					&cerror.Error{},
+					&csqlite.DBSqlite{},
+					&cfs.Fs{},
+					&cprofiler.Profiler{},
+				),
+				repo: repository.NewRepositories(
+					mocksample.NewRepository(t),
+					func() process.Repository {
+						m := mockprocess.NewRepository(t)
+						m.On(
+							"GenerateReconciliationMap",
+							mock.Anything,
+							10.0,
+							10.01,
+						).Return(nil).Once()
+						return m
+					}(),
+				),
+				parserRegistry: testRegistry,
+			},
+			args: args{
+				min: 10,
+				max: 10,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Ok_-_zero_number_worker_fallback_to_one",
+			fields: fields{
+				comp: component.NewComponents(
+					ctx,
+					func() *cconfig.Config {
+						return &cconfig.Config{
+							Data: &config.Data{
+								Reconciliation: reconciliation.Reconciliation{
+									NumberWorker: 0,
+								},
+							},
+						}
+					}(),
+					&clogger.Logger{},
+					&cerror.Error{},
+					&csqlite.DBSqlite{},
+					&cfs.Fs{},
+					&cprofiler.Profiler{},
+				),
+				repo: repository.NewRepositories(
+					mocksample.NewRepository(t),
+					func() process.Repository {
+						m := mockprocess.NewRepository(t)
+						m.On(
+							"GenerateReconciliationMap",
+							mock.Anything,
+							1.0,
+							10.01,
+						).Return(nil).Once()
+						return m
+					}(),
+				),
+				parserRegistry: testRegistry,
+			},
+			args: args{
+				min: 1,
+				max: 10,
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
