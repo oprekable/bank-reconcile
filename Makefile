@@ -70,7 +70,7 @@ ifeq ($(UNAME), Linux)
 	base_args="--from=$$(date -d '-10 day' '+%Y-%m-%d') --to=$$(date -d '-0 day' '+%Y-%m-%d')"
 endif
 
-base_args+=" --showlog=true --listbank=bca,bni,mandiri,bri,danamon --profiler=true --debug=true"
+base_args+=" --showlog=true --listbank=bca,bni,bsi,mandiri,bri,danamon --profiler=true --debug=true"
 
 process_args="process ${base_args} -s=/tmp/sample/system -b=/tmp/sample/bank -r=/tmp/report"
 sample_args="sample ${base_args} --percentagematch=100 --amountdata=1000 -s=/tmp/sample/system -b=/tmp/sample/bank"

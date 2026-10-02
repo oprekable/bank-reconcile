@@ -44,6 +44,8 @@ The application will generate a command-line interface (CLI) application with th
     │   │   └── bca_1744030099.csv
     │   ├── bni
     │   │   └── bni_1744030099.csv
+    │   ├── bsi
+    │   │   └── bsi_1744030099.csv
     │   ├── bri
     │   │   └── bri_1744030099.csv
     │   ├── danamon
@@ -54,7 +56,7 @@ The application will generate a command-line interface (CLI) application with th
         └── 1744030099.csv
 ```
 
-- Assuming that different banks have varying CSV formats, the current code accommodates this by providing samples for Bank BCA and Bank BNI, each with their own CSV header formats. Other banks will use the default format.
+- Assuming that different banks have varying CSV formats, the current code accommodates this by providing samples for Bank BCA, Bank BNI, and Bank BSI, each with their own CSV header formats. Other banks will use the default format.
 - Sample internal transaction CSV file:
 
 ```shell
@@ -87,10 +89,18 @@ bni-e84915bf6bf6f7d0325e628ee252b2a5,2025-04-07,82800
 bni-80f73e01ab6ef44742bd56051a16f9f1,2025-04-07,14200
 ```
 
+- Sample format BSI bank statement csv file:
+
+```shell
+BSIUniqueIdentifier,BSIDate,BSIAmount
+bsi-e84915bf6bf6f7d0325e628ee252b2a5,2025-04-07,82800
+bsi-80f73e01ab6ef44742bd56051a16f9f1,2025-04-07,-14200
+```
+
 - The generated CSV files are structured based on specific configurations. For more details, please refer to the manual.
 - The application should perform the reconciliation process using CSV files generated from sample commands or real transaction files. The reconciliation rules are as follows:
-    - `TransactionTime` of internal transaction (in `datetime` format) == `Date` or `BCADate` or `BNIDate` of bank statement (in `date` format)
-    - And `Amount` + `Type` in internal transaction == `Amount` or `BCAAmount` or `BNIAmount` of bank statement (`Type` DEBIT in internal transaction == negative value of `Amount` in bank statement)
+    - `TransactionTime` of internal transaction (in `datetime` format) == `Date` or `BCADate` or `BNIDate` or `BSIDate` of bank statement (in `date` format)
+    - And `Amount` + `Type` in internal transaction == `Amount` or `BCAAmount` or `BNIAmount` or `BSIAmount` of bank statement (`Type` DEBIT in internal transaction == negative value of `Amount` or `BCAAmount` or `BNIAmount` or `BSIAmount` of bank statement)
 - The results of the reconciliation process will display the following information:
     - Total number of transactions processed
     - Total number of matched transactions
@@ -104,13 +114,14 @@ bni-80f73e01ab6ef44742bd56051a16f9f1,2025-04-07,14200
 ```shell
 .
 └── report
-├── bank
-│   └── not_matched
-│       ├── bca_1744030812.csv
-│       ├── bni_1744030812.csv
-│       ├── bri_1744030812.csv
-│       ├── danamon_1744030812.csv
-│       └── mandiri_1744030812.csv
+    ├── bank
+    │   └── not_matched
+    │       ├── bca_1744030812.csv
+    │       ├── bni_1744030812.csv
+    │       ├── bsi_1744030812.csv
+    │       ├── bri_1744030812.csv
+    │       ├── danamon_1744030812.csv
+    │       └── mandiri_1744030812.csv
 └── system
    ├── matched
    │       └── matched_1744030812.csv
